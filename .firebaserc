@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "household-buget-dev",
+    "production": "household-budget-prod",
+    "development": "household-buget-dev"
+  },
+  "targets": {}
+}
