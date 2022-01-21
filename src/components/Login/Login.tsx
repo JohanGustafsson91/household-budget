@@ -18,7 +18,7 @@ export const Login = () => {
     signInWithEmailAndPassword(auth, form.email, form.password).catch(() =>
       setForm((prevState) => ({
         ...prevState,
-        error: "Enter correct email or password",
+        error: "Ange korrekt email och/eller lösenord.",
       }))
     );
   };
@@ -26,11 +26,11 @@ export const Login = () => {
   return (
     <Wrapper>
       <Form onSubmit={login}>
-        <Header>Household budget</Header>
+        <Header>Hushållsbuget</Header>
         <input
           name="email"
           type="text"
-          placeholder="Enter email"
+          placeholder="Ange email"
           value={form.email}
           onChange={updateForm}
           autoComplete="email"
@@ -38,7 +38,7 @@ export const Login = () => {
         <input
           name="password"
           type="password"
-          placeholder="Enter password"
+          placeholder="Ange lösenord"
           value={form.password}
           onChange={updateForm}
           autoComplete="current-password"
@@ -46,7 +46,7 @@ export const Login = () => {
         {form.error && <ErrorMessage>{form.error}</ErrorMessage>}
 
         <p>
-          <button type="submit">Login</button>
+          <button type="submit">Logga in</button>
         </p>
       </Form>
     </Wrapper>
