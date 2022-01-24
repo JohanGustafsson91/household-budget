@@ -8,4 +8,5 @@ export interface Transaction {
   category: Category["type"];
   date: Date;
   key: string;
+  shared: boolean;
 }

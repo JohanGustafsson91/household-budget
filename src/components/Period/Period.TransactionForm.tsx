@@ -21,6 +21,7 @@ export const TransactionForm = ({
         : ("OTHER" as const),
     amount: updateTransaction !== true ? updateTransaction.amount : 0,
     date: updateTransaction !== true ? updateTransaction.date : period.fromDate,
+    shared: updateTransaction !== true ? updateTransaction.shared : false,
   };
 
   const [form, setForm] = useState<Form>(initState);
@@ -28,7 +29,10 @@ export const TransactionForm = ({
   function updateForm(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        "checked" in e.target && e.target.type === "checkbox"
+          ? e.target.checked
+          : e.target.value,
     }));
   }
 
@@ -80,7 +84,7 @@ export const TransactionForm = ({
     onUpdated?.();
   }
 
-  const validForm = Object.values(form).every(Boolean);
+  const validForm = Object.values(form).every((val) => val !== "" || val !== 0);
 
   return (
     <div>
@@ -132,6 +136,17 @@ export const TransactionForm = ({
             maxDate={period.toDate}
             inline
           />
+        </FormField>
+        <FormField>
+          <label>
+            Gemensam?
+            <input
+              name="shared"
+              type="checkbox"
+              checked={form.shared}
+              onChange={updateForm}
+            />
+          </label>
         </FormField>
         <FormField>
           <button type="submit" disabled={!validForm}>

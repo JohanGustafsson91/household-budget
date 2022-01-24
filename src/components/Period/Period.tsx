@@ -160,9 +160,16 @@ export const Period = () => {
 
             const transaction = categorizedTransactions[key];
 
-            const userTransactions = transaction.filter(
-              ({ author }) => author === userId
-            );
+            const userTransactions = transaction
+              .filter(
+                ({ author, shared }) => author === userId || shared === true
+              )
+              .map((transaction) => ({
+                ...transaction,
+                amount: transaction.shared
+                  ? transaction.amount / period.data.members.length
+                  : transaction.amount,
+              }));
             const previous = acc[key] || [];
             return { ...acc, [key]: [...previous, ...userTransactions] };
           }, {} as Record<Category["type"], Transaction[]>);
@@ -201,7 +208,9 @@ export const Period = () => {
           <LaneHeader>Tillsammans</LaneHeader>
           <LaneContent>
             <Todo>
-              <span>+ {summarize(categorizedTransactions["INCOME"])}kr</span>
+              <span>
+                + {summarize(categorizedTransactions["INCOME"] ?? [])}kr
+              </span>
             </Todo>
             {boardCategories.map(({ type, text }) => (
               <Todo key={type}>
@@ -230,7 +239,9 @@ export const Period = () => {
                 >
                   <TransactionRow>
                     <TransactionCol>
-                      {user.friendById(transaction.author)}
+                      {transaction.shared
+                        ? "Gemensam"
+                        : user.friendById(transaction.author)}
                     </TransactionCol>
                     <TransactionCol>{transaction.label}</TransactionCol>
                   </TransactionRow>
@@ -270,6 +281,7 @@ const Content = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 `;
 
 const Board = styled.div<{ columns: number }>`
