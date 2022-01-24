@@ -21,7 +21,9 @@ export const Period = () => {
     status: "pending",
   });
 
-  const [addTransactionVisible, setAddTransactionVisible] = useState(false);
+  const [addTransactionVisible, setAddTransactionVisible] = useState<
+    Transaction | true | undefined
+  >(undefined);
 
   const user = useUser();
   const { id } = useParams();
@@ -70,14 +72,18 @@ export const Period = () => {
           where("author", "in", period.data.members)
         ),
         function onSnapshot(querySnapshot) {
-          const transactions = querySnapshot.docs.map((doc) => {
-            const data = doc.data();
+          const transactions = querySnapshot.docs
+            .map((doc) => {
+              const data = doc.data();
+              const docId = doc.id;
 
-            return {
-              ...data,
-              date: data.date.toDate(),
-            };
-          });
+              return {
+                ...data,
+                id: docId,
+                date: data.date.toDate(),
+              };
+            })
+            .sort((a, b) => a.date - b.date);
 
           setTransactions({
             status: "resolved",
@@ -95,10 +101,17 @@ export const Period = () => {
   );
 
   function toggleAddTransactionVisible() {
-    return setAddTransactionVisible((prev) => !prev);
+    return setAddTransactionVisible((prev) =>
+      Boolean(prev) === true ? undefined : true
+    );
+  }
+
+  function showUpdateTransaction(transaction: Transaction) {
+    setAddTransactionVisible(transaction);
   }
 
   if (!period.data) {
+    // TODO fixme
     return null;
   }
 
@@ -132,7 +145,7 @@ export const Period = () => {
         {(period.data?.members ?? []).map((userId) => {
           const name = user.friendById(userId);
 
-          const income = (categorizedTransactions.INCOME || []).filter(
+          const incomeForUser = (categorizedTransactions.INCOME || []).filter(
             ({ author }) => author === userId
           );
 
@@ -153,14 +166,14 @@ export const Period = () => {
           }, {} as Record<Category["type"], Transaction[]>);
 
           const total =
-            summarize(income) -
+            summarize(incomeForUser) -
             summarize(Object.values(transactionsByUser).flat());
 
           return (
             <Lane key={userId} noBorders>
               <LaneHeader>{name}</LaneHeader>
               <LaneContent>
-                {income.map((item) => (
+                {incomeForUser.map((item) => (
                   <Todo key={item.key}>
                     <span>
                       + {item.amount}kr {item.label}
@@ -187,7 +200,10 @@ export const Period = () => {
             <LaneHeader>{text}</LaneHeader>
             <LaneContent>
               {(categorizedTransactions[type] || []).map((transaction) => (
-                <TransactionCard key={transaction.key}>
+                <TransactionCard
+                  key={transaction.key}
+                  onClick={() => showUpdateTransaction(transaction)}
+                >
                   <TransactionRow>
                     <TransactionCol>
                       {user.friendById(transaction.author)}
@@ -211,7 +227,11 @@ export const Period = () => {
         <Overlay>
           <Modal>
             <button onClick={toggleAddTransactionVisible}>Close</button>
-            <TransactionForm period={period.data} />
+            <TransactionForm
+              period={period.data}
+              updateTransaction={addTransactionVisible}
+              onUpdated={toggleAddTransactionVisible}
+            />
           </Modal>
         </Overlay>
       )}

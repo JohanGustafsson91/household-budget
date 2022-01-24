@@ -1,5 +1,4 @@
 import { useUser } from "components/App/App.UserProvider";
-import { signOut } from "firebase/auth";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -25,20 +24,22 @@ export const Overview = () => {
         where("members", "array-contains", auth.currentUser?.uid ?? "")
       ),
       function onSnapshot(querySnapshot) {
-        const periods = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
+        const periods = querySnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
 
-          return {
-            ...data,
-            id: doc.id,
-            fromDate: data.fromDate.toDate(),
-            toDate: data.toDate.toDate(),
-            createdAt: data.createdAt.toDate(),
-            lastUpdated: data.lastUpdated.toDate(),
-          } as Period;
-        });
+            return {
+              ...data,
+              id: doc.id,
+              fromDate: data.fromDate.toDate(),
+              toDate: data.toDate.toDate(),
+              createdAt: data.createdAt.toDate(),
+              lastUpdated: data.lastUpdated.toDate(),
+            };
+          })
+          .sort((a, b) => b.toDate - a.toDate);
 
-        setState(() => ({ data: periods, status: "resolved" }));
+        setState(() => ({ data: periods as Period[], status: "resolved" }));
       },
       function onError(e) {
         // TODO handle error
@@ -48,10 +49,6 @@ export const Overview = () => {
 
     return unsubscribe;
   }, []);
-
-  function handleSignOut() {
-    signOut(auth);
-  }
 
   function navigateToDetailPage(id: string) {
     return () => navigate(`/period/${id}`);

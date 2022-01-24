@@ -1,17 +1,26 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Period } from "shared";
-import { categories, Category } from "./Period.categories";
-import { addDoc, collection } from "firebase/firestore";
+import { categories } from "./Period.categories";
+import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { auth, COLLECTION, db } from "utils";
 import { DatePicker, FormField } from "components/Form";
 import { Transaction } from "./Period.Transaction";
+import shortid from "shortid";
 
-export const TransactionForm = ({ period }: Props) => {
+export const TransactionForm = ({
+  period,
+  updateTransaction,
+  onUpdated,
+}: Props) => {
   const initState = {
-    label: "",
-    category: "OTHER" as const,
-    amount: 0,
-    date: period.fromDate,
+    id: updateTransaction !== true ? updateTransaction.id : "notDefined",
+    label: updateTransaction !== true ? updateTransaction.label : "",
+    category:
+      updateTransaction !== true
+        ? updateTransaction.category
+        : ("OTHER" as const),
+    amount: updateTransaction !== true ? updateTransaction.amount : 0,
+    date: updateTransaction !== true ? updateTransaction.date : period.fromDate,
   };
 
   const [form, setForm] = useState<Form>(initState);
@@ -38,6 +47,7 @@ export const TransactionForm = ({ period }: Props) => {
       createdAt: new Date(),
       lastUpdated: new Date(),
       periodId: period.id,
+      id: shortid(),
     }).catch(() => {
       // TODO handle error
       return undefined;
@@ -46,12 +56,40 @@ export const TransactionForm = ({ period }: Props) => {
     result && setForm(initState);
   }
 
+  function handleUpdateTransaction(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (updateTransaction === true) return;
+
+    setDoc(
+      doc(db, COLLECTION["transactions"], updateTransaction.id),
+      { ...form, lastUpdated: new Date() },
+      { merge: true }
+    ).catch(() => {
+      // TODO handle
+    });
+    onUpdated?.();
+  }
+
+  async function deleteTransaction() {
+    if (updateTransaction === true) return;
+    await deleteDoc(
+      doc(db, COLLECTION["transactions"], updateTransaction.id)
+    ).catch(() => {
+      // TODO handle
+    });
+    onUpdated?.();
+  }
+
   const validForm = Object.values(form).every(Boolean);
 
   return (
     <div>
-      <h5>Lägg till</h5>
-      <form onSubmit={addTransaction}>
+      <h5>{updateTransaction === true ? "Lägg till" : "Ändra"}</h5>
+      <form
+        onSubmit={
+          updateTransaction !== true ? handleUpdateTransaction : addTransaction
+        }
+      >
         <FormField>
           <label>
             Belopp
@@ -97,8 +135,11 @@ export const TransactionForm = ({ period }: Props) => {
         </FormField>
         <FormField>
           <button type="submit" disabled={!validForm}>
-            Lägg till
+            {updateTransaction === true ? "Lägg till" : "Spara"}
           </button>
+          {updateTransaction !== true && (
+            <button onClick={deleteTransaction}>Ta bort</button>
+          )}
         </FormField>
       </form>
     </div>
@@ -107,6 +148,8 @@ export const TransactionForm = ({ period }: Props) => {
 
 interface Props {
   period: Period;
+  updateTransaction: Transaction | true;
+  onUpdated?: Function;
 }
 
 interface Form extends Omit<Transaction, "date" | "author" | "key"> {

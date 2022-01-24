@@ -4,7 +4,7 @@ import { PageContent, PageHeader, PageWrapper } from "components/Page";
 import { Period, PeriodCreate } from "components/Period";
 import { signOut } from "firebase/auth";
 import { PropsWithChildren } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import { auth } from "utils";
 import { HandleAuth } from "./App.HandleAuth";
 import { UserProvider } from "./App.UserProvider";
@@ -26,7 +26,9 @@ function AuthenticatedPage({ children }: PropsWithChildren<{}>) {
       <UserProvider>
         <PageWrapper>
           <PageHeader>
-            <p>Välkommen</p>
+            <p>
+              <Link to="/">Välkommen</Link>
+            </p>
             <button onClick={() => signOut(auth)}>Logga ut</button>
           </PageHeader>
           <PageContent>{children}</PageContent>

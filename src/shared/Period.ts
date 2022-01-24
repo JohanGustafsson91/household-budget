@@ -1,3 +1,4 @@
+// TODO move to period folder
 export interface Period {
   id: string;
   author: string;
