@@ -140,7 +140,9 @@ export const Period = () => {
       </Menu>
 
       <Board
-        columns={boardCategories.length + (period.data?.members?.length ?? 1)}
+        columns={
+          boardCategories.length + (period.data?.members?.length ?? 1) + 1
+        }
       >
         {(period.data?.members ?? []).map((userId) => {
           const name = user.friendById(userId);
@@ -194,6 +196,28 @@ export const Period = () => {
             </Lane>
           );
         })}
+
+        <Lane noBorders>
+          <LaneHeader>Tillsammans</LaneHeader>
+          <LaneContent>
+            <Todo>
+              <span>+ {summarize(categorizedTransactions["INCOME"])}kr</span>
+            </Todo>
+            {boardCategories.map(({ type, text }) => (
+              <Todo key={type}>
+                - {summarize(categorizedTransactions[type] || [])} {text}
+              </Todo>
+            ))}
+            <Todo>
+              <b>
+                ={" "}
+                {summarize(categorizedTransactions["INCOME"] || []) * 2 -
+                  summarize(Object.values(categorizedTransactions).flat())}{" "}
+                kr
+              </b>
+            </Todo>
+          </LaneContent>
+        </Lane>
 
         {boardCategories.map(({ type, text }) => (
           <Lane key={type}>
@@ -278,12 +302,12 @@ const Lane = styled.div<{ noBorders?: boolean }>`
     !props.noBorders &&
     `
 
-  &:nth-child(odd) {
+  &:nth-child(even) {
     ${LaneContent} {
       border: 1px solid #000;
     }
   }
-  &:nth-child(even) {
+  &:nth-child(odd) {
     ${LaneContent} {
       border-bottom: 1px solid #000;
     }

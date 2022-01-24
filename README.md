@@ -47,6 +47,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 TODOs:
 - Sortera på datum, senast ändrad.
-- Använd ID fn databasen.
 - Gemensam option!
 - Millan rosa.
+- Snackbar för händelser
+- Header back button
