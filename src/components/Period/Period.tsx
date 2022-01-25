@@ -21,7 +21,7 @@ export const Period = () => {
     status: "pending",
   });
 
-  const [addTransactionVisible, setAddTransactionVisible] = useState<
+  const [addTransactionVisible, setManageTransaction] = useState<
     Transaction | true | undefined
   >(undefined);
 
@@ -31,11 +31,11 @@ export const Period = () => {
 
   useEffect(
     function getPeriodById() {
-      (async function getPeriod() {
-        if (!id) {
-          return;
-        }
+      if (!id) {
+        return;
+      }
 
+      (async function getPeriodFromDb() {
         const data = await getDocument(COLLECTION["budgetPeriods"], id).catch(
           () =>
             // TODO handle
@@ -100,19 +100,14 @@ export const Period = () => {
     [id, period.data?.members]
   );
 
-  function toggleAddTransactionVisible() {
-    return setAddTransactionVisible((prev) =>
+  function toggleTransactionModal() {
+    return setManageTransaction((prev) =>
       Boolean(prev) === true ? undefined : true
     );
   }
 
   function showUpdateTransaction(transaction: Transaction) {
-    setAddTransactionVisible(transaction);
-  }
-
-  if (!period.data) {
-    // TODO fixme
-    return null;
+    setManageTransaction(transaction);
   }
 
   const boardCategories = categories.filter(({ type }) => type !== "INCOME");
@@ -128,6 +123,14 @@ export const Period = () => {
     {} as Record<Category["type"], Transaction[]>
   );
 
+  if (period.status === "pending") {
+    return <Content>Laddar budgetperiod...</Content>;
+  }
+
+  if (period.status === "rejected") {
+    return <Content>Kunde inte ladda budgetperioder...</Content>;
+  }
+
   return (
     <Content>
       <Menu>
@@ -136,29 +139,24 @@ export const Period = () => {
           {period.data.toDate.toLocaleDateString()}
         </h3>
 
-        <button onClick={toggleAddTransactionVisible}>Lägg till</button>
+        <button onClick={toggleTransactionModal}>Lägg till</button>
       </Menu>
 
       <Board
         columns={
+          // TODO fix
           boardCategories.length + (period.data?.members?.length ?? 1) + 1
         }
       >
-        {(period.data?.members ?? []).map((userId) => {
+        {period.data.members.map((userId) => {
           const name = user.friendById(userId);
 
           const incomeForUser = (categorizedTransactions.INCOME || []).filter(
             ({ author }) => author === userId
           );
 
-          const transactionsByUser = Object.keys(
-            categorizedTransactions
-          ).reduce((acc, curr) => {
-            const key = curr as unknown as Category["type"];
-
-            if (key === "INCOME") return acc;
-
-            const transaction = categorizedTransactions[key];
+          const transactionsByUser = boardCategories.reduce((acc, curr) => {
+            const transaction = categorizedTransactions[curr.type] || [];
 
             const userTransactions = transaction
               .filter(
@@ -170,8 +168,9 @@ export const Period = () => {
                   ? transaction.amount / period.data.members.length
                   : transaction.amount,
               }));
-            const previous = acc[key] || [];
-            return { ...acc, [key]: [...previous, ...userTransactions] };
+
+            const previous = acc[curr.type] || [];
+            return { ...acc, [curr.type]: [...previous, ...userTransactions] };
           }, {} as Record<Category["type"], Transaction[]>);
 
           const total =
@@ -179,11 +178,11 @@ export const Period = () => {
             summarize(Object.values(transactionsByUser).flat());
 
           return (
-            <Lane key={userId} noBorders>
+            <Lane key={`sum-${userId}`} noBorders>
               <LaneHeader>{name}</LaneHeader>
               <LaneContent>
                 {incomeForUser.map((item) => (
-                  <Todo key={item.key}>
+                  <Todo key={item.id}>
                     <span>
                       + {item.amount}kr {item.label}
                     </span>
@@ -191,7 +190,7 @@ export const Period = () => {
                 ))}
 
                 {boardCategories.map(({ type, text }) => (
-                  <Todo key={type}>
+                  <Todo key={`${userId}-${type}`}>
                     - {summarize(transactionsByUser[type] || [])} {text}
                   </Todo>
                 ))}
@@ -213,7 +212,7 @@ export const Period = () => {
               </span>
             </Todo>
             {boardCategories.map(({ type, text }) => (
-              <Todo key={type}>
+              <Todo key={`shared-${type}`}>
                 - {summarize(categorizedTransactions[type] || [])} {text}
               </Todo>
             ))}
@@ -234,7 +233,7 @@ export const Period = () => {
             <LaneContent>
               {(categorizedTransactions[type] || []).map((transaction) => (
                 <TransactionCard
-                  key={transaction.key}
+                  key={transaction.id}
                   onClick={() => showUpdateTransaction(transaction)}
                 >
                   <TransactionRow>
@@ -261,11 +260,11 @@ export const Period = () => {
       {addTransactionVisible && (
         <Overlay>
           <Modal>
-            <button onClick={toggleAddTransactionVisible}>Close</button>
+            <button onClick={toggleTransactionModal}>Close</button>
             <TransactionForm
               period={period.data}
               updateTransaction={addTransactionVisible}
-              onUpdated={toggleAddTransactionVisible}
+              onUpdated={toggleTransactionModal}
             />
           </Modal>
         </Overlay>
