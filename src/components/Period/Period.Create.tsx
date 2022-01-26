@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Period } from "shared";
 import { DatePicker, FormField } from "components/Form";
 import shortid from "shortid";
+import { ActionBarTitle } from "components/ActionBar";
 
 export const PeriodCreate = () => {
   const user = useUser();
@@ -56,7 +57,7 @@ export const PeriodCreate = () => {
 
   return (
     <>
-      <h3>Skapa budgetperiod</h3>
+      <ActionBarTitle title="Skapa budgetperiod" />
 
       <form onSubmit={createPeriod}>
         <FormField>

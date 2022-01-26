@@ -1,4 +1,7 @@
+import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
+import { ActionButton } from "components/Button";
+import { Card, CardTitle } from "components/Card";
 import { onSnapshot, query, collection, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,7 +9,7 @@ import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
 import { COLLECTION, db, displayDate, getDocument } from "utils";
-import { categories, Category } from "./Period.categories";
+import { categories, categoriesForBoard, Category } from "./Period.categories";
 import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
 
@@ -110,8 +113,6 @@ export const Period = () => {
     setManageTransaction(transaction);
   }
 
-  const boardCategories = categories.filter(({ type }) => type !== "INCOME");
-
   const categorizedTransactions = (transactions?.data || []).reduce(
     (acc, curr) => {
       const previous = acc[curr.category] || [];
@@ -133,129 +134,136 @@ export const Period = () => {
 
   return (
     <Content>
-      <Menu>
-        <h3>
-          Period {period.data.fromDate.toLocaleDateString()} -{" "}
-          {period.data.toDate.toLocaleDateString()}
-        </h3>
+      <ActionBarTitle
+        title={`Period ${displayDate(period.data.fromDate)} - ${displayDate(
+          period.data.toDate
+        )}`}
+      />
 
-        <button onClick={toggleTransactionModal}>Lägg till</button>
-      </Menu>
-
-      <Board
-        columns={
-          // TODO fix
-          boardCategories.length + (period.data?.members?.length ?? 1) + 1
-        }
-      >
-        {period.data.members.map((userId) => {
-          const name = user.friendById(userId);
-
-          const incomeForUser = (categorizedTransactions.INCOME || []).filter(
-            ({ author }) => author === userId
-          );
-
-          const transactionsByUser = boardCategories.reduce((acc, curr) => {
-            const transaction = categorizedTransactions[curr.type] || [];
-
-            const userTransactions = transaction
-              .filter(
-                ({ author, shared }) => author === userId || shared === true
-              )
-              .map((transaction) => ({
-                ...transaction,
-                amount: transaction.shared
-                  ? transaction.amount / period.data.members.length
-                  : transaction.amount,
-              }));
-
-            const previous = acc[curr.type] || [];
-            return { ...acc, [curr.type]: [...previous, ...userTransactions] };
-          }, {} as Record<Category["type"], Transaction[]>);
-
-          const total =
-            summarize(incomeForUser) -
-            summarize(Object.values(transactionsByUser).flat());
-
-          return (
-            <Lane key={`sum-${userId}`} noBorders>
-              <LaneHeader>{name}</LaneHeader>
+      <Card height="calc(50vh)">
+        <Board columns={categories.length}>
+          {categories.map(({ type, text }) => (
+            <Lane key={type}>
+              <LaneHeader>
+                <CardTitle>{text}</CardTitle>
+              </LaneHeader>
               <LaneContent>
-                {incomeForUser.map((item) => (
-                  <Todo key={item.id}>
-                    <span>
-                      + {item.amount}kr {item.label}
-                    </span>
-                  </Todo>
+                {(categorizedTransactions[type] || []).map((transaction) => (
+                  <TransactionCard
+                    key={transaction.id}
+                    onClick={() => showUpdateTransaction(transaction)}
+                  >
+                    <TransactionRow>
+                      <TransactionCol>
+                        {transaction.shared
+                          ? "Gemensam"
+                          : user.friendById(transaction.author)}
+                      </TransactionCol>
+                      <TransactionCol highlight>
+                        {transaction.label}
+                      </TransactionCol>
+                    </TransactionRow>
+                    <TransactionRow>
+                      <TransactionCol>
+                        {displayDate(transaction.date)}
+                      </TransactionCol>
+                      <TransactionCol highlight big>
+                        {transaction.amount}kr
+                      </TransactionCol>
+                    </TransactionRow>
+                  </TransactionCard>
                 ))}
-
-                {boardCategories.map(({ type, text }) => (
-                  <Todo key={`${userId}-${type}`}>
-                    - {summarize(transactionsByUser[type] || [])} {text}
-                  </Todo>
-                ))}
-
-                <Todo>
-                  <b>= {total} kr</b>
-                </Todo>
               </LaneContent>
             </Lane>
-          );
-        })}
+          ))}
+        </Board>
+      </Card>
 
-        <Lane noBorders>
-          <LaneHeader>Tillsammans</LaneHeader>
-          <LaneContent>
-            <Todo>
-              <span>
-                + {summarize(categorizedTransactions["INCOME"] ?? [])}kr
-              </span>
-            </Todo>
-            {boardCategories.map(({ type, text }) => (
-              <Todo key={`shared-${type}`}>
-                - {summarize(categorizedTransactions[type] || [])} {text}
-              </Todo>
-            ))}
-            <Todo>
-              <b>
-                ={" "}
-                {summarize(categorizedTransactions["INCOME"] || []) * 2 -
-                  summarize(Object.values(categorizedTransactions).flat())}{" "}
-                kr
-              </b>
-            </Todo>
-          </LaneContent>
-        </Lane>
-
-        {boardCategories.map(({ type, text }) => (
-          <Lane key={type}>
-            <LaneHeader>{text}</LaneHeader>
-            <LaneContent>
-              {(categorizedTransactions[type] || []).map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  onClick={() => showUpdateTransaction(transaction)}
-                >
-                  <TransactionRow>
-                    <TransactionCol>
-                      {transaction.shared
-                        ? "Gemensam"
-                        : user.friendById(transaction.author)}
-                    </TransactionCol>
-                    <TransactionCol>{transaction.label}</TransactionCol>
-                  </TransactionRow>
-                  <TransactionRow>
-                    <TransactionCol>
-                      {displayDate(transaction.date)}
-                    </TransactionCol>
-                    <TransactionCol>{transaction.amount}kr</TransactionCol>
-                  </TransactionRow>
-                </TransactionCard>
-              ))}
-            </LaneContent>
-          </Lane>
+      <Card>
+        <CardTitle>Tillsammans</CardTitle>
+        <CardRow>
+          <CardCol>Inkomst</CardCol>
+          <CardCol>
+            +{summarize(categorizedTransactions["INCOME"] ?? [])} kr
+          </CardCol>
+        </CardRow>
+        {categoriesForBoard.map(({ type, text }) => (
+          <CardRow key={`shared-${type}`}>
+            <CardCol>{text}</CardCol>
+            <CardCol>
+              -{summarize(categorizedTransactions[type] || [])} kr
+            </CardCol>
+          </CardRow>
         ))}
-      </Board>
+        <CardRow>
+          <CardCol>Totalt</CardCol>
+          <CardCol>
+            {
+              // TODO: Very secret with times 2...
+              summarize(categorizedTransactions["INCOME"] || []) * 2 -
+                summarize(Object.values(categorizedTransactions).flat())
+            }{" "}
+            kr
+          </CardCol>
+        </CardRow>
+      </Card>
+
+      {period.data.members.map((userId) => {
+        const name = user.friendById(userId);
+
+        const incomeForUser = (categorizedTransactions.INCOME || []).filter(
+          ({ author }) => author === userId
+        );
+
+        const transactionsByUser = categoriesForBoard.reduce((acc, curr) => {
+          const transaction = categorizedTransactions[curr.type] || [];
+
+          const userTransactions = transaction
+            .filter(
+              ({ author, shared }) => author === userId || shared === true
+            )
+            .map((transaction) => ({
+              ...transaction,
+              amount: transaction.shared
+                ? transaction.amount / period.data.members.length
+                : transaction.amount,
+            }));
+
+          const previous = acc[curr.type] || [];
+          return { ...acc, [curr.type]: [...previous, ...userTransactions] };
+        }, {} as Record<Category["type"], Transaction[]>);
+
+        const total =
+          summarize(incomeForUser) -
+          summarize(Object.values(transactionsByUser).flat());
+
+        return (
+          <Card key={`sum-${userId}`}>
+            <CardTitle>{name}</CardTitle>
+            {incomeForUser.map((item) => (
+              <CardRow key={item.id}>
+                <CardCol>{item.label}</CardCol>
+                <CardCol>+{item.amount} kr</CardCol>
+              </CardRow>
+            ))}
+
+            {categoriesForBoard.map(({ type, text }) => (
+              <CardRow key={`${userId}-${type}`}>
+                <CardCol>{text}</CardCol>
+                <CardCol>
+                  -{summarize(transactionsByUser[type] || [])} kr
+                </CardCol>
+              </CardRow>
+            ))}
+            <CardRow>
+              <CardCol>Totalt</CardCol>
+              <CardCol>{total} kr</CardCol>
+            </CardRow>
+          </Card>
+        );
+      })}
+
+      <ActionButton onClick={toggleTransactionModal}>+</ActionButton>
 
       {addTransactionVisible && (
         <Overlay>
@@ -273,65 +281,59 @@ export const Period = () => {
   );
 };
 
-const summarize = (list: Array<{ amount: number }>) =>
-  list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
+function summarize(list: Array<{ amount: number }>) {
+  return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
+}
 
 const Content = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: scroll;
+  margin-bottom: ${space(2)};
 `;
 
 const Board = styled.div<{ columns: number }>`
   flex: 1;
   display: grid;
   grid-template-columns: ${(props) => `repeat(${props.columns}, 200px)`};
-  overflow: auto;
+  overflow-y: hidden;
+  overflow-x: scroll;
   height: 100%;
 `;
 
 const LaneContent = styled.div`
   flex: 1;
-  border-top: 1px solid #000;
-  padding: ${space(1)};
+  border-top: 2px solid var(--color-border);
+  padding: ${space(2)};
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: scroll;
 `;
 
 const Lane = styled.div<{ noBorders?: boolean }>`
   height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 
-  ${(props) =>
-    props.noBorders &&
-    `
-
-  margin-right: ${space(4)};
-`}
-
-  ${(props) =>
-    !props.noBorders &&
-    `
-
-  &:nth-child(even) {
+  ${LaneContent} {
+    border-bottom: 2px solid var(--color-border);
+    border-left: 2px solid var(--color-border);
+  }
+  &:first-child {
     ${LaneContent} {
-      border: 1px solid #000;
+      border-left: none;
     }
   }
-  &:nth-child(odd) {
-    ${LaneContent} {
-      border-bottom: 1px solid #000;
-    }
-  }
-
-`}
 `;
 
-const LaneHeader = styled.div``;
-
-const Menu = styled.div`
-  display: flex;
-  justify-content: space-between;
+const LaneHeader = styled.div`
+  color: var(--color-text);
+  text-align: center;
+  text-transform: uppercase;
+  font-size: ${fontSize(0)};
 `;
 
 const Overlay = styled.div`
@@ -352,13 +354,14 @@ const Modal = styled.div`
 `;
 
 const TransactionCard = styled.div`
-  border: 1px solid #000;
+  border: 1px solid var(--color-border);
   padding: ${space(1)};
-  margin-bottom: ${space(1)};
+  margin-bottom: ${space(2)};
   font-size: ${fontSize(0)};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  cursor: pointer;
 `;
 
 const TransactionRow = styled.div`
@@ -370,8 +373,33 @@ const TransactionRow = styled.div`
     margin-bottom: ${space(4)};
   }
 `;
-const TransactionCol = styled.div``;
+const TransactionCol = styled.div<{ highlight?: boolean; big?: boolean }>`
+  color: ${(props) =>
+    props.highlight ? "var(--color-text-strong)" : "inherit"};
+  font-weight: ${(props) => (props.big ? "bold" : "normal")};
+  font-size: ${(props) => (props.big ? fontSize(1) : "inherit")};
+`;
 
-const Todo = styled.div`
+const CardCol = styled.div`
+  color: var(--color-text-strong);
+`;
+
+const CardRow = styled.div`
   margin-bottom: ${space(1)};
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  padding: ${space(2)} 0;
+
+  ${CardCol} {
+    &:first-child {
+      flex: 1;
+    }
+  }
+
+  &:last-child {
+    margin-top: ${space(2)};
+    border: 0;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
 `;

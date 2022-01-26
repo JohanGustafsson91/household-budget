@@ -1,11 +1,10 @@
+import { ActionBar, ActionBarProvider } from "components/ActionBar";
 import { Login } from "components/Login";
 import { Overview } from "components/Overview";
-import { PageContent, PageHeader, PageWrapper } from "components/Page";
+import { PageContent, PageWrapper } from "components/Page";
 import { Period, PeriodCreate } from "components/Period";
-import { signOut } from "firebase/auth";
 import { PropsWithChildren } from "react";
-import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
-import { auth } from "utils";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { HandleAuth } from "./App.HandleAuth";
 import { UserProvider } from "./App.UserProvider";
 
@@ -24,15 +23,12 @@ function AuthenticatedPage({ children }: PropsWithChildren<{}>) {
   return (
     <HandleAuth authenticationRequired={true}>
       <UserProvider>
-        <PageWrapper>
-          <PageHeader>
-            <p>
-              <Link to="/">Välkommen</Link>
-            </p>
-            <button onClick={() => signOut(auth)}>Logga ut</button>
-          </PageHeader>
-          <PageContent>{children}</PageContent>
-        </PageWrapper>
+        <ActionBarProvider>
+          <PageWrapper>
+            <ActionBar />
+            <PageContent>{children}</PageContent>
+          </PageWrapper>
+        </ActionBarProvider>
       </UserProvider>
     </HandleAuth>
   );

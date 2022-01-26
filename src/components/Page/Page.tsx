@@ -11,17 +11,16 @@ export const PageWrapper = styled.div`
   flex-direction: column;
 `;
 
-export const PageHeader = styled.div`
-  display: flex;
-  border-bottom: 1px solid grey;
-  justify-content: space-between;
-  padding: ${space(2)};
-`;
-
-export const PageContent = styled.div`
+export const PageContent = styled.div<{ overflowHidden?: boolean }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: ${space(2)};
+  padding: ${space(3)};
+  overflow: auto;
+
+  ${(props) =>
+    props.overflowHidden &&
+    `
   overflow: hidden;
+`}
 `;

@@ -1,5 +1,9 @@
 export const categories: Category[] = [
   {
+    type: "INCOME",
+    text: "Inkomst",
+  },
+  {
     type: "LIVING",
     text: "Boende",
   },
@@ -27,11 +31,11 @@ export const categories: Category[] = [
     type: "LOAN",
     text: "Lån",
   },
-  {
-    type: "INCOME",
-    text: "Inkomst",
-  },
 ];
+
+export const categoriesForBoard = categories.filter(
+  ({ type }) => type !== "INCOME"
+);
 
 export interface Category {
   type:

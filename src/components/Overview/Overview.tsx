@@ -1,10 +1,11 @@
+import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
+import { ActionButton } from "components/Button";
+import { Card } from "components/Card";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AsyncState, Period } from "shared";
-import styled from "styled-components";
-import { space } from "theme";
 import { auth, COLLECTION, db, displayDate } from "utils";
 
 export const Overview = () => {
@@ -60,7 +61,7 @@ export const Overview = () => {
 
   return (
     <>
-      <h3>Hushållsbudget</h3>
+      <ActionBarTitle title={`Välkommen ${user.data?.name ?? ""}`} />
 
       {state.status === "pending" && <p>Hämtar budgetperioder...</p>}
 
@@ -77,25 +78,16 @@ export const Overview = () => {
             .join(", ");
 
           return (
-            <PeriodItem
-              key={period.id}
-              onClick={navigateToDetailPage(period.id)}
-            >
+            <Card key={period.id} onClick={navigateToDetailPage(period.id)}>
               Från {displayDate(period.fromDate)} - {displayDate(period.toDate)}
               <div>
                 {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
               </div>
-            </PeriodItem>
+            </Card>
           );
         })}
 
-      <button onClick={navigateToCreatePage}>Skapa</button>
+      <ActionButton onClick={navigateToCreatePage}>+</ActionButton>
     </>
   );
 };
-
-const PeriodItem = styled.div`
-  padding: ${space(2)};
-  margin-bottom: ${space(2)};
-  border: 1px solid grey;
-`;
