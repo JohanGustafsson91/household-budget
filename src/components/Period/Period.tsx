@@ -2,6 +2,7 @@ import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
 import { ActionButton } from "components/Button";
 import { Card, CardTitle } from "components/Card";
+import { pagePadding } from "components/Page";
 import { onSnapshot, query, collection, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -124,6 +125,11 @@ export const Period = () => {
     {} as Record<Category["type"], Transaction[]>
   );
 
+  const totalIncome = summarize(categorizedTransactions["INCOME"] || []);
+  const { INCOME, ...rest } = categorizedTransactions;
+  const totalExpenses = summarize(Object.values(rest).flat());
+  const totalLeftToSpend = totalIncome - totalExpenses;
+
   if (period.status === "pending") {
     return <Content>Laddar budgetperiod...</Content>;
   }
@@ -139,6 +145,23 @@ export const Period = () => {
           period.data.toDate
         )}`}
       />
+
+      <TopContent>
+        <Item>
+          <ItemMoney highlight>{totalLeftToSpend}</ItemMoney>
+          <ItemMoneyLabel>Kvar</ItemMoneyLabel>
+        </Item>
+        <Item>
+          <ItemMoney>{totalIncome}</ItemMoney>
+          <ItemMoneyLabel>Inkomster</ItemMoneyLabel>
+        </Item>
+        <Item>
+          <ItemMoney>{totalExpenses}</ItemMoney>
+          <ItemMoneyLabel>Utgifter</ItemMoneyLabel>
+        </Item>
+      </TopContent>
+
+      <MarginBottomFix />
 
       <Card height="calc(50vh)">
         <Board columns={categories.length}>
@@ -183,28 +206,17 @@ export const Period = () => {
         <CardTitle>Tillsammans</CardTitle>
         <CardRow>
           <CardCol>Inkomst</CardCol>
-          <CardCol>
-            +{summarize(categorizedTransactions["INCOME"] ?? [])} kr
-          </CardCol>
+          <CardCol>+{totalIncome} kr</CardCol>
         </CardRow>
         {categoriesForBoard.map(({ type, text }) => (
           <CardRow key={`shared-${type}`}>
             <CardCol>{text}</CardCol>
-            <CardCol>
-              -{summarize(categorizedTransactions[type] || [])} kr
-            </CardCol>
+            <CardCol>-{totalExpenses} kr</CardCol>
           </CardRow>
         ))}
         <CardRow>
           <CardCol>Totalt</CardCol>
-          <CardCol>
-            {
-              // TODO: Very secret with times 2...
-              summarize(categorizedTransactions["INCOME"] || []) * 2 -
-                summarize(Object.values(categorizedTransactions).flat())
-            }{" "}
-            kr
-          </CardCol>
+          <CardCol>{totalLeftToSpend} kr</CardCol>
         </CardRow>
       </Card>
 
@@ -291,6 +303,38 @@ const Content = styled.div`
   flex-direction: column;
   overflow-y: scroll;
   margin-bottom: ${space(2)};
+`;
+
+const TopContent = styled.div`
+  background-color: var(--color-background-action-bar);
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+  padding: ${space(3)} ${pagePadding} ${space(6)} ${pagePadding};
+  left: 0;
+  right: 0;
+  margin-top: -${pagePadding};
+  z-index: -1;
+`;
+
+const Item = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+`;
+const ItemMoney = styled.div<{ highlight?: boolean }>`
+  color: var(--color-text-action-bar);
+  font-weight: 500;
+  font-size: ${(props) => (props.highlight ? fontSize(5) : fontSize(3))};
+  justify-self: flex-start;
+`;
+const ItemMoneyLabel = styled.div`
+  color: #4d82d7;
+`;
+
+const MarginBottomFix = styled.div`
+  margin-bottom: 90px;
 `;
 
 const Board = styled.div<{ columns: number }>`
