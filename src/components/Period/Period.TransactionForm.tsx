@@ -3,9 +3,10 @@ import { Period } from "shared";
 import { categories } from "./Period.categories";
 import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { auth, COLLECTION, db } from "utils";
-import { DatePicker, FormField } from "components/Form";
+import { FormField } from "components/Form";
 import { Transaction } from "./Period.Transaction";
 import shortid from "shortid";
+import { DatePicker } from "components/Form/Form.DatePicker";
 
 export const TransactionForm = ({
   period,
