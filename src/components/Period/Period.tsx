@@ -268,12 +268,11 @@ export const Period = () => {
         return (
           <Card key={`sum-${userId}`}>
             <CardTitle>{name}</CardTitle>
-            {incomeForUser.map((item) => (
-              <CardRow key={item.id}>
-                <CardCol>{item.label}</CardCol>
-                <CardCol>+{item.amount} kr</CardCol>
-              </CardRow>
-            ))}
+
+            <CardRow>
+              <CardCol>Inkomst</CardCol>
+              <CardCol>+{summarize(incomeForUser)} kr</CardCol>
+            </CardRow>
 
             {categoriesForBoard.map(({ type, text }) => (
               <CardRow key={`${userId}-${type}`}>
