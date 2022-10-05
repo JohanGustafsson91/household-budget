@@ -29,7 +29,7 @@ export const Period = () => {
     Transaction | true | undefined
   >(undefined);
 
-  const { getFriendNameById } = useUser();
+  const { getFriendById: getFriendNameById } = useUser();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -173,6 +173,9 @@ export const Period = () => {
               <LaneContent>
                 {(categorizedTransactions[type] || []).map((transaction) => (
                   <TransactionCard
+                    gender={
+                      getFriendNameById(transaction.author)?.gender || "male"
+                    }
                     key={transaction.id}
                     onClick={() => showUpdateTransaction(transaction)}
                   >
@@ -180,7 +183,7 @@ export const Period = () => {
                       <TransactionCol>
                         {transaction.shared
                           ? "Gemensam"
-                          : getFriendNameById(transaction.author)}
+                          : getFriendNameById(transaction.author)?.name}
                       </TransactionCol>
                       <TransactionCol highlight>
                         {transaction.label}
@@ -211,7 +214,9 @@ export const Period = () => {
         {categoriesForBoard.map(({ type, text }) => (
           <CardRow key={`shared-${type}`}>
             <CardCol>{text}</CardCol>
-            <CardCol>-{totalExpenses} kr</CardCol>
+            <CardCol>
+              -{summarize(categorizedTransactions[type] || [])} kr
+            </CardCol>
           </CardRow>
         ))}
         <CardRow>
@@ -221,7 +226,7 @@ export const Period = () => {
       </Card>
 
       {period.data.members.map((userId) => {
-        const name = getFriendNameById(userId);
+        const name = getFriendNameById(userId)?.name;
 
         const incomeForUser = (categorizedTransactions.INCOME || []).filter(
           ({ author }) => author === userId
@@ -280,7 +285,7 @@ export const Period = () => {
       {addTransactionVisible && (
         <Overlay>
           <Modal>
-            <button onClick={toggleTransactionModal}>Close</button>
+            <CloseButton onClick={toggleTransactionModal}>x</CloseButton>
             <TransactionForm
               period={period.data}
               updateTransaction={addTransactionVisible}
@@ -310,7 +315,7 @@ const TopContent = styled.div`
   display: flex;
   position: absolute;
   justify-content: space-between;
-  padding: ${space(3)} ${pagePadding} ${space(6)} ${pagePadding};
+  padding: ${space(3)} ${space(4)} ${space(6)} ${space(4)};
   left: 0;
   right: 0;
   margin-top: -${pagePadding};
@@ -326,6 +331,7 @@ const Item = styled.div`
 const ItemMoney = styled.div<{ highlight?: boolean }>`
   color: var(--color-text-action-bar);
   font-weight: 500;
+  align-items: center;
   font-size: ${(props) => (props.highlight ? fontSize(5) : fontSize(3))};
   justify-self: flex-start;
 `;
@@ -394,10 +400,30 @@ const Overlay = styled.div`
 
 const Modal = styled.div`
   background-color: #fff;
-  padding: ${space(4)};
+  padding: ${space(3)} ${space(3)};
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 60px;
+  bottom: 0;
 `;
 
-const TransactionCard = styled.div`
+const CloseButton = styled.button`
+  outline: 0;
+  border: 0;
+  position: absolute;
+  right: ${space(2)};
+  top: ${space(2)};
+  background-color: inherit;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const TransactionCard = styled.div<{ gender: "male" | "female" }>`
   border: 1px solid var(--color-border);
   padding: ${space(1)};
   margin-bottom: ${space(2)};
@@ -406,6 +432,10 @@ const TransactionCard = styled.div`
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
+  background-color: ${(props) =>
+    props.gender === "male"
+      ? "rgba(144, 238, 144, 0.2)"
+      : "rgba(255, 182, 193, 0.2)"};
 `;
 
 const TransactionRow = styled.div`

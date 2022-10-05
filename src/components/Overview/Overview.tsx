@@ -72,7 +72,7 @@ export const Overview = () => {
         state.data.map((period) => {
           const memberWith = period.members
             .filter((userId) => userId !== auth.currentUser?.uid)
-            .map(user.getFriendNameById)
+            .map((u) => user.getFriendById(u)?.name ?? "")
             .join(", ");
 
           return (

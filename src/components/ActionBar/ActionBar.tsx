@@ -49,7 +49,7 @@ export const ActionBar = () => {
         </Link>
       )}
       <Title>{title}</Title>
-      <Icon src={logoutIcon} alt="logout" onClick={logout} />
+      <Icon src={logoutIcon} alt="logout" onClick={logout} noMargin />
     </PageHeader>
   );
 };
@@ -87,14 +87,14 @@ const PageHeader = styled.div`
   color: var(--color-text-action-bar);
 `;
 
-const Icon = styled.img`
-  width: ${space(4)};
+const Icon = styled.img<{ noMargin?: boolean }>`
+  width: 24px;
   height: auto;
-  margin-right: ${space(3)};
+  margin-right: ${(props) => (props.noMargin ? 0 : space(3))};
 `;
 
 const Title = styled.span`
   flex: 1;
   font-weight: 500;
-  font-size: ${fontSize(1)};
+  font-size: ${fontSize(2)};
 `;

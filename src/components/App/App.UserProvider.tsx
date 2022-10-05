@@ -31,14 +31,15 @@ export const UserProvider = ({ children }: Props) => {
       userQuery(auth.currentUser?.uid),
       async function onSnapshot(querySnapshot) {
         const [doc] = querySnapshot.docs;
-        const { id, name, friends } = doc.data();
+        const { id, name, gender, friends } = doc.data();
 
         const friendsData: Friend[] = await Promise.all(
           friends.map(async (friendId: string) => {
             const doc = await getDocs(userQuery(friendId));
             const [friendDoc] = doc.docs;
-            const { name, id } = friendDoc.data();
-            return { name, id } as Friend;
+            const { name, id, gender } = friendDoc.data();
+            const friend: Friend = { name, id, gender };
+            return friend;
           })
         );
 
@@ -46,6 +47,7 @@ export const UserProvider = ({ children }: Props) => {
           data: {
             id: id as string,
             name: name as string,
+            gender: gender as Gender,
             friends: friendsData,
           },
           status: "resolved",
@@ -59,19 +61,19 @@ export const UserProvider = ({ children }: Props) => {
     return unsubscribe;
   }, []);
 
-  const getFriendNameById = useCallback(
+  const getFriendById = useCallback(
     function findFriendName(friendId: string) {
-      if (state.status !== "resolved") return "";
+      if (state.status !== "resolved") return undefined;
 
       return friendId === state.data.id
-        ? state.data.name
-        : state.data.friends.find(({ id }) => id === friendId)?.name ?? "";
+        ? state.data
+        : state.data.friends.find(({ id }) => id === friendId);
     },
-    [state.data?.friends, state.data?.id, state.data?.name, state.status]
+    [state.data, state.status]
   );
 
   return (
-    <UserContext.Provider value={{ ...state, getFriendNameById }}>
+    <UserContext.Provider value={{ ...state, getFriendById }}>
       {children}
     </UserContext.Provider>
   );
@@ -90,19 +92,23 @@ export const useUser = (): ProviderProps => {
 };
 
 type ProviderProps = AsyncState<User> & {
-  getFriendNameById: (friendId: string) => string;
+  getFriendById: (friendId: string) => Friend | undefined;
 };
 
 interface User {
   name: string;
   id: string;
+  gender: Gender;
   friends: Friend[];
 }
 
 interface Friend {
   id: string;
   name: string;
+  gender: Gender;
 }
+
+type Gender = "male" | "female";
 
 interface Props {
   children: React.ReactElement;
