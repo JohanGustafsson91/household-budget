@@ -409,6 +409,7 @@ const Modal = styled.div`
   right: 0;
   top: 60px;
   bottom: 0;
+  overflow: auto;
 `;
 
 const CloseButton = styled.button`
