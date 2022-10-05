@@ -1,1 +1,1 @@
-export const displayDate = (date: Date) => date.toLocaleDateString();
+export const displayDate = (date: Date) => date.toLocaleDateString("sv-SE");
