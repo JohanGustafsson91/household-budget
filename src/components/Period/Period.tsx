@@ -4,7 +4,7 @@ import { ActionButton } from "components/Button";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { onSnapshot, query, collection, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
@@ -13,6 +13,8 @@ import { COLLECTION, db, displayDate, getDocument } from "utils";
 import { categories, categoriesForBoard, Category } from "./Period.categories";
 import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
+import { TransactionManyForm } from "./Period.TransactionManyForm";
+import { useLongPress } from "./Period.useLongPress";
 
 export const Period = () => {
   const [period, setPeriod] = useState<AsyncState<PeriodType>>({
@@ -29,9 +31,21 @@ export const Period = () => {
     Transaction | true | undefined
   >(undefined);
 
+  const [addManyTransactionsVisible, setAddManyTransactionsVisible] =
+    useState(false);
+
   const { getFriendById: getFriendNameById } = useUser();
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const longPressEvent = useLongPress(
+    () => setAddManyTransactionsVisible(true),
+    () => setManageTransaction(true),
+    {
+      shouldPreventDefault: true,
+      delay: 500,
+    }
+  );
 
   useEffect(
     function getPeriodById() {
@@ -103,12 +117,6 @@ export const Period = () => {
     },
     [id, period.data?.members]
   );
-
-  function toggleTransactionModal() {
-    return setManageTransaction((prev) =>
-      Boolean(prev) === true ? undefined : true
-    );
-  }
 
   function showUpdateTransaction(transaction: Transaction) {
     setManageTransaction(transaction);
@@ -283,20 +291,36 @@ export const Period = () => {
         );
       })}
 
-      <ActionButton onClick={toggleTransactionModal}>+</ActionButton>
+      <ActionButton {...longPressEvent}>+</ActionButton>
 
-      {addTransactionVisible && (
+      {addTransactionVisible ? (
         <Overlay>
           <Modal>
-            <CloseButton onClick={toggleTransactionModal}>x</CloseButton>
+            <CloseButton onClick={() => setManageTransaction(undefined)}>
+              x
+            </CloseButton>
             <TransactionForm
               period={period.data}
               updateTransaction={addTransactionVisible}
-              onUpdated={toggleTransactionModal}
+              onUpdated={() => setManageTransaction(undefined)}
             />
           </Modal>
         </Overlay>
-      )}
+      ) : null}
+
+      {addManyTransactionsVisible ? (
+        <Overlay>
+          <Modal>
+            <CloseButton onClick={() => setAddManyTransactionsVisible(false)}>
+              x
+            </CloseButton>
+            <TransactionManyForm
+              period={period.data}
+              onUpdated={() => setAddManyTransactionsVisible(false)}
+            />
+          </Modal>
+        </Overlay>
+      ) : null}
     </Content>
   );
 };

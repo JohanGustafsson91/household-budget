@@ -19,19 +19,19 @@ export const TransactionForm = ({
   updateTransaction,
   onUpdated,
 }: Props) => {
-  const initState = {
-    id: updateTransaction !== true ? updateTransaction.id : "notDefined",
-    label: updateTransaction !== true ? updateTransaction.label : "",
-    category:
-      updateTransaction !== true
-        ? updateTransaction.category
-        : ("OTHER" as const),
-    amount: updateTransaction !== true ? updateTransaction.amount : 0,
-    date: updateTransaction !== true ? updateTransaction.date : period.fromDate,
-    shared: updateTransaction !== true ? updateTransaction.shared : false,
-  };
+  const [form, setForm] = useState<Form>(() =>
+    updateTransaction === true
+      ? getInitFormState(period.fromDate)
+      : {
+          id: updateTransaction.id,
+          label: updateTransaction.label,
+          category: updateTransaction.category,
+          amount: updateTransaction.amount,
+          date: updateTransaction.date,
+          shared: updateTransaction.shared,
+        }
+  );
 
-  const [form, setForm] = useState<Form>(initState);
   const focusRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(
@@ -74,7 +74,7 @@ export const TransactionForm = ({
       return undefined;
     });
 
-    result && setForm(initState);
+    result && setForm(getInitFormState(period.fromDate));
   }
 
   function handleUpdateTransaction(e: FormEvent<HTMLFormElement>) {
@@ -83,7 +83,7 @@ export const TransactionForm = ({
 
     setDoc(
       doc(db, COLLECTION["transactions"], updateTransaction.id),
-      { ...form, lastUpdated: new Date() },
+      { ...form, shared: form.shared ? true : false, lastUpdated: new Date() },
       { merge: true }
     ).catch(() => {
       // TODO handle
@@ -173,13 +173,24 @@ export const TransactionForm = ({
             {updateTransaction === true ? "Lägg till" : "Spara"}
           </Button>
           {updateTransaction !== true && (
-            <Button onClick={deleteTransaction}>Ta bort</Button>
+            <Button type="button" onClick={deleteTransaction}>
+              Ta bort
+            </Button>
           )}
         </FormField>
       </form>
     </div>
   );
 };
+
+const getInitFormState = (date: Date) => ({
+  id: "notDefined",
+  label: "",
+  category: "OTHER" as const,
+  amount: 0,
+  date,
+  shared: false,
+});
 
 interface Props {
   period: Period;
