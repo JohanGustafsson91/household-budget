@@ -59,8 +59,8 @@ export const UserProvider = ({ children }: Props) => {
     return unsubscribe;
   }, []);
 
-  const friendById = useCallback(
-    function findFriend(friendId: string) {
+  const getFriendNameById = useCallback(
+    function findFriendName(friendId: string) {
       if (state.status !== "resolved") return "";
 
       return friendId === state.data.id
@@ -71,7 +71,7 @@ export const UserProvider = ({ children }: Props) => {
   );
 
   return (
-    <UserContext.Provider value={{ ...state, friendById }}>
+    <UserContext.Provider value={{ ...state, getFriendNameById }}>
       {children}
     </UserContext.Provider>
   );
@@ -90,7 +90,7 @@ export const useUser = (): ProviderProps => {
 };
 
 type ProviderProps = AsyncState<User> & {
-  friendById: (friendId: string) => string;
+  getFriendNameById: (friendId: string) => string;
 };
 
 interface User {

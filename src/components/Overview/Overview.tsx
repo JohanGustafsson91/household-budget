@@ -51,12 +51,10 @@ export const Overview = () => {
     return unsubscribe;
   }, []);
 
-  function navigateToDetailPage(id: string) {
-    return () => navigate(`/period/${id}`);
-  }
-
-  function navigateToCreatePage() {
-    navigate(`/period/add`);
+  function navigateTo(url: string) {
+    return function onNavigate() {
+      navigate(url);
+    };
   }
 
   return (
@@ -74,11 +72,11 @@ export const Overview = () => {
         state.data.map((period) => {
           const memberWith = period.members
             .filter((userId) => userId !== auth.currentUser?.uid)
-            .map(user.friendById)
+            .map(user.getFriendNameById)
             .join(", ");
 
           return (
-            <Card key={period.id} onClick={navigateToDetailPage(period.id)}>
+            <Card key={period.id} onClick={navigateTo(`/period/${period.id}`)}>
               Från {displayDate(period.fromDate)} - {displayDate(period.toDate)}
               <div>
                 {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
@@ -87,7 +85,7 @@ export const Overview = () => {
           );
         })}
 
-      <ActionButton onClick={navigateToCreatePage}>+</ActionButton>
+      <ActionButton onClick={navigateTo("/period/add")}>+</ActionButton>
     </>
   );
 };

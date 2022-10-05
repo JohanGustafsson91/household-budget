@@ -29,7 +29,7 @@ export const Period = () => {
     Transaction | true | undefined
   >(undefined);
 
-  const user = useUser();
+  const { getFriendNameById } = useUser();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -180,7 +180,7 @@ export const Period = () => {
                       <TransactionCol>
                         {transaction.shared
                           ? "Gemensam"
-                          : user.friendById(transaction.author)}
+                          : getFriendNameById(transaction.author)}
                       </TransactionCol>
                       <TransactionCol highlight>
                         {transaction.label}
@@ -221,7 +221,7 @@ export const Period = () => {
       </Card>
 
       {period.data.members.map((userId) => {
-        const name = user.friendById(userId);
+        const name = getFriendNameById(userId);
 
         const incomeForUser = (categorizedTransactions.INCOME || []).filter(
           ({ author }) => author === userId

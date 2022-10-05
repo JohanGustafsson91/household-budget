@@ -8,35 +8,36 @@ import { ROUTES } from "./App";
 export const HandleAuth = ({
   children,
   authenticationRequired = false,
-}: PropsWithChildren<{ authenticationRequired?: boolean }>) => {
+  loadingElement = <Loading>Loading...</Loading>,
+}: PropsWithChildren<{
+  authenticationRequired?: boolean;
+  loadingElement?: JSX.Element;
+}>) => {
   const [user, loading] = useAuthState(auth);
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const userState = loading ? "pending" : user ? "logged in" : "not logged in";
+
   useEffect(
     function protectAuthenticatedPage() {
-      const hasNoAccess = [!user, authenticationRequired, !loading].every(
-        Boolean
-      );
-      hasNoAccess && navigate(ROUTES.login);
+      if (userState === "not logged in" && authenticationRequired) {
+        return navigate(ROUTES.login);
+      }
     },
-    [authenticationRequired, loading, navigate, user]
+    [authenticationRequired, navigate, userState]
   );
 
   useEffect(
     function protectLoginPage() {
-      const shouldNotAccessLoginPage = [
-        user,
-        pathname === ROUTES.login,
-        !loading,
-      ].every(Boolean);
-
-      shouldNotAccessLoginPage && navigate(ROUTES.main);
+      if (userState === "logged in" && pathname === ROUTES.login) {
+        return navigate(ROUTES.main);
+      }
     },
-    [loading, navigate, pathname, user]
+    [navigate, pathname, userState]
   );
 
-  return loading ? <Loading>Loading...</Loading> : <>{children}</>;
+  return <>{loading ? loadingElement : children}</>;
 };
 
 const Loading = styled.div`
