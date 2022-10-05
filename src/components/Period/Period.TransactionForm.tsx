@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Period } from "shared";
 import { categories } from "./Period.categories";
 import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
@@ -32,6 +32,16 @@ export const TransactionForm = ({
   };
 
   const [form, setForm] = useState<Form>(initState);
+  const focusRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(
+    function focusInputElement() {
+      if (form.amount === 0) {
+        focusRef.current?.focus();
+      }
+    },
+    [form.amount]
+  );
 
   function updateForm(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((prev) => ({
@@ -111,6 +121,7 @@ export const TransactionForm = ({
               max="1000000"
               value={form.amount}
               onChange={updateForm}
+              ref={focusRef}
             />
           </Label>
         </FormField>
