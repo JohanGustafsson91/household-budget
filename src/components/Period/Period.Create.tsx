@@ -4,7 +4,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { auth, COLLECTION, db } from "utils";
 import { useNavigate } from "react-router-dom";
 import { Period } from "shared";
-import { DatePicker, FormField } from "components/Form";
+import { Button, DatePicker, FormField, Input, Label } from "components/Form";
 import shortid from "shortid";
 import { ActionBarTitle } from "components/ActionBar";
 
@@ -61,7 +61,9 @@ export const PeriodCreate = () => {
 
       <form onSubmit={createPeriod}>
         <FormField>
-          <label>Från {form.fromDate?.toLocaleDateString()}</label>
+          <Label>
+            Från {form.fromDate?.toLocaleDateString()} <div />
+          </Label>
           <DatePicker
             locale="sv"
             maxDate={form.toDate}
@@ -72,7 +74,9 @@ export const PeriodCreate = () => {
           />
         </FormField>
         <FormField>
-          <label>Till {form.toDate?.toLocaleDateString()}</label>
+          <Label>
+            Till {form.toDate?.toLocaleDateString()} <div />
+          </Label>
           <DatePicker
             locale="sv"
             name="toDate"
@@ -85,12 +89,12 @@ export const PeriodCreate = () => {
 
         {user.status === "resolved" && (
           <FormField>
-            <label>
+            <Label>
               Tillsammans med?
               {user.data.friends.map((friend) => (
                 <div key={friend.id}>
-                  <label>
-                    <input
+                  <Label>
+                    <Input
                       type="checkbox"
                       id={friend.id}
                       name={friend.id}
@@ -98,16 +102,16 @@ export const PeriodCreate = () => {
                       checked={form.members.includes(friend.id)}
                     />
                     {friend.name}
-                  </label>
+                  </Label>
                 </div>
               ))}
-            </label>
+            </Label>
           </FormField>
         )}
         <FormField>
-          <button disabled={!validForm} type="submit">
+          <Button disabled={!validForm} type="submit">
             Skapa
-          </button>
+          </Button>
         </FormField>
       </form>
     </>

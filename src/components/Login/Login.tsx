@@ -1,4 +1,5 @@
 import { signInWithEmailAndPassword } from "@firebase/auth";
+import { Button, Input } from "components/Form";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { auth } from "utils/firebase";
@@ -27,7 +28,7 @@ export const Login = () => {
     <Wrapper>
       <Form onSubmit={login}>
         <Header>Hushållsbuget</Header>
-        <input
+        <Input
           name="email"
           type="text"
           placeholder="Ange email"
@@ -35,7 +36,7 @@ export const Login = () => {
           onChange={updateForm}
           autoComplete="email"
         />
-        <input
+        <Input
           name="password"
           type="password"
           placeholder="Ange lösenord"
@@ -46,7 +47,7 @@ export const Login = () => {
         {form.error && <ErrorMessage>{form.error}</ErrorMessage>}
 
         <p>
-          <button type="submit">Logga in</button>
+          <Button type="submit">Logga in</Button>
         </p>
       </Form>
     </Wrapper>

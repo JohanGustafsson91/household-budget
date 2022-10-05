@@ -174,7 +174,10 @@ export const Period = () => {
                 {(categorizedTransactions[type] || []).map((transaction) => (
                   <TransactionCard
                     gender={
-                      getFriendNameById(transaction.author)?.gender || "male"
+                      transaction.shared
+                        ? "none"
+                        : getFriendNameById(transaction.author)?.gender ||
+                          "male"
                     }
                     key={transaction.id}
                     onClick={() => showUpdateTransaction(transaction)}
@@ -423,7 +426,7 @@ const CloseButton = styled.button`
   align-items: center;
 `;
 
-const TransactionCard = styled.div<{ gender: "male" | "female" }>`
+const TransactionCard = styled.div<{ gender: "none" | "male" | "female" }>`
   border: 1px solid var(--color-border);
   padding: ${space(1)};
   margin-bottom: ${space(2)};
@@ -432,11 +435,14 @@ const TransactionCard = styled.div<{ gender: "male" | "female" }>`
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
-  background-color: ${(props) =>
-    props.gender === "male"
-      ? "rgba(144, 238, 144, 0.2)"
-      : "rgba(255, 182, 193, 0.2)"};
+  background-color: ${(props) => genderColorMap[props.gender]};
 `;
+
+const genderColorMap = {
+  male: "rgba(144, 238, 144, 0.2)",
+  female: "rgba(255, 182, 193, 0.2)",
+  none: "#fff",
+};
 
 const TransactionRow = styled.div`
   display: flex;

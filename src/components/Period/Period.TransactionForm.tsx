@@ -3,10 +3,16 @@ import { Period } from "shared";
 import { categories } from "./Period.categories";
 import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { auth, COLLECTION, db } from "utils";
-import { FormField } from "components/Form";
+import {
+  FormField,
+  DatePicker,
+  Input,
+  Label,
+  Select,
+  Button,
+} from "components/Form";
 import { Transaction } from "./Period.Transaction";
 import shortid from "shortid";
-import { DatePicker } from "components/Form/Form.DatePicker";
 
 export const TransactionForm = ({
   period,
@@ -96,9 +102,9 @@ export const TransactionForm = ({
         }
       >
         <FormField>
-          <label>
+          <Label>
             Belopp
-            <input
+            <Input
               name="amount"
               type="number"
               min="1"
@@ -106,28 +112,30 @@ export const TransactionForm = ({
               value={form.amount}
               onChange={updateForm}
             />
-          </label>
+          </Label>
         </FormField>
         <FormField>
-          <label>
+          <Label>
             Händelse
-            <input name="label" value={form.label} onChange={updateForm} />
-          </label>
+            <Input name="label" value={form.label} onChange={updateForm} />
+          </Label>
         </FormField>
         <FormField>
-          <label>
+          <Label>
             Kategori
-            <select name="category" value={form.category} onChange={updateForm}>
+            <Select name="category" value={form.category} onChange={updateForm}>
               {categories.map((category) => (
                 <option key={category.type} value={category.type}>
                   {category.text}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Label>
         </FormField>
         <FormField>
-          <label>Datum {form.date?.toLocaleDateString()}</label>
+          <Label>
+            Datum - {form.date?.toLocaleDateString()} <div />
+          </Label>
           <DatePicker
             locale="sv"
             name="date"
@@ -139,22 +147,22 @@ export const TransactionForm = ({
           />
         </FormField>
         <FormField>
-          <label>
+          <Label>
             Gemensam?
-            <input
+            <Input
               name="shared"
               type="checkbox"
               checked={form.shared}
               onChange={updateForm}
             />
-          </label>
+          </Label>
         </FormField>
         <FormField>
-          <button type="submit" disabled={!validForm}>
+          <Button type="submit" disabled={!validForm}>
             {updateTransaction === true ? "Lägg till" : "Spara"}
-          </button>
+          </Button>
           {updateTransaction !== true && (
-            <button onClick={deleteTransaction}>Ta bort</button>
+            <Button onClick={deleteTransaction}>Ta bort</Button>
           )}
         </FormField>
       </form>
