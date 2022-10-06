@@ -136,9 +136,13 @@ const Table = styled.table`
   td {
     text-align: left;
     padding: ${space(1)} 0;
+    border-bottom: 1px solid #eee;
   }
 
   tr {
+    &:hover {
+      font-weight: bold;
+    }
   }
 `;
 
