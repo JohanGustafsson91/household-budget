@@ -4,7 +4,7 @@ import { ActionButton } from "components/Button";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { onSnapshot, query, collection, where } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
@@ -136,6 +136,8 @@ export const Period = () => {
   const totalIncome = summarize(categorizedTransactions["INCOME"] || []);
   const { INCOME, ...rest } = categorizedTransactions;
   const totalExpenses = summarize(Object.values(rest).flat());
+
+  // TODO remove gemensam
   const totalLeftToSpend = totalIncome - totalExpenses;
 
   if (period.status === "pending") {
@@ -156,15 +158,15 @@ export const Period = () => {
 
       <TopContent>
         <Item>
-          <ItemMoney highlight>{totalLeftToSpend}</ItemMoney>
+          <ItemMoney highlight>{displayMoney(totalLeftToSpend)}</ItemMoney>
           <ItemMoneyLabel>Kvar</ItemMoneyLabel>
         </Item>
         <Item>
-          <ItemMoney>{totalIncome}</ItemMoney>
+          <ItemMoney>{displayMoney(totalIncome)}</ItemMoney>
           <ItemMoneyLabel>Inkomster</ItemMoneyLabel>
         </Item>
         <Item>
-          <ItemMoney>{totalExpenses}</ItemMoney>
+          <ItemMoney>{displayMoney(totalExpenses)}</ItemMoney>
           <ItemMoneyLabel>Utgifter</ItemMoneyLabel>
         </Item>
       </TopContent>
@@ -205,7 +207,7 @@ export const Period = () => {
                         {displayDate(transaction.date)}
                       </TransactionCol>
                       <TransactionCol highlight big>
-                        {transaction.amount}kr
+                        {displayMoney(transaction.amount)}kr
                       </TransactionCol>
                     </TransactionRow>
                   </TransactionCard>
@@ -220,19 +222,19 @@ export const Period = () => {
         <CardTitle>Tillsammans</CardTitle>
         <CardRow>
           <CardCol>Inkomst</CardCol>
-          <CardCol>+{totalIncome} kr</CardCol>
+          <CardCol>+{displayMoney(totalIncome)} kr</CardCol>
         </CardRow>
         {categoriesForBoard.map(({ type, text }) => (
           <CardRow key={`shared-${type}`}>
             <CardCol>{text}</CardCol>
             <CardCol>
-              -{summarize(categorizedTransactions[type] || [])} kr
+              -{displayMoney(summarize(categorizedTransactions[type] || []))} kr
             </CardCol>
           </CardRow>
         ))}
         <CardRow>
           <CardCol>Totalt</CardCol>
-          <CardCol>{totalLeftToSpend} kr</CardCol>
+          <CardCol>{displayMoney(totalLeftToSpend)} kr</CardCol>
         </CardRow>
       </Card>
 
@@ -271,20 +273,20 @@ export const Period = () => {
 
             <CardRow>
               <CardCol>Inkomst</CardCol>
-              <CardCol>+{summarize(incomeForUser)} kr</CardCol>
+              <CardCol>+{displayMoney(summarize(incomeForUser))} kr</CardCol>
             </CardRow>
 
             {categoriesForBoard.map(({ type, text }) => (
               <CardRow key={`${userId}-${type}`}>
                 <CardCol>{text}</CardCol>
                 <CardCol>
-                  -{summarize(transactionsByUser[type] || [])} kr
+                  -{displayMoney(summarize(transactionsByUser[type] || []))} kr
                 </CardCol>
               </CardRow>
             ))}
             <CardRow>
               <CardCol>Totalt</CardCol>
-              <CardCol>{total} kr</CardCol>
+              <CardCol>{displayMoney(total)} kr</CardCol>
             </CardRow>
           </Card>
         );
@@ -326,6 +328,10 @@ export const Period = () => {
 
 function summarize(list: Array<{ amount: number }>) {
   return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
+}
+
+function displayMoney(value: number) {
+  return Math.floor(value);
 }
 
 const Content = styled.div`
@@ -477,6 +483,7 @@ const TransactionRow = styled.div`
     margin-bottom: ${space(4)};
   }
 `;
+
 const TransactionCol = styled.div<{ highlight?: boolean; big?: boolean }>`
   color: ${(props) =>
     props.highlight ? "var(--color-text-strong)" : "inherit"};
