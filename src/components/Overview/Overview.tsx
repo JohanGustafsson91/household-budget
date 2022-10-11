@@ -76,7 +76,11 @@ export const Overview = () => {
             .join(", ");
 
           return (
-            <Card key={period.id} onClick={navigateTo(`/period/${period.id}`)}>
+            <Card
+              key={period.id}
+              onClick={navigateTo(`/period/${period.id}`)}
+              role="listitem"
+            >
               Från {displayDate(period.fromDate)} - {displayDate(period.toDate)}
               <div>
                 {memberWith.length ? `Tillsammans med ${memberWith}` : ""}

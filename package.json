@@ -29,7 +29,9 @@
     "eject": "react-scripts eject",
     "deploy:dev": "env-cmd -f .env.development.local npm run build && firebase deploy -P development",
     "deploy:prod": "env-cmd -f .env.production.local npm run build && firebase deploy -P production",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "cypress": "cypress open",
+    "cypress:run": "cypress run"
   },
   "eslintConfig": {
     "extends": [
@@ -50,11 +52,13 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/cypress": "^8.0.3",
     "@types/react-datepicker": "^4.3.4",
     "@types/react-router-dom": "^5.3.3",
     "@types/shortid": "0.0.29",
     "@types/styled-components": "^5.1.20",
     "@types/use-double-click": "^1.0.1",
+    "cypress": "^10.9.0",
     "env-cmd": "^10.1.0"
   }
 }
