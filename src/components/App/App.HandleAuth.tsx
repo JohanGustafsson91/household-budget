@@ -1,8 +1,7 @@
+import { useAuth } from "api/auth";
 import { PropsWithChildren, useEffect } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { auth } from "utils/firebase";
 import { ROUTES } from "./App";
 
 export const HandleAuth = ({
@@ -13,7 +12,7 @@ export const HandleAuth = ({
   authenticationRequired?: boolean;
   loadingElement?: JSX.Element;
 }>) => {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading] = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 

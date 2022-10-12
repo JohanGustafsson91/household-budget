@@ -1,13 +1,13 @@
+import { getAuth } from "api/auth";
+import { postTransaction } from "api/postTransaction";
 import { Button, Select } from "components/Form";
-import { addDoc, collection } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Period } from "shared";
 import shortid from "shortid";
 import styled from "styled-components";
 import { space } from "theme";
-import { auth, COLLECTION, db } from "utils";
 import { categories } from "./Period.categories";
-import { Transaction } from "./Period.Transaction";
+import { NewTransaction, Transaction } from "./Period.Transaction";
 
 interface Props {
   period: Period;
@@ -35,7 +35,7 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
             amount: Number.parseFloat(
               amount.replace(",", ".").replace("-", "").replace(" ", "")
             ),
-            author: auth?.currentUser?.uid,
+            author: getAuth()?.currentUser?.uid,
             createdAt: new Date(),
             lastUpdated: new Date(),
             periodId: period.id,
@@ -51,11 +51,8 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
 
   async function onAdd() {
     await Promise.all(
-      transations.map((transation) =>
-        addDoc(collection(db, COLLECTION["transactions"]), {
-          ...transation,
-        }).catch(() => {
-          // TODO handle error
+      transations.map((transaction) =>
+        postTransaction(transaction).catch(() => {
           return undefined;
         })
       )
@@ -145,15 +142,3 @@ const Table = styled.table`
     }
   }
 `;
-
-interface NewTransaction {
-  label: string;
-  category: Transaction["category"];
-  date: Date;
-  amount: number;
-  author: string | undefined;
-  createdAt: Date;
-  lastUpdated: Date;
-  periodId: string;
-  id: string;
-}

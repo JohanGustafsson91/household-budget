@@ -1,8 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Period } from "shared";
 import { categories } from "./Period.categories";
-import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
-import { auth, COLLECTION, db } from "utils";
 import {
   FormField,
   DatePicker,
@@ -13,6 +11,10 @@ import {
 } from "components/Form";
 import { Transaction } from "./Period.Transaction";
 import shortid from "shortid";
+import { postTransaction } from "api/postTransaction";
+import { getAuth } from "api/auth";
+import { putTransaction } from "api/putTransaction";
+import { deleteTransaction } from "api/deleteTransaction";
 
 export const TransactionForm = ({
   period,
@@ -62,15 +64,15 @@ export const TransactionForm = ({
   async function addTransaction(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const result = await addDoc(collection(db, COLLECTION["transactions"]), {
+    const result = await postTransaction({
       ...form,
-      author: auth?.currentUser?.uid,
+      author: getAuth()?.currentUser?.uid ?? "",
       createdAt: new Date(),
       lastUpdated: new Date(),
       periodId: period.id,
       id: shortid(),
+      date: form.date ?? new Date(),
     }).catch(() => {
-      // TODO handle error
       return undefined;
     });
 
@@ -81,21 +83,21 @@ export const TransactionForm = ({
     e.preventDefault();
     if (updateTransaction === true) return;
 
-    setDoc(
-      doc(db, COLLECTION["transactions"], updateTransaction.id),
-      { ...form, shared: form.shared ? true : false, lastUpdated: new Date() },
-      { merge: true }
-    ).catch(() => {
+    putTransaction(updateTransaction.id, {
+      ...form,
+      date: form.date ?? new Date(),
+      shared: form.shared ? true : false,
+      lastUpdated: new Date(),
+    }).catch(() => {
       // TODO handle
     });
+
     onUpdated?.();
   }
 
-  async function deleteTransaction() {
+  async function handleDeleteTransaction() {
     if (updateTransaction === true) return;
-    await deleteDoc(
-      doc(db, COLLECTION["transactions"], updateTransaction.id)
-    ).catch(() => {
+    await deleteTransaction(updateTransaction.id).catch(() => {
       // TODO handle
     });
     onUpdated?.();
@@ -173,7 +175,7 @@ export const TransactionForm = ({
             {updateTransaction === true ? "Lägg till" : "Spara"}
           </Button>
           {updateTransaction !== true && (
-            <Button type="button" onClick={deleteTransaction}>
+            <Button type="button" onClick={handleDeleteTransaction}>
               Ta bort
             </Button>
           )}

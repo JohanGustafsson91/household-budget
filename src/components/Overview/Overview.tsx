@@ -1,50 +1,28 @@
+import { getBudgetPeriods } from "api/getBudgetPeriods";
 import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AsyncState, Period } from "shared";
-import { auth, COLLECTION, db, displayDate } from "utils";
+import { auth, displayDate } from "utils";
 
 export const Overview = () => {
   const navigate = useNavigate();
-
   const user = useUser();
-
-  const [state, setState] = useState<AsyncState<Period[]>>({
+  const [budgetPeriods, setBudgetPeriods] = useState<AsyncState<Period[]>>({
     data: undefined,
     status: "pending",
   });
 
   useEffect(function subscribeToBudgetPeriods() {
-    const unsubscribe = onSnapshot(
-      query(
-        collection(db, COLLECTION["budgetPeriods"]),
-        where("members", "array-contains", auth.currentUser?.uid ?? "")
-      ),
-      function onSnapshot(querySnapshot) {
-        const periods = querySnapshot.docs
-          .map((doc) => {
-            const data = doc.data();
-
-            return {
-              ...data,
-              id: doc.id,
-              fromDate: data.fromDate.toDate(),
-              toDate: data.toDate.toDate(),
-              createdAt: data.createdAt.toDate(),
-              lastUpdated: data.lastUpdated.toDate(),
-            };
-          })
-          .sort((a, b) => b.toDate - a.toDate);
-
-        setState(() => ({ data: periods as Period[], status: "resolved" }));
+    const unsubscribe = getBudgetPeriods(
+      function onSnapshot(data) {
+        setBudgetPeriods({ data, status: "resolved" });
       },
-      function onError(e) {
-        // TODO handle error
-        setState((prev) => ({ status: "rejected", data: undefined }));
+      function onError() {
+        setBudgetPeriods(() => ({ status: "rejected", data: undefined }));
       }
     );
 
@@ -52,42 +30,44 @@ export const Overview = () => {
   }, []);
 
   function navigateTo(url: string) {
-    return function onNavigate() {
-      navigate(url);
-    };
+    return () => navigate(url);
   }
 
   return (
     <>
       <ActionBarTitle title={`Välkommen ${user.data?.name ?? ""}`} />
 
-      {state.status === "pending" && <p>Hämtar budgetperioder...</p>}
+      {budgetPeriods.status === "pending" ? (
+        <p>Hämtar budgetperioder...</p>
+      ) : null}
 
-      {state.status === "resolved" && state.data.length === 0 && (
+      {budgetPeriods.status === "resolved" &&
+      budgetPeriods.data.length === 0 ? (
         <p>Inga skapade budgetperioder.</p>
-      )}
+      ) : null}
 
-      {state.status === "resolved" &&
-        user.status === "resolved" &&
-        state.data.map((period) => {
-          const memberWith = period.members
-            .filter((userId) => userId !== auth.currentUser?.uid)
-            .map((u) => user.getFriendById(u)?.name ?? "")
-            .join(", ");
+      {budgetPeriods.status === "resolved" && user.status === "resolved"
+        ? budgetPeriods.data.map((period) => {
+            const memberWith = period.members
+              .filter((userId) => userId !== auth.currentUser?.uid)
+              .map((u) => user.getFriendById(u)?.name ?? "")
+              .join(", ");
 
-          return (
-            <Card
-              key={period.id}
-              onClick={navigateTo(`/period/${period.id}`)}
-              role="listitem"
-            >
-              Från {displayDate(period.fromDate)} - {displayDate(period.toDate)}
-              <div>
-                {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
-              </div>
-            </Card>
-          );
-        })}
+            return (
+              <Card
+                key={period.id}
+                onClick={navigateTo(`/period/${period.id}`)}
+                role="listitem"
+              >
+                Från {displayDate(period.fromDate)} -{" "}
+                {displayDate(period.toDate)}
+                <div>
+                  {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
+                </div>
+              </Card>
+            );
+          })
+        : null}
 
       <ActionButton onClick={navigateTo("/period/add")}>+</ActionButton>
     </>

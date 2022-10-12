@@ -10,3 +10,16 @@ export interface Transaction {
   key: string;
   shared: boolean;
 }
+
+export interface NewTransaction {
+  label: string;
+  category: Transaction["category"];
+  date: Date;
+  amount: number;
+  author: string | undefined;
+  createdAt: Date;
+  lastUpdated: Date;
+  periodId: string;
+  id: string;
+  shared: boolean;
+}

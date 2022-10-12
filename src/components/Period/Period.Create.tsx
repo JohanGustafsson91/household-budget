@@ -1,12 +1,10 @@
 import { useUser } from "components/App/App.UserProvider";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
-import { auth, COLLECTION, db } from "utils";
 import { useNavigate } from "react-router-dom";
 import { Period } from "shared";
 import { Button, DatePicker, FormField, Input, Label } from "components/Form";
-import shortid from "shortid";
 import { ActionBarTitle } from "components/ActionBar";
+import { postBudgetPeriod } from "api/postBudgetPeriod";
 
 export const PeriodCreate = () => {
   const user = useUser();
@@ -21,14 +19,7 @@ export const PeriodCreate = () => {
   async function createPeriod(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const result = await addDoc(collection(db, COLLECTION["budgetPeriods"]), {
-      ...form,
-      members: [...form.members, auth.currentUser?.uid],
-      author: auth?.currentUser?.uid,
-      createdAt: new Date(),
-      lastUpdated: new Date(),
-      key: shortid(),
-    }).catch(() => {
+    const result = await postBudgetPeriod(form).catch(() => {
       // TODO handle error
       return undefined;
     });

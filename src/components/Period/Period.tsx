@@ -1,15 +1,16 @@
+import { getBudgetPeriodById } from "api/getBudgetPeriods";
+import { getTransactionsForPeriod } from "api/getTransactionsForPeriod";
 import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
 import { ActionButton } from "components/Button";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
-import { onSnapshot, query, collection, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
-import { COLLECTION, db, displayDate, getDocument } from "utils";
+import { displayDate } from "utils";
 import { categories, categoriesForBoard, Category } from "./Period.categories";
 import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
@@ -35,7 +36,7 @@ export const Period = () => {
     useState(false);
 
   const { getFriendById: getFriendNameById } = useUser();
-  const { id } = useParams();
+  const { id: periodId } = useParams();
   const navigate = useNavigate();
 
   const longPressEvent = useLongPress(
@@ -49,32 +50,17 @@ export const Period = () => {
 
   useEffect(
     function getPeriodById() {
-      if (!id) {
-        return;
-      }
-
-      (async function getPeriodFromDb() {
-        const data = await getDocument(COLLECTION["budgetPeriods"], id).catch(
-          () =>
-            // TODO handle
-            navigate("/")
-        );
-
-        data &&
-          setPeriod({
-            status: "resolved",
-            data: {
-              ...data,
-              id,
-              fromDate: data.fromDate.toDate(),
-              toDate: data.toDate.toDate(),
-              createdAt: data.createdAt.toDate(),
-              lastUpdated: data.lastUpdated.toDate(),
-            } as PeriodType,
-          });
-      })();
+      periodId &&
+        getBudgetPeriodById(periodId)
+          .then((data) =>
+            setPeriod({
+              status: "resolved",
+              data,
+            })
+          )
+          .catch(() => navigate("/"));
     },
-    [id, navigate]
+    [periodId, navigate]
   );
 
   useEffect(
@@ -83,31 +69,9 @@ export const Period = () => {
         return;
       }
 
-      const unsubscribe = onSnapshot(
-        query(
-          collection(db, COLLECTION["transactions"]),
-          where("periodId", "==", id),
-          where("author", "in", period.data.members)
-        ),
-        function onSnapshot(querySnapshot) {
-          const transactions = querySnapshot.docs
-            .map((doc) => {
-              const data = doc.data();
-              const docId = doc.id;
-
-              return {
-                ...data,
-                id: docId,
-                date: data.date.toDate(),
-              };
-            })
-            .sort((a, b) => a.date - b.date);
-
-          setTransactions({
-            status: "resolved",
-            data: transactions as Transaction[],
-          });
-        },
+      const unsubscribe = getTransactionsForPeriod(
+        period.data,
+        (data) => setTransactions({ data, status: "resolved" }),
         function onError(_e) {
           // TODO handle
         }
@@ -115,7 +79,7 @@ export const Period = () => {
 
       return unsubscribe;
     },
-    [id, period.data?.members]
+    [period.data]
   );
 
   function showUpdateTransaction(transaction: Transaction) {

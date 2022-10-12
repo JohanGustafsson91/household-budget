@@ -1,8 +1,7 @@
-import { signInWithEmailAndPassword } from "@firebase/auth";
+import { login } from "api/auth";
 import { Button, Input } from "components/Form";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { auth } from "utils/firebase";
 
 export const Login = () => {
   const [form, setForm] = useState({ email: "", password: "", error: "" });
@@ -14,9 +13,9 @@ export const Login = () => {
       error: "",
     }));
 
-  const login = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    signInWithEmailAndPassword(auth, form.email, form.password).catch(() =>
+    login(form.email, form.password).catch(() =>
       setForm((prevState) => ({
         ...prevState,
         error: "Ange korrekt email och/eller lösenord.",
@@ -26,8 +25,8 @@ export const Login = () => {
 
   return (
     <Wrapper>
-      <Form onSubmit={login}>
-        <Header>Hushållsbuget</Header>
+      <Form onSubmit={handleLogin}>
+        <Header>Hushållsbudget</Header>
         <Input
           name="email"
           type="text"

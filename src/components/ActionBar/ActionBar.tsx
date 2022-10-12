@@ -1,9 +1,8 @@
-import { signOut } from "firebase/auth";
+import { logout } from "api/auth";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
-import { auth } from "utils";
 import backIcon from "./ActionBar.backIcon.png";
 import logoutIcon from "./ActionBar.logoutIcon.png";
 
@@ -36,10 +35,6 @@ const useActionBar = (): ProviderProps => {
 export const ActionBar = () => {
   const { title } = useActionBar();
   const location = useLocation();
-
-  function logout() {
-    signOut(auth);
-  }
 
   return (
     <PageHeader>

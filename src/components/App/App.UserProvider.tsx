@@ -1,13 +1,6 @@
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
+import { getUser } from "api/getUser";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { AsyncState } from "shared";
-import { auth, COLLECTION, db } from "utils";
+import { AsyncState, Friend, User } from "shared";
 
 export const UserContext = React.createContext<ProviderProps | undefined>(
   undefined
@@ -20,41 +13,12 @@ export const UserProvider = ({ children }: Props) => {
   });
 
   useEffect(function getUserData() {
-    if (!auth.currentUser?.uid) {
-      return;
-    }
-
-    const userQuery = (id: string) =>
-      query(collection(db, COLLECTION["users"]), where("id", "==", id));
-
-    const unsubscribe = onSnapshot(
-      userQuery(auth.currentUser?.uid),
-      async function onSnapshot(querySnapshot) {
-        const [doc] = querySnapshot.docs;
-        const { id, name, gender, friends } = doc.data();
-
-        const friendsData: Friend[] = await Promise.all(
-          friends.map(async (friendId: string) => {
-            const doc = await getDocs(userQuery(friendId));
-            const [friendDoc] = doc.docs;
-            const { name, id, gender } = friendDoc.data();
-            const friend: Friend = { name, id, gender };
-            return friend;
-          })
-        );
-
-        setState({
-          data: {
-            id: id as string,
-            name: name as string,
-            gender: gender as Gender,
-            friends: friendsData,
-          },
-          status: "resolved",
-        });
+    const unsubscribe = getUser(
+      function onCallback(data) {
+        setState({ data, status: "resolved" });
       },
-      function onError(e) {
-        console.log(e);
+      function onError() {
+        // todo handle error
       }
     );
 
@@ -94,21 +58,6 @@ export const useUser = (): ProviderProps => {
 type ProviderProps = AsyncState<User> & {
   getFriendById: (friendId: string) => Friend | undefined;
 };
-
-interface User {
-  name: string;
-  id: string;
-  gender: Gender;
-  friends: Friend[];
-}
-
-interface Friend {
-  id: string;
-  name: string;
-  gender: Gender;
-}
-
-type Gender = "male" | "female";
 
 interface Props {
   children: React.ReactElement;
