@@ -9,6 +9,7 @@ import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AsyncState, Period } from "shared";
+import styled from "styled-components";
 import { displayDate } from "utils";
 
 export const Overview = () => {
@@ -66,21 +67,23 @@ export const Overview = () => {
                 onClick={navigateTo(`/period/${period.id}`)}
                 role="listitem"
               >
-                <div>
-                  Från {displayDate(period.fromDate)} -{" "}
-                  {displayDate(period.toDate)}
+                <Content>
                   <div>
-                    {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
+                    Från {displayDate(period.fromDate)} -{" "}
+                    {displayDate(period.toDate)}
+                    <div>
+                      {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
+                    </div>
                   </div>
-                </div>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    return handleDeleteBugdetPeriod(period.id);
-                  }}
-                >
-                  Ta bort
-                </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      return handleDeleteBugdetPeriod(period.id);
+                    }}
+                  >
+                    Ta bort
+                  </Button>
+                </Content>
               </Card>
             );
           })
@@ -90,3 +93,16 @@ export const Overview = () => {
     </>
   );
 };
+
+const Content = styled.div`
+  display: flex;
+  align-items: center;
+
+  div {
+    flex: 1;
+  }
+
+  ${Button} {
+    float: right;
+  }
+`;

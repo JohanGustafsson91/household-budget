@@ -6,20 +6,11 @@ describe("Manage budget", () => {
   it("should login user", () => {
     cy.visit("http://localhost:3000");
     login("test@example.com", "test123");
+    cy.findByText(/välkommen chaplin/i);
   });
 
   it("should clean up previously created budget periods", () => {
-    cy.get("body").then((body) => {
-      if (body.text().includes("Inga skapade budgetperioder")) {
-        return;
-      }
-
-      cy.findAllByRole("button", { name: /ta bort/i }).each((button) =>
-        button.click()
-      );
-    });
-
-    cy.get("p").contains(/Inga skapade budgetperioder./i);
+    cleanUp();
   });
 
   it("should create a new budget period", () => {
@@ -134,6 +125,7 @@ describe("Manage budget", () => {
   it("should login with different user", () => {
     cy.visit("http://localhost:3000");
     login("test2@example.com", "test123");
+    cy.findByText(/välkommen charlie/i);
   });
 
   it("should select previously created period", () => {
@@ -233,10 +225,31 @@ describe("Manage budget", () => {
         .contains(value)
     );
   });
+
+  it("should clean up budget periods", () => {
+    cy.findByRole("img", {
+      name: /back/i,
+    }).click();
+    cleanUp();
+  });
 });
 
 function login(email: string, password: string) {
   cy.findByPlaceholderText("Ange email").type(email);
   cy.findByPlaceholderText("Ange lösenord").type(password);
   cy.findByRole("button").click();
+}
+
+function cleanUp() {
+  cy.get("body")
+    .then(($body) => {
+      if ($body.text().includes("Inga skapade budgetperioder")) {
+        return;
+      }
+
+      return cy
+        .findAllByRole("button", { name: /ta bort/i })
+        .each((button) => button.click());
+    })
+    .then(() => cy.get("p").contains(/Inga skapade budgetperioder./i));
 }
