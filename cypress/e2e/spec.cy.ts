@@ -8,9 +8,19 @@ describe("Manage budget", () => {
     login("test@example.com", "test123");
   });
 
-  // it.skip("selectes period", () => {
-  //   cy.findAllByRole("listitem").first().click();
-  // });
+  it("should clean up previously created budget periods", () => {
+    cy.get("body").then((body) => {
+      if (body.text().includes("Inga skapade budgetperioder")) {
+        return;
+      }
+
+      cy.findAllByRole("button", { name: /ta bort/i }).each((button) =>
+        button.click()
+      );
+    });
+
+    cy.get("p").contains(/Inga skapade budgetperioder./i);
+  });
 
   it("should create a new budget period", () => {
     cy.findByRole("button", { name: /\+/i }).click();

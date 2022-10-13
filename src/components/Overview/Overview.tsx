@@ -1,8 +1,10 @@
+import { deleteBudgetPeriod } from "api/deleteBudgetPeriod";
 import { getBudgetPeriods } from "api/getBudgetPeriods";
 import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
+import { Button } from "components/Form";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +31,10 @@ export const Overview = () => {
 
     return unsubscribe;
   }, []);
+
+  function handleDeleteBugdetPeriod(periodId: string) {
+    return deleteBudgetPeriod(periodId);
+  }
 
   function navigateTo(url: string) {
     return () => navigate(url);
@@ -60,11 +66,21 @@ export const Overview = () => {
                 onClick={navigateTo(`/period/${period.id}`)}
                 role="listitem"
               >
-                Från {displayDate(period.fromDate)} -{" "}
-                {displayDate(period.toDate)}
                 <div>
-                  {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
+                  Från {displayDate(period.fromDate)} -{" "}
+                  {displayDate(period.toDate)}
+                  <div>
+                    {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
+                  </div>
                 </div>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    return handleDeleteBugdetPeriod(period.id);
+                  }}
+                >
+                  Ta bort
+                </Button>
               </Card>
             );
           })

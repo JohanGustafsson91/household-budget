@@ -12,6 +12,10 @@ export const Card = styled.div<{ height?: string }>`
   cursor: ${(props) => (props.onClick ? "pointer" : "default")};
 `;
 
+export const CardContent = styled.div`
+  flex: 1;
+`;
+
 export const CardTitle = styled.span`
   text-transform: uppercase;
   margin-bottom: ${space(3)};
