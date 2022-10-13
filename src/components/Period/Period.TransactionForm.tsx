@@ -16,21 +16,17 @@ import { getAuth } from "api/auth";
 import { putTransaction } from "api/putTransaction";
 import { deleteTransaction } from "api/deleteTransaction";
 
-export const TransactionForm = ({
-  period,
-  updateTransaction,
-  onUpdated,
-}: Props) => {
+export const TransactionForm = ({ period, transaction, onUpdated }: Props) => {
   const [form, setForm] = useState<Form>(() =>
-    updateTransaction === true
+    !transaction
       ? getInitFormState(period.fromDate)
       : {
-          id: updateTransaction.id,
-          label: updateTransaction.label,
-          category: updateTransaction.category,
-          amount: updateTransaction.amount,
-          date: updateTransaction.date,
-          shared: updateTransaction.shared,
+          id: transaction.id,
+          label: transaction.label,
+          category: transaction.category,
+          amount: transaction.amount,
+          date: transaction.date,
+          shared: transaction.shared,
         }
   );
 
@@ -55,10 +51,8 @@ export const TransactionForm = ({
     }));
   }
 
-  function handleUpdateDateInForm(name: "date") {
-    return (newDate: Date | null) => {
-      newDate && setForm((prev) => ({ ...prev, [name]: newDate }));
-    };
+  function handleUpdateDateInForm(newDate: Date | null) {
+    newDate && setForm((prev) => ({ ...prev, date: newDate }));
   }
 
   async function addTransaction(e: FormEvent<HTMLFormElement>) {
@@ -79,11 +73,11 @@ export const TransactionForm = ({
     result && setForm(getInitFormState(period.fromDate));
   }
 
-  function handleUpdateTransaction(e: FormEvent<HTMLFormElement>) {
+  async function handleUpdateTransaction(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (updateTransaction === true) return;
+    if (!transaction) return;
 
-    putTransaction(updateTransaction.id, {
+    await putTransaction(transaction.id, {
       ...form,
       date: form.date ?? new Date(),
       shared: form.shared ? true : false,
@@ -96,8 +90,8 @@ export const TransactionForm = ({
   }
 
   async function handleDeleteTransaction() {
-    if (updateTransaction === true) return;
-    await deleteTransaction(updateTransaction.id).catch(() => {
+    if (!transaction) return;
+    await deleteTransaction(transaction.id).catch(() => {
       // TODO handle
     });
     onUpdated?.();
@@ -107,12 +101,8 @@ export const TransactionForm = ({
 
   return (
     <div>
-      <h5>{updateTransaction === true ? "Lägg till" : "Ändra"}</h5>
-      <form
-        onSubmit={
-          updateTransaction !== true ? handleUpdateTransaction : addTransaction
-        }
-      >
+      <h5>{transaction ? "Ändra" : "Lägg till"}</h5>
+      <form onSubmit={transaction ? handleUpdateTransaction : addTransaction}>
         <FormField>
           <Label>
             Belopp
@@ -153,7 +143,7 @@ export const TransactionForm = ({
             locale="sv"
             name="date"
             selected={form.date}
-            onChange={handleUpdateDateInForm("date")}
+            onChange={handleUpdateDateInForm}
             minDate={period.fromDate}
             maxDate={period.toDate}
             inline
@@ -172,9 +162,9 @@ export const TransactionForm = ({
         </FormField>
         <FormField>
           <Button type="submit" disabled={!validForm}>
-            {updateTransaction === true ? "Lägg till" : "Spara"}
+            {transaction ? "Spara" : "Lägg till"}
           </Button>
-          {updateTransaction !== true && (
+          {transaction && (
             <Button type="button" onClick={handleDeleteTransaction}>
               Ta bort
             </Button>
@@ -196,7 +186,7 @@ const getInitFormState = (date: Date) => ({
 
 interface Props {
   period: Period;
-  updateTransaction: Transaction | true;
+  transaction: Transaction | undefined;
   onUpdated?: Function;
 }
 

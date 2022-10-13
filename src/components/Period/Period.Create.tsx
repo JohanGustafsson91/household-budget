@@ -1,7 +1,6 @@
 import { useUser } from "components/App/App.UserProvider";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Period } from "shared";
 import { Button, DatePicker, FormField, Input, Label } from "components/Form";
 import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/postBudgetPeriod";
@@ -16,21 +15,15 @@ export const PeriodCreate = () => {
     members: [],
   });
 
-  async function createPeriod(e: FormEvent<HTMLFormElement>) {
+  async function createBudgetPeriod(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const result = await postBudgetPeriod(form).catch(() => {
-      // TODO handle error
-      return undefined;
-    });
-
+    const result = await postBudgetPeriod(form).catch(() => undefined);
     result && navigate(`/period/${result.id}`);
   }
 
   function handleUpdateDateInForm(name: "fromDate" | "toDate") {
-    return (newDate: Date | null) => {
+    return (newDate: Date | null) =>
       newDate && setForm((prev) => ({ ...prev, [name]: newDate }));
-    };
   }
 
   function handleUpdateMembersInForm(e: ChangeEvent<HTMLInputElement>) {
@@ -50,7 +43,7 @@ export const PeriodCreate = () => {
     <>
       <ActionBarTitle title="Skapa budgetperiod" />
 
-      <form onSubmit={createPeriod}>
+      <form onSubmit={createBudgetPeriod}>
         <FormField>
           <Label>
             Från {form.fromDate?.toLocaleDateString()} <div />
@@ -109,8 +102,4 @@ export const PeriodCreate = () => {
   );
 };
 
-interface Form {
-  fromDate: Period["fromDate"] | null;
-  toDate: Period["toDate"] | null;
-  members: Period["members"];
-}
+type Form = Parameters<typeof postBudgetPeriod>[0];

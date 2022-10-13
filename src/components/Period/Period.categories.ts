@@ -1,3 +1,5 @@
+import { Category } from "./Period.Category";
+
 export const categories: Category[] = [
   {
     type: "INCOME",
@@ -36,16 +38,3 @@ export const categories: Category[] = [
 export const categoriesForBoard = categories.filter(
   ({ type }) => type !== "INCOME"
 );
-
-export interface Category {
-  type:
-    | "LIVING"
-    | "FOOD"
-    | "TRANSPORT"
-    | "CLOTHES"
-    | "SAVINGS"
-    | "OTHER"
-    | "LOAN"
-    | "INCOME";
-  text: string;
-}

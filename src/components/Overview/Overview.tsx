@@ -3,10 +3,11 @@ import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
+import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AsyncState, Period } from "shared";
-import { auth, displayDate } from "utils";
+import { displayDate } from "utils";
 
 export const Overview = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export const Overview = () => {
       {budgetPeriods.status === "resolved" && user.status === "resolved"
         ? budgetPeriods.data.map((period) => {
             const memberWith = period.members
-              .filter((userId) => userId !== auth.currentUser?.uid)
+              .filter((userId) => userId !== getAuth().currentUser?.uid)
               .map((u) => user.getFriendById(u)?.name ?? "")
               .join(", ");
 

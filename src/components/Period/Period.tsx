@@ -11,10 +11,11 @@ import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
 import { displayDate } from "utils";
-import { categories, categoriesForBoard, Category } from "./Period.categories";
+import { categories, categoriesForBoard } from "./Period.categories";
+import { Category } from "./Period.Category";
 import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
-import { TransactionManyForm } from "./Period.TransactionManyForm";
+import { MultipleTransactionsForm } from "./Period.MultipleTransactionsForm";
 import { useLongPress } from "./Period.useLongPress";
 
 export const Period = () => {
@@ -266,7 +267,11 @@ export const Period = () => {
             </CloseButton>
             <TransactionForm
               period={period.data}
-              updateTransaction={addTransactionVisible}
+              transaction={
+                addTransactionVisible === true
+                  ? undefined
+                  : addTransactionVisible
+              }
               onUpdated={() => setManageTransaction(undefined)}
             />
           </Modal>
@@ -279,7 +284,7 @@ export const Period = () => {
             <CloseButton onClick={() => setAddManyTransactionsVisible(false)}>
               x
             </CloseButton>
-            <TransactionManyForm
+            <MultipleTransactionsForm
               period={period.data}
               onUpdated={() => setAddManyTransactionsVisible(false)}
             />

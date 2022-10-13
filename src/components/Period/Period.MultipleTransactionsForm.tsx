@@ -14,7 +14,7 @@ interface Props {
   onUpdated?: Function;
 }
 
-export function TransactionManyForm({ period, onUpdated }: Props) {
+export function MultipleTransactionsForm({ period, onUpdated }: Props) {
   const [pastedText, setPastedText] = useState("");
   const [transations, setTransactions] = useState<NewTransaction[]>([]);
 
@@ -22,7 +22,7 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
     function onPastedText() {
       const newTransactions = pastedText
         .split("\n")
-        .map((line) => {
+        .map(function parseLine(line) {
           const [amount, label, date] = line.split("\t \t").reverse();
           const category: Transaction["category"] = amount.startsWith("-")
             ? "OTHER"
@@ -49,12 +49,10 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
     [period.id, pastedText]
   );
 
-  async function onAdd() {
+  async function createMultipleTransactions() {
     await Promise.all(
       transations.map((transaction) =>
-        postTransaction(transaction).catch(() => {
-          return undefined;
-        })
+        postTransaction(transaction).catch(() => undefined)
       )
     );
 
@@ -64,6 +62,7 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
   return (
     <Content>
       <h5>Lägg till många</h5>
+
       <Textarea
         value={pastedText}
         onChange={(e) => setPastedText(e.target.value)}
@@ -87,7 +86,7 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
                   <Select
                     name="category"
                     value={transaction.category}
-                    onChange={(e) =>
+                    onChange={function updateCategory(e) {
                       setTransactions((prev) =>
                         prev.map((previousTransaction) =>
                           previousTransaction.id === transaction.id
@@ -98,8 +97,8 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
                               }
                             : previousTransaction
                         )
-                      )
-                    }
+                      );
+                    }}
                   >
                     {categories.map((category) => (
                       <option key={category.type} value={category.type}>
@@ -114,7 +113,7 @@ export function TransactionManyForm({ period, onUpdated }: Props) {
         </Table>
       ) : null}
 
-      <Button onClick={onAdd}>Lägg till</Button>
+      <Button onClick={createMultipleTransactions}>Lägg till</Button>
     </Content>
   );
 }
