@@ -1,4 +1,5 @@
 import { getUser } from "api/getUser";
+import { Loading } from "components/Loading";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AsyncState, Friend, User } from "shared";
 
@@ -18,7 +19,7 @@ export const UserProvider = ({ children }: Props) => {
         setState({ data, status: "resolved" });
       },
       function onError() {
-        // todo handle error
+        setState({ data: undefined, status: "rejected" });
       }
     );
 
@@ -27,23 +28,27 @@ export const UserProvider = ({ children }: Props) => {
 
   const getFriendById = useCallback(
     function findFriendName(friendId: string) {
-      if (state.status !== "resolved") return undefined;
-
-      return friendId === state.data.id
+      return friendId === state.data?.id
         ? state.data
-        : state.data.friends.find(({ id }) => id === friendId);
+        : state.data?.friends.find(({ id }) => id === friendId);
     },
-    [state.data, state.status]
+    [state.data]
   );
 
-  return (
-    <UserContext.Provider value={{ ...state, getFriendById }}>
-      {children}
-    </UserContext.Provider>
-  );
+  return {
+    pending: () => <Loading fullPage>Hämtar användare...</Loading>,
+    rejected: () => {
+      throw new Error("FETCHING USER");
+    },
+    resolved: () => (
+      <UserContext.Provider value={{ ...state, getFriendById }}>
+        {children}
+      </UserContext.Provider>
+    ),
+  }[state.status]();
 };
 
-export const useUser = (): ProviderProps => {
+export function useUser(): ProviderProps {
   const ctx = useContext(UserContext);
 
   if (!ctx) {
@@ -53,7 +58,7 @@ export const useUser = (): ProviderProps => {
   }
 
   return ctx;
-};
+}
 
 type ProviderProps = AsyncState<User> & {
   getFriendById: (friendId: string) => Friend | undefined;

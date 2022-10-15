@@ -17,6 +17,7 @@ import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
 import { MultipleTransactionsForm } from "./Period.MultipleTransactionsForm";
 import { useLongPress } from "./Period.useLongPress";
+import { Loading } from "components/Loading";
 
 export const Period = () => {
   const [period, setPeriod] = useState<AsyncState<PeriodType>>({
@@ -106,7 +107,11 @@ export const Period = () => {
   const totalLeftToSpend = totalIncome - totalExpenses;
 
   if (period.status === "pending") {
-    return <Content>Laddar budgetperiod...</Content>;
+    return (
+      <Content>
+        <Loading>Hämtar budgetperiod...</Loading>
+      </Content>
+    );
   }
 
   if (period.status === "rejected") {

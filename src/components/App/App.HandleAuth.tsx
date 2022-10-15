@@ -1,13 +1,13 @@
 import { useAuth } from "api/auth";
+import { Loading } from "components/Loading";
 import { PropsWithChildren, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import { ROUTES } from "./App";
 
 export const HandleAuth = ({
   children,
   authenticationRequired = false,
-  loadingElement = <Loading>Loading...</Loading>,
+  loadingElement = <Loading fullPage>Laddar...</Loading>,
 }: PropsWithChildren<{
   authenticationRequired?: boolean;
   loadingElement?: JSX.Element;
@@ -38,11 +38,3 @@ export const HandleAuth = ({
 
   return <>{loading ? loadingElement : children}</>;
 };
-
-const Loading = styled.div`
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;

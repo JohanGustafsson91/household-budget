@@ -5,6 +5,7 @@ import { useUser } from "components/App/App.UserProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
 import { Button } from "components/Form";
+import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -33,10 +34,6 @@ export const Overview = () => {
     return unsubscribe;
   }, []);
 
-  function handleDeleteBugdetPeriod(periodId: string) {
-    return deleteBudgetPeriod(periodId);
-  }
-
   function navigateTo(url: string) {
     return () => navigate(url);
   }
@@ -46,7 +43,9 @@ export const Overview = () => {
       <ActionBarTitle title={`Välkommen ${user.data?.name ?? ""}`} />
 
       {budgetPeriods.status === "pending" ? (
-        <p>Hämtar budgetperioder...</p>
+        <Loading fullPage={false}>
+          <p>Hämtar budgetperioder...</p>
+        </Loading>
       ) : null}
 
       {budgetPeriods.status === "resolved" &&
@@ -76,9 +75,9 @@ export const Overview = () => {
                     </div>
                   </div>
                   <Button
-                    onClick={(e) => {
+                    onClick={function handleDeleteBugdetPeriod(e) {
                       e.stopPropagation();
-                      return handleDeleteBugdetPeriod(period.id);
+                      return deleteBudgetPeriod(period.id);
                     }}
                   >
                     Ta bort

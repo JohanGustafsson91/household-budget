@@ -4,6 +4,7 @@ import { Overview } from "components/Overview";
 import { PageContent, PageWrapper } from "components/Page";
 import { Period, PeriodCreate } from "components/Period";
 import { PropsWithChildren } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { HandleAuth } from "./App.HandleAuth";
 import { UserProvider } from "./App.UserProvider";
@@ -21,16 +22,28 @@ export const App = () => (
 
 function AuthenticatedPage({ children }: PropsWithChildren<{}>) {
   return (
-    <HandleAuth authenticationRequired={true}>
-      <UserProvider>
-        <ActionBarProvider>
-          <PageWrapper>
-            <ActionBar />
-            <PageContent>{children}</PageContent>
-          </PageWrapper>
-        </ActionBarProvider>
-      </UserProvider>
-    </HandleAuth>
+    <ErrorBoundary
+      fallbackRender={({ error, resetErrorBoundary }) => (
+        <PageWrapper>
+          <PageContent>
+            <h1>Vi har lite problem just nu</h1>
+            <pre>Felkod: {error.message}</pre>
+            <button onClick={resetErrorBoundary}>Försök igen</button>
+          </PageContent>
+        </PageWrapper>
+      )}
+    >
+      <HandleAuth authenticationRequired={true}>
+        <UserProvider>
+          <ActionBarProvider>
+            <PageWrapper>
+              <ActionBar />
+              <PageContent>{children}</PageContent>
+            </PageWrapper>
+          </ActionBarProvider>
+        </UserProvider>
+      </HandleAuth>
+    </ErrorBoundary>
   );
 }
 
