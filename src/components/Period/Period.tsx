@@ -20,91 +20,48 @@ import { useLongPress } from "./Period.useLongPress";
 import { Loading } from "components/Loading";
 
 export const Period = () => {
-  const [period, setPeriod] = useState<AsyncState<PeriodType>>({
-    data: undefined,
-    status: "pending",
-  });
-
-  const [transactions, setTransactions] = useState<AsyncState<Transaction[]>>({
-    data: undefined,
-    status: "pending",
-  });
-
-  const [addTransactionVisible, setManageTransaction] = useState<
-    Transaction | true | undefined
-  >(undefined);
-
-  const [addManyTransactionsVisible, setAddManyTransactionsVisible] =
-    useState(false);
-
-  const { getFriendById: getFriendNameById } = useUser();
   const { id: periodId } = useParams();
+  const {
+    period,
+    summarizedTotals,
+    transactionsPerCategory,
+    transactionsPerMember,
+  } = useBudgetPeriodWithTransactions(periodId ?? "");
+  const { getFriendById } = useUser();
   const navigate = useNavigate();
 
+  const [transactionAction, setTransactionAction] = useState<
+    | {
+        mode: "none";
+      }
+    | {
+        mode: "create";
+      }
+    | {
+        mode: "create-many";
+      }
+    | {
+        mode: "update";
+        transaction: Transaction;
+      }
+  >({
+    mode: "none",
+  });
+
+  const resetTransactionAction = () => setTransactionAction({ mode: "none" });
+
   const longPressEvent = useLongPress(
-    () => setAddManyTransactionsVisible(true),
-    () => setManageTransaction(true),
+    () => setTransactionAction({ mode: "create-many" }),
+    () => setTransactionAction({ mode: "create" }),
     {
       shouldPreventDefault: true,
       delay: 500,
     }
   );
 
-  useEffect(
-    function getPeriodById() {
-      periodId &&
-        getBudgetPeriodById(periodId)
-          .then((data) =>
-            setPeriod({
-              status: "resolved",
-              data,
-            })
-          )
-          .catch(() => navigate("/"));
-    },
-    [periodId, navigate]
-  );
-
-  useEffect(
-    function subscribeToTransactions() {
-      if (!period.data?.members.length) {
-        return;
-      }
-
-      const unsubscribe = getTransactionsForPeriod(
-        period.data,
-        (data) => setTransactions({ data, status: "resolved" }),
-        function onError(_e) {
-          // TODO handle
-        }
-      );
-
-      return unsubscribe;
-    },
-    [period.data]
-  );
-
-  function showUpdateTransaction(transaction: Transaction) {
-    setManageTransaction(transaction);
+  if (!periodId) {
+    navigate("/");
   }
-
-  const categorizedTransactions = (transactions?.data || []).reduce(
-    (acc, curr) => {
-      const previous = acc[curr.category] || [];
-      return {
-        ...acc,
-        [curr.category]: [...previous, curr],
-      };
-    },
-    {} as Record<Category["type"], Transaction[]>
-  );
-
-  const totalIncome = summarize(categorizedTransactions["INCOME"] || []);
-  const { INCOME, ...rest } = categorizedTransactions;
-  const totalExpenses = summarize(Object.values(rest).flat());
-
-  // TODO remove gemensam
-  const totalLeftToSpend = totalIncome - totalExpenses;
 
   if (period.status === "pending") {
     return (
@@ -128,15 +85,15 @@ export const Period = () => {
 
       <TopContent>
         <Item>
-          <ItemMoney highlight>{displayMoney(totalLeftToSpend)}</ItemMoney>
+          <ItemMoney highlight>{displayMoney(summarizedTotals.left)}</ItemMoney>
           <ItemMoneyLabel>Kvar</ItemMoneyLabel>
         </Item>
         <Item>
-          <ItemMoney>{displayMoney(totalIncome)}</ItemMoney>
+          <ItemMoney>{displayMoney(summarizedTotals.income)}</ItemMoney>
           <ItemMoneyLabel>Inkomster</ItemMoneyLabel>
         </Item>
         <Item>
-          <ItemMoney>{displayMoney(totalExpenses)}</ItemMoney>
+          <ItemMoney>{displayMoney(summarizedTotals.expenses)}</ItemMoney>
           <ItemMoneyLabel>Utgifter</ItemMoneyLabel>
         </Item>
       </TopContent>
@@ -144,47 +101,50 @@ export const Period = () => {
       <MarginBottomFix />
 
       <Card height="calc(50vh)">
-        <Board columns={categories.length}>
-          {categories.map(({ type, text }) => (
-            <Lane key={type}>
-              <LaneHeader>
-                <CardTitle>{text}</CardTitle>
-              </LaneHeader>
-              <LaneContent>
-                {(categorizedTransactions[type] || []).map((transaction) => (
-                  <TransactionCard
-                    gender={
-                      transaction.shared
-                        ? "none"
-                        : getFriendNameById(transaction.author)?.gender ||
-                          "male"
-                    }
-                    key={transaction.id}
-                    onClick={() => showUpdateTransaction(transaction)}
-                  >
-                    <TransactionRow>
-                      <TransactionCol>
-                        {transaction.shared
-                          ? "Gemensam"
-                          : getFriendNameById(transaction.author)?.name}
-                      </TransactionCol>
-                      <TransactionCol highlight>
-                        {transaction.label}
-                      </TransactionCol>
-                    </TransactionRow>
-                    <TransactionRow>
-                      <TransactionCol>
-                        {displayDate(transaction.date)}
-                      </TransactionCol>
-                      <TransactionCol highlight big>
-                        {displayMoney(transaction.amount)}kr
-                      </TransactionCol>
-                    </TransactionRow>
-                  </TransactionCard>
-                ))}
-              </LaneContent>
-            </Lane>
-          ))}
+        <Board columns={transactionsPerCategory.length}>
+          {transactionsPerCategory.map(
+            ({ type, categoryName, transactions }) => (
+              <Lane key={type}>
+                <LaneHeader>
+                  <CardTitle>{categoryName}</CardTitle>
+                </LaneHeader>
+                <LaneContent>
+                  {transactions.map((transaction) => (
+                    <TransactionCard
+                      gender={
+                        transaction.shared
+                          ? "none"
+                          : getFriendById(transaction.author)?.gender || "male"
+                      }
+                      key={transaction.id}
+                      onClick={() =>
+                        setTransactionAction({ mode: "update", transaction })
+                      }
+                    >
+                      <TransactionRow>
+                        <TransactionCol>
+                          {transaction.shared
+                            ? "Gemensam"
+                            : getFriendById(transaction.author)?.name}
+                        </TransactionCol>
+                        <TransactionCol highlight>
+                          {transaction.label}
+                        </TransactionCol>
+                      </TransactionRow>
+                      <TransactionRow>
+                        <TransactionCol>
+                          {displayDate(transaction.date)}
+                        </TransactionCol>
+                        <TransactionCol highlight big>
+                          {displayMoney(transaction.amount)}kr
+                        </TransactionCol>
+                      </TransactionRow>
+                    </TransactionCard>
+                  ))}
+                </LaneContent>
+              </Lane>
+            )
+          )}
         </Board>
       </Card>
 
@@ -192,106 +152,75 @@ export const Period = () => {
         <CardTitle>Tillsammans</CardTitle>
         <CardRow>
           <CardCol>Inkomst</CardCol>
-          <CardCol>+{displayMoney(totalIncome)} kr</CardCol>
+          <CardCol>+{displayMoney(summarizedTotals.income)} kr</CardCol>
         </CardRow>
-        {categoriesForBoard.map(({ type, text }) => (
-          <CardRow key={`shared-${type}`}>
-            <CardCol>{text}</CardCol>
-            <CardCol>
-              -{displayMoney(summarize(categorizedTransactions[type] || []))} kr
-            </CardCol>
-          </CardRow>
-        ))}
+        {summarizedTotals.totalsPerCategory.map(
+          ({ type, categoryName, amount }) => (
+            <CardRow key={`shared-${type}`}>
+              <CardCol>{categoryName}</CardCol>
+              <CardCol>-{displayMoney(amount)} kr</CardCol>
+            </CardRow>
+          )
+        )}
         <CardRow>
           <CardCol>Totalt</CardCol>
-          <CardCol>{displayMoney(totalLeftToSpend)} kr</CardCol>
+          <CardCol>{displayMoney(summarizedTotals.left)} kr</CardCol>
         </CardRow>
       </Card>
 
-      {period.data.members.map((userId) => {
-        const name = getFriendNameById(userId)?.name;
+      {transactionsPerMember.map(
+        ({ name, userId, income, left, totalsPerCategory }) => {
+          return (
+            <Card key={`sum-${userId}`}>
+              <CardTitle>{name}</CardTitle>
 
-        const incomeForUser = (categorizedTransactions.INCOME || []).filter(
-          ({ author }) => author === userId
-        );
-
-        const transactionsByUser = categoriesForBoard.reduce((acc, curr) => {
-          const transaction = categorizedTransactions[curr.type] || [];
-
-          const userTransactions = transaction
-            .filter(
-              ({ author, shared }) => author === userId || shared === true
-            )
-            .map((transaction) => ({
-              ...transaction,
-              amount: transaction.shared
-                ? transaction.amount / period.data.members.length
-                : transaction.amount,
-            }));
-
-          const previous = acc[curr.type] || [];
-          return { ...acc, [curr.type]: [...previous, ...userTransactions] };
-        }, {} as Record<Category["type"], Transaction[]>);
-
-        const total =
-          summarize(incomeForUser) -
-          summarize(Object.values(transactionsByUser).flat());
-
-        return (
-          <Card key={`sum-${userId}`}>
-            <CardTitle>{name}</CardTitle>
-
-            <CardRow>
-              <CardCol>Inkomst</CardCol>
-              <CardCol>+{displayMoney(summarize(incomeForUser))} kr</CardCol>
-            </CardRow>
-
-            {categoriesForBoard.map(({ type, text }) => (
-              <CardRow key={`${userId}-${type}`}>
-                <CardCol>{text}</CardCol>
-                <CardCol>
-                  -{displayMoney(summarize(transactionsByUser[type] || []))} kr
-                </CardCol>
+              <CardRow>
+                <CardCol>Inkomst</CardCol>
+                <CardCol>+{displayMoney(income)} kr</CardCol>
               </CardRow>
-            ))}
-            <CardRow>
-              <CardCol>Totalt</CardCol>
-              <CardCol>{displayMoney(total)} kr</CardCol>
-            </CardRow>
-          </Card>
-        );
-      })}
+
+              {totalsPerCategory.map(({ type, categoryName, amount }) => (
+                <CardRow key={`${userId}-${type}`}>
+                  <CardCol>{categoryName}</CardCol>
+                  <CardCol>-{displayMoney(amount)} kr</CardCol>
+                </CardRow>
+              ))}
+              <CardRow>
+                <CardCol>Totalt</CardCol>
+                <CardCol>{displayMoney(left)} kr</CardCol>
+              </CardRow>
+            </Card>
+          );
+        }
+      )}
 
       <ActionButton {...longPressEvent}>+</ActionButton>
 
-      {addTransactionVisible ? (
+      {transactionAction.mode === "create" ||
+      transactionAction.mode === "update" ? (
         <Overlay>
           <Modal>
-            <CloseButton onClick={() => setManageTransaction(undefined)}>
-              x
-            </CloseButton>
+            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
             <TransactionForm
               period={period.data}
               transaction={
-                addTransactionVisible === true
-                  ? undefined
-                  : addTransactionVisible
+                transactionAction.mode === "update"
+                  ? transactionAction.transaction
+                  : undefined
               }
-              onUpdated={() => setManageTransaction(undefined)}
+              onUpdated={resetTransactionAction}
             />
           </Modal>
         </Overlay>
       ) : null}
 
-      {addManyTransactionsVisible ? (
+      {transactionAction.mode === "create-many" ? (
         <Overlay>
           <Modal>
-            <CloseButton onClick={() => setAddManyTransactionsVisible(false)}>
-              x
-            </CloseButton>
+            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
             <MultipleTransactionsForm
               period={period.data}
-              onUpdated={() => setAddManyTransactionsVisible(false)}
+              onUpdated={resetTransactionAction}
             />
           </Modal>
         </Overlay>
@@ -299,6 +228,123 @@ export const Period = () => {
     </Content>
   );
 };
+
+function useBudgetPeriodWithTransactions(periodId: string) {
+  const { getFriendById: getFriendNameById } = useUser();
+
+  const [period, setPeriod] = useState<AsyncState<PeriodType>>({
+    data: undefined,
+    status: "pending",
+  });
+
+  const [transactions, setTransactions] = useState<AsyncState<Transaction[]>>({
+    data: undefined,
+    status: "pending",
+  });
+
+  useEffect(
+    function getPeriodById() {
+      if (periodId) {
+        getBudgetPeriodById(periodId)
+          .then((data) =>
+            setPeriod({
+              status: "resolved",
+              data,
+            })
+          )
+          .catch(() => setPeriod({ data: undefined, status: "rejected" }));
+      }
+    },
+    [periodId]
+  );
+
+  useEffect(
+    function subscribeToTransactions() {
+      if (period.data?.members.length) {
+        const unsubscribe = getTransactionsForPeriod(
+          period.data,
+          (data) => setTransactions({ data, status: "resolved" }),
+          function onError(_e) {
+            setTransactions({ data: undefined, status: "rejected" });
+          }
+        );
+
+        return unsubscribe;
+      }
+    },
+    [period.data]
+  );
+
+  const categorizedTransactions = (transactions?.data || []).reduce(
+    (acc, curr) => {
+      const previous = acc[curr.category] || [];
+      return {
+        ...acc,
+        [curr.category]: [...previous, curr],
+      };
+    },
+    {} as Record<Category["type"], Transaction[]>
+  );
+
+  const income = summarize(categorizedTransactions["INCOME"] || []);
+  const { INCOME, ...rest } = categorizedTransactions;
+  const expenses = summarize(Object.values(rest).flat());
+  const left = income - expenses;
+
+  return {
+    period,
+    summarizedTotals: {
+      income,
+      expenses,
+      left,
+      totalsPerCategory: categoriesForBoard.map(({ type, text }) => ({
+        type,
+        categoryName: text,
+        amount: summarize(categorizedTransactions[type] || []),
+      })),
+    },
+    transactionsPerCategory: categories.map(({ type, text }) => ({
+      categoryName: text,
+      type,
+      transactions: categorizedTransactions[type] || [],
+    })),
+    transactionsPerMember: (period.data?.members || []).map((userId) => {
+      const transactionsByUser = categoriesForBoard.reduce((acc, curr) => {
+        const transaction = categorizedTransactions[curr.type] || [];
+
+        const userTransactions = transaction
+          .filter(({ author, shared }) => author === userId || shared === true)
+          .map((transaction) => ({
+            ...transaction,
+            amount: transaction.shared
+              ? transaction.amount / (period.data?.members || []).length
+              : transaction.amount,
+          }));
+
+        const previous = acc[curr.type] || [];
+        return { ...acc, [curr.type]: [...previous, ...userTransactions] };
+      }, {} as Record<Category["type"], Transaction[]>);
+
+      const income = summarize(
+        (categorizedTransactions.INCOME || []).filter(
+          ({ author }) => author === userId
+        )
+      );
+
+      return {
+        name: getFriendNameById(userId)?.name,
+        userId,
+        income,
+        left: income - summarize(Object.values(transactionsByUser).flat()),
+        totalsPerCategory: categoriesForBoard.map(({ type, text }) => ({
+          type,
+          categoryName: text,
+          amount: summarize(transactionsByUser[type] || []),
+        })),
+      };
+    }),
+  };
+}
 
 function summarize(list: Array<{ amount: number }>) {
   return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
