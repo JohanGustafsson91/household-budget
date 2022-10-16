@@ -14,9 +14,13 @@ import { categories, categoriesForBoard } from "./Period.categories";
 import { Category } from "./Period.Category";
 import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
-import { MultipleTransactionsForm } from "./Period.MultipleTransactionsForm";
+import {
+  MultipleTransactionsForm,
+  Table,
+} from "./Period.MultipleTransactionsForm";
 import { Loading } from "components/Loading";
 import { FloatingActionMenu } from "./Period.FloatingActionMenu";
+import { over } from "cypress/types/lodash";
 
 export const Period = () => {
   const { id: periodId } = useParams();
@@ -25,6 +29,7 @@ export const Period = () => {
     summarizedTotals,
     transactionsPerCategory,
     transactionsPerMember,
+    overview,
   } = useBudgetPeriodWithTransactions(periodId ?? "");
   const { getFriendById } = useUser();
   const navigate = useNavigate();
@@ -42,6 +47,9 @@ export const Period = () => {
     | {
         mode: "update";
         transaction: Transaction;
+      }
+    | {
+        mode: "show-overview";
       }
   >({
     mode: "none",
@@ -205,7 +213,15 @@ export const Period = () => {
             >
               Lägg till många
             </div>
-            <div>Visa översikt</div>
+            <div
+              role="listitem"
+              onClick={() => {
+                setTransactionAction({ mode: "show-overview" });
+                close();
+              }}
+            >
+              Visa översikt
+            </div>
           </FloatingMenu>
         )}
       </FloatingActionMenu>
@@ -239,12 +255,41 @@ export const Period = () => {
           </Modal>
         </Overlay>
       ) : null}
+
+      {transactionAction.mode === "show-overview" ? (
+        <Overlay>
+          <Modal>
+            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
+            <CardTitle>Översikt</CardTitle>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Namn</th>
+                  <th>Belopp</th>
+                  <th>Datum</th>
+                  <th>Kategori</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overview.map(({ name, amount, category, date, id }) => (
+                  <tr key={id}>
+                    <td>{name}</td>
+                    <td>{amount}</td>
+                    <td>{displayDate(date)}</td>
+                    <td>{category}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Modal>
+        </Overlay>
+      ) : null}
     </Content>
   );
 };
 
 function useBudgetPeriodWithTransactions(periodId: string) {
-  const { getFriendById: getFriendNameById } = useUser();
+  const { data: userData, getFriendById: getFriendNameById } = useUser();
 
   const [period, setPeriod] = useState<AsyncState<PeriodType>>({
     data: undefined,
@@ -357,6 +402,17 @@ function useBudgetPeriodWithTransactions(periodId: string) {
         })),
       };
     }),
+    overview: (transactions.data || [])
+      ?.filter((i) => i.author === userData?.id)
+      .map((t) => {
+        return {
+          date: t.date,
+          amount: t.category === "INCOME" ? t.amount : -t.amount,
+          name: t.label,
+          id: t.id,
+          category: categories.find((c) => c.type === t.category)?.text,
+        };
+      }),
   };
 }
 

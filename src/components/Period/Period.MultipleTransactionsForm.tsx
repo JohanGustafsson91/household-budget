@@ -125,7 +125,7 @@ const Textarea = styled.textarea`
   height: 300px;
 `;
 
-const Table = styled.table`
+export const Table = styled.table`
   width: 100%;
 
   th,
@@ -133,11 +133,5 @@ const Table = styled.table`
     text-align: left;
     padding: ${space(1)} 0;
     border-bottom: 1px solid #eee;
-  }
-
-  tr {
-    &:hover {
-      font-weight: bold;
-    }
   }
 `;
