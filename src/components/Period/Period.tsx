@@ -2,7 +2,6 @@ import { getBudgetPeriodById } from "api/getBudgetPeriods";
 import { getTransactionsForPeriod } from "api/getTransactionsForPeriod";
 import { ActionBarTitle } from "components/ActionBar";
 import { useUser } from "components/App/App.UserProvider";
-import { ActionButton } from "components/Button";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { useEffect, useState } from "react";
@@ -16,8 +15,8 @@ import { Category } from "./Period.Category";
 import { Transaction } from "./Period.Transaction";
 import { TransactionForm } from "./Period.TransactionForm";
 import { MultipleTransactionsForm } from "./Period.MultipleTransactionsForm";
-import { useLongPress } from "./Period.useLongPress";
 import { Loading } from "components/Loading";
+import { FloatingActionMenu } from "./Period.FloatingActionMenu";
 
 export const Period = () => {
   const { id: periodId } = useParams();
@@ -49,15 +48,6 @@ export const Period = () => {
   });
 
   const resetTransactionAction = () => setTransactionAction({ mode: "none" });
-
-  const longPressEvent = useLongPress(
-    () => setTransactionAction({ mode: "create-many" }),
-    () => setTransactionAction({ mode: "create" }),
-    {
-      shouldPreventDefault: true,
-      delay: 500,
-    }
-  );
 
   if (!periodId) {
     navigate("/");
@@ -194,7 +184,31 @@ export const Period = () => {
         }
       )}
 
-      <ActionButton {...longPressEvent}>+</ActionButton>
+      <FloatingActionMenu>
+        {({ close }) => (
+          <FloatingMenu>
+            <div
+              role="listitem"
+              onClick={() => {
+                setTransactionAction({ mode: "create" });
+                close();
+              }}
+            >
+              Lägg till
+            </div>
+            <div
+              role="listitem"
+              onClick={() => {
+                setTransactionAction({ mode: "create-many" });
+                close();
+              }}
+            >
+              Lägg till många
+            </div>
+            <div>Visa översikt</div>
+          </FloatingMenu>
+        )}
+      </FloatingActionMenu>
 
       {transactionAction.mode === "create" ||
       transactionAction.mode === "update" ? (
@@ -532,5 +546,23 @@ const CardRow = styled.div`
     border: 0;
     font-weight: bold;
     margin-bottom: 0;
+  }
+`;
+
+const FloatingMenu = styled.div`
+  background-color: #fff;
+  border: 1px solid #eee;
+  margin-bottom: ${space(1)};
+
+  div {
+    cursor: pointer;
+    padding: ${space(2)} ${space(4)} ${space(2)} ${space(2)};
+    border-bottom: 1px solid #eee;
+    &:last-child {
+      border: 0;
+    }
+    &:hover {
+      font-weight: bold;
+    }
   }
 `;

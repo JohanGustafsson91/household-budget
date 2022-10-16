@@ -28,6 +28,7 @@ describe("Manage budget", () => {
 
   it("should add transactions", () => {
     cy.findByRole("button", { name: /\+/i }).click();
+    cy.get("div").contains("Lägg till").click();
 
     [
       { amount: "50000", name: "Lön", category: "Inkomst", shared: false },
@@ -133,8 +134,8 @@ describe("Manage budget", () => {
   });
 
   it("should add multiple transactions at once", () => {
-    cy.findByRole("button", { name: /\+/i }).as("addMultipleButton");
-    cy.get("@addMultipleButton").trigger("mousedown");
+    cy.findByRole("button", { name: /\+/i }).click();
+    cy.get("div").contains("Lägg till många").click();
 
     const input = [
       { amount: "10000", name: "Lön", category: "Inkomst", shared: false },
