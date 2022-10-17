@@ -1,4 +1,4 @@
-import { Transaction } from "components/Period/Period.Transaction";
+import { Transaction } from "components/BudgetPeriod/BudgetPeriod.Transaction";
 import {
   collection,
   FirestoreError,

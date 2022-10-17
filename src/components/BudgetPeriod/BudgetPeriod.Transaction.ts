@@ -1,4 +1,4 @@
-import { Category } from "./Period.Category";
+import { Category } from "./BudgetPeriod.Category";
 
 export interface Transaction {
   label: string;

@@ -1,4 +1,4 @@
-import { NewTransaction } from "components/Period/Period.Transaction";
+import { NewTransaction } from "components/BudgetPeriod/BudgetPeriod.Transaction";
 import { setDoc, doc } from "firebase/firestore";
 import { db, COLLECTION } from "utils";
 

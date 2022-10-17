@@ -5,24 +5,23 @@ import { useUser } from "components/App/App.UserProvider";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
 import { displayDate } from "utils";
-import { categories, categoriesForBoard } from "./Period.categories";
-import { Category } from "./Period.Category";
-import { Transaction } from "./Period.Transaction";
-import { TransactionForm } from "./Period.TransactionForm";
+import { categories, categoriesForBoard } from "./BudgetPeriod.categories";
+import { Category } from "./BudgetPeriod.Category";
+import { Transaction } from "./BudgetPeriod.Transaction";
+import { TransactionForm } from "./BudgetPeriod.TransactionForm";
 import {
   MultipleTransactionsForm,
   Table,
-} from "./Period.MultipleTransactionsForm";
+} from "./BudgetPeriod.MultipleTransactionsForm";
 import { Loading } from "components/Loading";
-import { FloatingActionMenu } from "./Period.FloatingActionMenu";
-import { over } from "cypress/types/lodash";
+import { FloatingActionMenu } from "./BudgetPeriod.FloatingActionMenu";
 
-export const Period = () => {
+export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
   const {
     period,
@@ -30,38 +29,32 @@ export const Period = () => {
     transactionsPerCategory,
     transactionsPerMember,
     overview,
-  } = useBudgetPeriodWithTransactions(periodId ?? "");
+    status,
+  } = useBudgetPeriod(periodId ?? "");
   const { getFriendById } = useUser();
   const navigate = useNavigate();
 
-  const [transactionAction, setTransactionAction] = useState<
-    | {
-        mode: "none";
-      }
-    | {
-        mode: "create";
-      }
-    | {
-        mode: "create-many";
-      }
-    | {
-        mode: "update";
-        transaction: Transaction;
-      }
-    | {
-        mode: "show-overview";
-      }
-  >({
-    mode: "none",
-  });
+  // TODO collect in a custom hook
+  const [searchParams, setSearchParams] = useSearchParams();
+  const budgetPeriodAction = getMode(searchParams.get("mode"));
+  const updateTransactionId =
+    budgetPeriodAction === "update"
+      ? searchParams.get("updateTransactionId")
+      : null;
 
-  const resetTransactionAction = () => setTransactionAction({ mode: "none" });
+  function setBudgetPeriodAction(action: BudgetPeriodAction) {
+    setSearchParams(action);
+  }
+
+  function resetTransactionAction() {
+    setSearchParams({});
+  }
 
   if (!periodId) {
     navigate("/");
   }
 
-  if (period.status === "pending") {
+  if (status === "pending") {
     return (
       <Content>
         <Loading>Hämtar budgetperiod...</Loading>
@@ -69,15 +62,15 @@ export const Period = () => {
     );
   }
 
-  if (period.status === "rejected") {
-    return <Content>Kunde inte ladda budgetperioder...</Content>;
+  if (status === "rejected") {
+    return <Content>Kunde inte ladda budgetperiod...</Content>;
   }
 
   return (
     <Content>
       <ActionBarTitle
-        title={`Period ${displayDate(period.data.fromDate)} - ${displayDate(
-          period.data.toDate
+        title={`Period ${displayDate(period.fromDate)} - ${displayDate(
+          period.toDate
         )}`}
       />
 
@@ -116,7 +109,10 @@ export const Period = () => {
                       }
                       key={transaction.id}
                       onClick={() =>
-                        setTransactionAction({ mode: "update", transaction })
+                        setBudgetPeriodAction({
+                          mode: "update",
+                          updateTransactionId: transaction.id,
+                        })
                       }
                     >
                       <TransactionRow>
@@ -167,29 +163,27 @@ export const Period = () => {
       </Card>
 
       {transactionsPerMember.map(
-        ({ name, userId, income, left, totalsPerCategory }) => {
-          return (
-            <Card key={`sum-${userId}`}>
-              <CardTitle>{name}</CardTitle>
+        ({ name, userId, income, left, totalsPerCategory }) => (
+          <Card key={`sum-${userId}`}>
+            <CardTitle>{name}</CardTitle>
 
-              <CardRow>
-                <CardCol>Inkomst</CardCol>
-                <CardCol>+{displayMoney(income)} kr</CardCol>
-              </CardRow>
+            <CardRow>
+              <CardCol>Inkomst</CardCol>
+              <CardCol>+{displayMoney(income)} kr</CardCol>
+            </CardRow>
 
-              {totalsPerCategory.map(({ type, categoryName, amount }) => (
-                <CardRow key={`${userId}-${type}`}>
-                  <CardCol>{categoryName}</CardCol>
-                  <CardCol>-{displayMoney(amount)} kr</CardCol>
-                </CardRow>
-              ))}
-              <CardRow>
-                <CardCol>Totalt</CardCol>
-                <CardCol>{displayMoney(left)} kr</CardCol>
+            {totalsPerCategory.map(({ type, categoryName, amount }) => (
+              <CardRow key={`${userId}-${type}`}>
+                <CardCol>{categoryName}</CardCol>
+                <CardCol>-{displayMoney(amount)} kr</CardCol>
               </CardRow>
-            </Card>
-          );
-        }
+            ))}
+            <CardRow>
+              <CardCol>Totalt</CardCol>
+              <CardCol>{displayMoney(left)} kr</CardCol>
+            </CardRow>
+          </Card>
+        )
       )}
 
       <FloatingActionMenu>
@@ -198,7 +192,7 @@ export const Period = () => {
             <div
               role="listitem"
               onClick={() => {
-                setTransactionAction({ mode: "create" });
+                setBudgetPeriodAction({ mode: "create" });
                 close();
               }}
             >
@@ -207,7 +201,7 @@ export const Period = () => {
             <div
               role="listitem"
               onClick={() => {
-                setTransactionAction({ mode: "create-many" });
+                setBudgetPeriodAction({ mode: "create-many" });
                 close();
               }}
             >
@@ -216,7 +210,7 @@ export const Period = () => {
             <div
               role="listitem"
               onClick={() => {
-                setTransactionAction({ mode: "show-overview" });
+                setBudgetPeriodAction({ mode: "show-overview" });
                 close();
               }}
             >
@@ -226,16 +220,31 @@ export const Period = () => {
         )}
       </FloatingActionMenu>
 
-      {transactionAction.mode === "create" ||
-      transactionAction.mode === "update" ? (
+      {budgetPeriodAction === "create" ? (
         <Overlay>
           <Modal>
             <CloseButton onClick={resetTransactionAction}>x</CloseButton>
             <TransactionForm
-              period={period.data}
+              period={period}
+              transaction={undefined}
+              onUpdated={resetTransactionAction}
+            />
+          </Modal>
+        </Overlay>
+      ) : null}
+
+      {budgetPeriodAction === "update" &&
+      period.transactions.find((t) => t.id === updateTransactionId) ? (
+        <Overlay>
+          <Modal>
+            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
+            <TransactionForm
+              period={period}
               transaction={
-                transactionAction.mode === "update"
-                  ? transactionAction.transaction
+                budgetPeriodAction === "update"
+                  ? period.transactions.find(
+                      (t) => t.id === updateTransactionId
+                    )
                   : undefined
               }
               onUpdated={resetTransactionAction}
@@ -244,19 +253,19 @@ export const Period = () => {
         </Overlay>
       ) : null}
 
-      {transactionAction.mode === "create-many" ? (
+      {budgetPeriodAction === "create-many" ? (
         <Overlay>
           <Modal>
             <CloseButton onClick={resetTransactionAction}>x</CloseButton>
             <MultipleTransactionsForm
-              period={period.data}
+              period={period}
               onUpdated={resetTransactionAction}
             />
           </Modal>
         </Overlay>
       ) : null}
 
-      {transactionAction.mode === "show-overview" ? (
+      {budgetPeriodAction === "show-overview" ? (
         <Overlay>
           <Modal>
             <CloseButton onClick={resetTransactionAction}>x</CloseButton>
@@ -288,7 +297,32 @@ export const Period = () => {
   );
 };
 
-function useBudgetPeriodWithTransactions(periodId: string) {
+const getMode = (param: string | null) => {
+  const foundMode = [
+    "create",
+    "create-many",
+    "update",
+    "show-overview",
+    "none",
+  ].find((mode) => mode === param);
+
+  return (foundMode ?? "none") as
+    | "create"
+    | "create-many"
+    | "update"
+    | "show-overview"
+    | "none";
+};
+
+type BudgetPeriodAction =
+  | {
+      mode: "create";
+    }
+  | { mode: "create-many" }
+  | { mode: "update"; updateTransactionId: string }
+  | { mode: "show-overview" };
+
+function useBudgetPeriod(periodId: string) {
   const { data: userData, getFriendById: getFriendNameById } = useUser();
 
   const [period, setPeriod] = useState<AsyncState<PeriodType>>({
@@ -334,7 +368,23 @@ function useBudgetPeriodWithTransactions(periodId: string) {
     [period.data]
   );
 
-  const categorizedTransactions = (transactions?.data || []).reduce(
+  if (period.status === "rejected" || transactions.status === "rejected") {
+    return {
+      status: "rejected" as const,
+    };
+  }
+
+  if (
+    period.status === "pending" ||
+    transactions.status === "pending" ||
+    !userData
+  ) {
+    return {
+      status: "pending" as const,
+    };
+  }
+
+  const categorizedTransactions = (transactions.data || []).reduce(
     (acc, curr) => {
       const previous = acc[curr.category] || [];
       return {
@@ -351,7 +401,11 @@ function useBudgetPeriodWithTransactions(periodId: string) {
   const left = income - expenses;
 
   return {
-    period,
+    status: "resolved" as const,
+    period: {
+      ...period.data,
+      transactions: transactions.data,
+    },
     summarizedTotals: {
       income,
       expenses,
@@ -367,7 +421,7 @@ function useBudgetPeriodWithTransactions(periodId: string) {
       type,
       transactions: categorizedTransactions[type] || [],
     })),
-    transactionsPerMember: (period.data?.members || []).map((userId) => {
+    transactionsPerMember: period.data.members.map((userId) => {
       const transactionsByUser = categoriesForBoard.reduce((acc, curr) => {
         const transaction = categorizedTransactions[curr.type] || [];
 
@@ -376,7 +430,7 @@ function useBudgetPeriodWithTransactions(periodId: string) {
           .map((transaction) => ({
             ...transaction,
             amount: transaction.shared
-              ? transaction.amount / (period.data?.members || []).length
+              ? transaction.amount / period.data.members.length
               : transaction.amount,
           }));
 
@@ -403,7 +457,7 @@ function useBudgetPeriodWithTransactions(periodId: string) {
       };
     }),
     overview: (transactions.data || [])
-      ?.filter((i) => i.author === userData?.id)
+      ?.filter((i) => i.author === userData.id)
       .map((t) => {
         return {
           date: t.date,

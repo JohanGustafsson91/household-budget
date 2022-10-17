@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Period } from "shared";
-import { categories } from "./Period.categories";
+import { categories } from "./BudgetPeriod.categories";
 import {
   FormField,
   DatePicker,
@@ -9,7 +9,7 @@ import {
   Select,
   Button,
 } from "components/Form";
-import { Transaction } from "./Period.Transaction";
+import { Transaction } from "./BudgetPeriod.Transaction";
 import shortid from "shortid";
 import { postTransaction } from "api/postTransaction";
 import { getAuth } from "api/auth";

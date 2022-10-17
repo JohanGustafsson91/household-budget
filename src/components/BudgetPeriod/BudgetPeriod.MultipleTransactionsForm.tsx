@@ -6,8 +6,8 @@ import { Period } from "shared";
 import shortid from "shortid";
 import styled from "styled-components";
 import { space } from "theme";
-import { categories } from "./Period.categories";
-import { NewTransaction, Transaction } from "./Period.Transaction";
+import { categories } from "./BudgetPeriod.categories";
+import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
 
 interface Props {
   period: Period;
