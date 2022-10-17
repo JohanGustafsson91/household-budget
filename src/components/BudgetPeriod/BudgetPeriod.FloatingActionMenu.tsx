@@ -6,13 +6,15 @@ import { fontSize } from "theme";
 export const FloatingActionMenu = ({
   children,
 }: {
-  children: (arg: { close: () => void }) => JSX.Element;
+  children: (arg: { closeMenu: () => void }) => JSX.Element;
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   return (
     <Wrapper>
-      {menuVisible ? children({ close: () => setMenuVisible(false) }) : null}
+      {menuVisible
+        ? children({ closeMenu: () => setMenuVisible(false) })
+        : null}
       <Button onClick={() => setMenuVisible((prev) => !prev)}>+</Button>
     </Wrapper>
   );

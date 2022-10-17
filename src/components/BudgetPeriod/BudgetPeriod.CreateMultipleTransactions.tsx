@@ -1,5 +1,6 @@
 import { getAuth } from "api/auth";
 import { postTransaction } from "api/postTransaction";
+import { CardTitle } from "components/Card";
 import { Button, Select } from "components/Form";
 import { useEffect, useState } from "react";
 import { Period } from "shared";
@@ -14,7 +15,7 @@ interface Props {
   onUpdated?: Function;
 }
 
-export function MultipleTransactionsForm({ period, onUpdated }: Props) {
+export function CreateMultipleTransactions({ period, onUpdated }: Props) {
   const [pastedText, setPastedText] = useState("");
   const [transations, setTransactions] = useState<NewTransaction[]>([]);
 
@@ -61,7 +62,7 @@ export function MultipleTransactionsForm({ period, onUpdated }: Props) {
 
   return (
     <Content>
-      <h5>Lägg till många</h5>
+      <CardTitle>Lägg till många</CardTitle>
 
       <Textarea
         value={pastedText}

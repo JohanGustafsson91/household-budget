@@ -2,7 +2,7 @@ import { ActionBar, ActionBarProvider } from "components/ActionBar";
 import { Login } from "components/Login";
 import { Overview } from "components/Overview";
 import { PageContent, PageWrapper } from "components/Page";
-import { BudgetPeriod, PeriodCreate } from "components/BudgetPeriod";
+import { BudgetPeriod, CreateBudgetPeriod } from "components/BudgetPeriod";
 import { PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -60,7 +60,7 @@ const pages = {
   ),
   createPeriod: (
     <AuthenticatedPage>
-      <PeriodCreate />
+      <CreateBudgetPeriod />
     </AuthenticatedPage>
   ),
   period: (

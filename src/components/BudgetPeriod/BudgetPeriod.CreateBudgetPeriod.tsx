@@ -5,7 +5,7 @@ import { Button, DatePicker, FormField, Input, Label } from "components/Form";
 import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/postBudgetPeriod";
 
-export const PeriodCreate = () => {
+export const CreateBudgetPeriod = () => {
   const user = useUser();
   const navigate = useNavigate();
 

@@ -1,2 +1,2 @@
-export * from "./BudgetPeriod.CreateTransaction";
+export * from "./BudgetPeriod.CreateBudgetPeriod";
 export * from "./BudgetPeriod";

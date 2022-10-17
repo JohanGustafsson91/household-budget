@@ -8,16 +8,16 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AsyncState, Period as PeriodType } from "shared";
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { breakpoint, fontSize, space } from "theme";
 import { displayDate } from "utils";
 import { categories, categoriesForBoard } from "./BudgetPeriod.categories";
 import { Category } from "./BudgetPeriod.Category";
 import { Transaction } from "./BudgetPeriod.Transaction";
-import { TransactionForm } from "./BudgetPeriod.TransactionForm";
+import { CreateOrUpdateTransaction } from "./BudgetPeriod.CreateOrUpdateTransaction";
 import {
-  MultipleTransactionsForm,
+  CreateMultipleTransactions,
   Table,
-} from "./BudgetPeriod.MultipleTransactionsForm";
+} from "./BudgetPeriod.CreateMultipleTransactions";
 import { Loading } from "components/Loading";
 import { FloatingActionMenu } from "./BudgetPeriod.FloatingActionMenu";
 
@@ -187,13 +187,13 @@ export const BudgetPeriod = () => {
       )}
 
       <FloatingActionMenu>
-        {({ close }) => (
+        {({ closeMenu }) => (
           <FloatingMenu>
             <div
               role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "create" });
-                close();
+                closeMenu();
               }}
             >
               Lägg till
@@ -202,7 +202,7 @@ export const BudgetPeriod = () => {
               role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "create-many" });
-                close();
+                closeMenu();
               }}
             >
               Lägg till många
@@ -211,7 +211,7 @@ export const BudgetPeriod = () => {
               role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "show-overview" });
-                close();
+                closeMenu();
               }}
             >
               Visa översikt
@@ -224,7 +224,7 @@ export const BudgetPeriod = () => {
         <Overlay>
           <Modal>
             <CloseButton onClick={resetTransactionAction}>x</CloseButton>
-            <TransactionForm
+            <CreateOrUpdateTransaction
               period={period}
               transaction={undefined}
               onUpdated={resetTransactionAction}
@@ -238,7 +238,7 @@ export const BudgetPeriod = () => {
         <Overlay>
           <Modal>
             <CloseButton onClick={resetTransactionAction}>x</CloseButton>
-            <TransactionForm
+            <CreateOrUpdateTransaction
               period={period}
               transaction={
                 budgetPeriodAction === "update"
@@ -257,7 +257,7 @@ export const BudgetPeriod = () => {
         <Overlay>
           <Modal>
             <CloseButton onClick={resetTransactionAction}>x</CloseButton>
-            <MultipleTransactionsForm
+            <CreateMultipleTransactions
               period={period}
               onUpdated={resetTransactionAction}
             />
@@ -574,6 +574,7 @@ const Overlay = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
+// todo add click outside
 const Modal = styled.div`
   background-color: #fff;
   padding: ${space(3)} ${space(3)};
@@ -583,6 +584,15 @@ const Modal = styled.div`
   top: 60px;
   bottom: 0;
   overflow: auto;
+
+  ${breakpoint(0)} {
+    position: relative;
+    top: unset;
+    min-width: 500px;
+    max-width: 500px;
+    min-height: 80vh;
+    max-height: 80vh;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -672,7 +682,7 @@ const FloatingMenu = styled.div`
       border: 0;
     }
     &:hover {
-      font-weight: bold;
+      color: #000;
     }
   }
 `;

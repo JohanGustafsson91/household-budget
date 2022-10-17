@@ -15,8 +15,13 @@ import { postTransaction } from "api/postTransaction";
 import { getAuth } from "api/auth";
 import { putTransaction } from "api/putTransaction";
 import { deleteTransaction } from "api/deleteTransaction";
+import { CardTitle } from "components/Card";
 
-export const TransactionForm = ({ period, transaction, onUpdated }: Props) => {
+export const CreateOrUpdateTransaction = ({
+  period,
+  transaction,
+  onUpdated,
+}: Props) => {
   const [form, setForm] = useState<Form>(() =>
     !transaction
       ? getInitFormState(period.fromDate)
@@ -101,7 +106,7 @@ export const TransactionForm = ({ period, transaction, onUpdated }: Props) => {
 
   return (
     <div>
-      <h5>{transaction ? "Ändra" : "Lägg till"}</h5>
+      <CardTitle>{transaction ? "Ändra" : "Lägg till"}</CardTitle>
       <form onSubmit={transaction ? handleUpdateTransaction : addTransaction}>
         <FormField>
           <Label>
