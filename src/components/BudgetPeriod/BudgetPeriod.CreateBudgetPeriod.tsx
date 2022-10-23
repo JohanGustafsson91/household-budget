@@ -1,12 +1,12 @@
-import { useUser } from "components/App/App.UserProvider";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, DatePicker, FormField, Input, Label } from "components/Form";
 import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/postBudgetPeriod";
+import { useVisitor } from "components/App/App.VisitorProvider";
 
 export const CreateBudgetPeriod = () => {
-  const user = useUser();
+  const visitor = useVisitor();
   const navigate = useNavigate();
 
   const [form, setForm] = useState<Form>({
@@ -71,27 +71,26 @@ export const CreateBudgetPeriod = () => {
           />
         </FormField>
 
-        {user.status === "resolved" && (
-          <FormField>
-            <Label>
-              Tillsammans med?
-              {user.data.friends.map((friend) => (
-                <div key={friend.id}>
-                  <Label>
-                    <Input
-                      type="checkbox"
-                      id={friend.id}
-                      name={friend.id}
-                      onChange={handleUpdateMembersInForm}
-                      checked={form.members.includes(friend.id)}
-                    />
-                    {friend.name}
-                  </Label>
-                </div>
-              ))}
-            </Label>
-          </FormField>
-        )}
+        <FormField>
+          <Label>
+            Tillsammans med?
+            {visitor.friends.map((friend) => (
+              <div key={friend.id}>
+                <Label>
+                  <Input
+                    type="checkbox"
+                    id={friend.id}
+                    name={friend.id}
+                    onChange={handleUpdateMembersInForm}
+                    checked={form.members.includes(friend.id)}
+                  />
+                  {friend.name}
+                </Label>
+              </div>
+            ))}
+          </Label>
+        </FormField>
+
         <FormField>
           <Button disabled={!validForm} type="submit">
             Skapa

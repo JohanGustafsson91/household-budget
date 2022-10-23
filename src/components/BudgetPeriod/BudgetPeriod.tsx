@@ -1,7 +1,6 @@
 import { getBudgetPeriodById } from "api/getBudgetPeriods";
 import { getTransactionsForPeriod } from "api/getTransactionsForPeriod";
 import { ActionBarTitle } from "components/ActionBar";
-import { useUser } from "components/App/App.UserProvider";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { useEffect, useState } from "react";
@@ -20,6 +19,7 @@ import {
 } from "./BudgetPeriod.CreateMultipleTransactions";
 import { Loading } from "components/Loading";
 import { FloatingActionMenu } from "./BudgetPeriod.FloatingActionMenu";
+import { useVisitor } from "components/App/App.VisitorProvider";
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
@@ -31,7 +31,7 @@ export const BudgetPeriod = () => {
     overview,
     status,
   } = useBudgetPeriod(periodId ?? "");
-  const { getFriendById } = useUser();
+  const { getFriendById } = useVisitor();
   const navigate = useNavigate();
 
   // TODO collect in a custom hook
@@ -323,7 +323,7 @@ type BudgetPeriodAction =
   | { mode: "show-overview" };
 
 function useBudgetPeriod(periodId: string) {
-  const { data: userData, getFriendById: getFriendNameById } = useUser();
+  const { getFriendById: getFriendNameById, ...visitor } = useVisitor();
 
   const [period, setPeriod] = useState<AsyncState<PeriodType>>({
     data: undefined,
@@ -374,11 +374,7 @@ function useBudgetPeriod(periodId: string) {
     };
   }
 
-  if (
-    period.status === "pending" ||
-    transactions.status === "pending" ||
-    !userData
-  ) {
+  if (period.status === "pending" || transactions.status === "pending") {
     return {
       status: "pending" as const,
     };
@@ -457,7 +453,7 @@ function useBudgetPeriod(periodId: string) {
       };
     }),
     overview: (transactions.data || [])
-      ?.filter((i) => i.author === userData.id)
+      ?.filter((i) => i.author === visitor.id)
       .map((t) => {
         return {
           date: t.date,

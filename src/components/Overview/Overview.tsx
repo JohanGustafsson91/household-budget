@@ -1,7 +1,7 @@
 import { deleteBudgetPeriod } from "api/deleteBudgetPeriod";
 import { getBudgetPeriods } from "api/getBudgetPeriods";
 import { ActionBarTitle } from "components/ActionBar";
-import { useUser } from "components/App/App.UserProvider";
+import { useVisitor } from "components/App/App.VisitorProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
 import { Button } from "components/Form";
@@ -15,7 +15,7 @@ import { displayDate } from "utils";
 
 export const Overview = () => {
   const navigate = useNavigate();
-  const user = useUser();
+  const visitor = useVisitor();
   const [budgetPeriods, setBudgetPeriods] = useState<AsyncState<Period[]>>({
     data: undefined,
     status: "pending",
@@ -40,7 +40,7 @@ export const Overview = () => {
 
   return (
     <>
-      <ActionBarTitle title={`Välkommen ${user.data?.name ?? ""}`} />
+      <ActionBarTitle title={`Välkommen ${visitor.name}`} />
 
       {budgetPeriods.status === "pending" ? (
         <Loading fullPage={false}>
@@ -53,11 +53,11 @@ export const Overview = () => {
         <p>Inga skapade budgetperioder.</p>
       ) : null}
 
-      {budgetPeriods.status === "resolved" && user.status === "resolved"
+      {budgetPeriods.status === "resolved"
         ? budgetPeriods.data.map((period) => {
             const memberWith = period.members
               .filter((userId) => userId !== getAuth().currentUser?.uid)
-              .map((u) => user.getFriendById(u)?.name ?? "")
+              .map((u) => visitor.getFriendById(u)?.name ?? "")
               .join(", ");
 
             return (
