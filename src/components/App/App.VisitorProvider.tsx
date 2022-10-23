@@ -6,6 +6,7 @@ import {
   RegisteredVisitor,
   Visitor,
 } from "api/getVisitor";
+import { Loading } from "components/Loading";
 import {
   createContext,
   PropsWithChildren,
@@ -19,7 +20,7 @@ import { AsyncState } from "shared";
 const VisitorContext = createContext<ProviderProps | undefined>(undefined);
 
 export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
-  const [account, loading] = useAuth();
+  const [auth, authIsLoading] = useAuth();
 
   const [state, setState] = useState<AsyncState<Visitor>>({
     data: undefined,
@@ -27,12 +28,13 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
   });
 
   useEffect(
-    function getUserData() {
-      if (loading) {
+    function getVisitorData() {
+      if (authIsLoading) {
         return;
       }
 
       const unsubscribe = getVisitor(
+        auth?.uid,
         function onCallback(data) {
           return setState({
             data,
@@ -46,7 +48,7 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
 
       return unsubscribe;
     },
-    [account, loading]
+    [auth, authIsLoading]
   );
 
   const getFriendById = useCallback(
@@ -66,7 +68,11 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
     <VisitorContext.Provider
       value={state.data ? { ...state.data, getFriendById } : undefined}
     >
-      {state.status === "pending" ? null : children}
+      {state.status === "pending" ? (
+        <Loading fullPage>Hämtar besökare...</Loading>
+      ) : (
+        children
+      )}
     </VisitorContext.Provider>
   );
 };

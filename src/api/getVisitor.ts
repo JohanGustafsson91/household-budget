@@ -1,3 +1,4 @@
+import { FirebaseError } from "firebase/app";
 import {
   collection,
   FirestoreError,
@@ -10,12 +11,17 @@ import { COLLECTION, db } from "utils";
 import { getAuth } from "./auth";
 
 export const getVisitor = (
+  id: string | undefined,
   callbackOnSnapshot: (value: Visitor) => void,
-  callbackOnError: (error: FirestoreError) => void
+  callbackOnError: (error?: FirestoreError) => void
 ) => {
-  const userId = getAuth().currentUser?.uid;
+  const currentVisitorId = getAuth().currentUser?.uid;
 
-  if (!userId) {
+  if (currentVisitorId !== id) {
+    return callbackOnError();
+  }
+
+  if (!currentVisitorId) {
     return callbackOnSnapshot({
       type: "anonymous",
       id: undefined,
@@ -28,7 +34,7 @@ export const getVisitor = (
   }
 
   return onSnapshot(
-    visitorQuery(userId),
+    visitorQuery(currentVisitorId),
     async function onSnapshot(querySnapshot) {
       const [doc] = querySnapshot.docs;
       const { id, name, gender, friends } = doc.data();
