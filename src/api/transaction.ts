@@ -1,16 +1,23 @@
-import { Transaction } from "components/BudgetPeriod/BudgetPeriod.Transaction";
+import {
+  NewTransaction,
+  Transaction,
+} from "components/BudgetPeriod/BudgetPeriod.Transaction";
 import {
   collection,
   FirestoreError,
   onSnapshot,
   query,
   where,
+  deleteDoc,
+  doc,
+  setDoc,
+  addDoc,
 } from "firebase/firestore";
-import { Period } from "shared";
+import { BudgetPeriod } from "shared";
 import { COLLECTION, db } from "utils";
 
 export const getTransactionsForPeriod = (
-  period: Period,
+  period: BudgetPeriod,
   callbackOnSnapshot: (value: Transaction[]) => void,
   callbackOnError: (error: FirestoreError) => void
 ) => {
@@ -39,3 +46,14 @@ export const getTransactionsForPeriod = (
     callbackOnError
   );
 };
+
+export const postTransaction = (transaction: NewTransaction) =>
+  addDoc(collection(db, COLLECTION["transactions"]), {
+    ...transaction,
+  });
+
+export const deleteTransaction = (id: string) =>
+  deleteDoc(doc(db, COLLECTION["transactions"], id));
+
+export const putTransaction = (id: string, data: Partial<NewTransaction>) =>
+  setDoc(doc(db, COLLECTION["transactions"], id), { ...data }, { merge: true });

@@ -1,11 +1,11 @@
-import { getBudgetPeriodById } from "api/getBudgetPeriods";
-import { getTransactionsForPeriod } from "api/getTransactionsForPeriod";
+import { getBudgetPeriodById } from "api/budgetPeriod";
+import { getTransactionsForPeriod } from "api/transaction";
 import { ActionBarTitle } from "components/ActionBar";
 import { Card, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { AsyncState, Period as PeriodType } from "shared";
+import { AsyncState, BudgetPeriod as PeriodType } from "shared";
 import styled from "styled-components";
 import { breakpoint, fontSize, space } from "theme";
 import { displayDate } from "utils";

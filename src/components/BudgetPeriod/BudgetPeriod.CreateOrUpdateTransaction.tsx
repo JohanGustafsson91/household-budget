@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
-import { Period } from "shared";
+import { BudgetPeriod } from "shared";
 import { categories } from "./BudgetPeriod.categories";
 import {
   FormField,
@@ -11,10 +11,12 @@ import {
 } from "components/Form";
 import { Transaction } from "./BudgetPeriod.Transaction";
 import shortid from "shortid";
-import { postTransaction } from "api/postTransaction";
+import {
+  postTransaction,
+  putTransaction,
+  deleteTransaction,
+} from "api/transaction";
 import { getAuth } from "api/auth";
-import { putTransaction } from "api/putTransaction";
-import { deleteTransaction } from "api/deleteTransaction";
 import { CardTitle } from "components/Card";
 
 export const CreateOrUpdateTransaction = ({
@@ -190,7 +192,7 @@ const getInitFormState = (date: Date) => ({
 });
 
 interface Props {
-  period: Period;
+  period: BudgetPeriod;
   transaction: Transaction | undefined;
   onUpdated?: Function;
 }

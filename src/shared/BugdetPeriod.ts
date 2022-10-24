@@ -1,4 +1,4 @@
-export interface Period {
+export interface BudgetPeriod {
   id: string;
   author: string;
   members: string[];

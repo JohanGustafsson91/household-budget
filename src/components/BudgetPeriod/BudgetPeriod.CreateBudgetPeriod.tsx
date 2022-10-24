@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, DatePicker, FormField, Input, Label } from "components/Form";
 import { ActionBarTitle } from "components/ActionBar";
-import { postBudgetPeriod } from "api/postBudgetPeriod";
+import { postBudgetPeriod } from "api/budgetPeriod";
 import { useVisitor } from "components/App/App.VisitorProvider";
 
 export const CreateBudgetPeriod = () => {

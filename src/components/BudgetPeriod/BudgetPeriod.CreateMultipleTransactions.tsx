@@ -1,9 +1,9 @@
 import { getAuth } from "api/auth";
-import { postTransaction } from "api/postTransaction";
+import { postTransaction } from "api/transaction";
 import { CardTitle } from "components/Card";
 import { Button, Select } from "components/Form";
 import { useEffect, useState } from "react";
-import { Period } from "shared";
+import { BudgetPeriod } from "shared";
 import shortid from "shortid";
 import styled from "styled-components";
 import { space } from "theme";
@@ -11,7 +11,7 @@ import { categories } from "./BudgetPeriod.categories";
 import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
 
 interface Props {
-  period: Period;
+  period: BudgetPeriod;
   onUpdated?: Function;
 }
 

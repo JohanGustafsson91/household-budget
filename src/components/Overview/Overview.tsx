@@ -1,5 +1,4 @@
-import { deleteBudgetPeriod } from "api/deleteBudgetPeriod";
-import { getBudgetPeriods } from "api/getBudgetPeriods";
+import { deleteBudgetPeriod, getBudgetPeriods } from "api/budgetPeriod";
 import { ActionBarTitle } from "components/ActionBar";
 import { useVisitor } from "components/App/App.VisitorProvider";
 import { ActionButton } from "components/Button";
@@ -9,14 +8,16 @@ import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AsyncState, Period } from "shared";
+import { AsyncState, BudgetPeriod } from "shared";
 import styled from "styled-components";
 import { displayDate } from "utils";
 
 export const Overview = () => {
   const navigate = useNavigate();
   const visitor = useVisitor();
-  const [budgetPeriods, setBudgetPeriods] = useState<AsyncState<Period[]>>({
+  const [budgetPeriods, setBudgetPeriods] = useState<
+    AsyncState<BudgetPeriod[]>
+  >({
     data: undefined,
     status: "pending",
   });

@@ -5,7 +5,7 @@ import {
   getVisitor,
   RegisteredVisitor,
   Visitor,
-} from "api/getVisitor";
+} from "api/visitor";
 import { Loading } from "components/Loading";
 import {
   createContext,

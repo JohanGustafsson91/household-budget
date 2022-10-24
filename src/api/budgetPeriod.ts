@@ -1,15 +1,22 @@
 import {
+  addDoc,
   collection,
+  deleteDoc,
+  doc,
   FirestoreError,
+  getDocs,
   onSnapshot,
   query,
   where,
+  writeBatch,
 } from "firebase/firestore";
-import { Period } from "shared";
+import { BudgetPeriod } from "shared";
+import shortid from "shortid";
 import { auth, COLLECTION, db, getDocument } from "utils";
+import { getAuth } from "./auth";
 
 export const getBudgetPeriods = (
-  callbackOnSnapshot: (value: Period[]) => void,
+  callbackOnSnapshot: (value: BudgetPeriod[]) => void,
   callbackOnError: (error: FirestoreError) => void
 ) =>
   onSnapshot(
@@ -34,7 +41,7 @@ export const getBudgetPeriods = (
         })
         .sort((a, b) => b.toDate - a.toDate);
 
-      callbackOnSnapshot(periods as Period[]);
+      callbackOnSnapshot(periods as BudgetPeriod[]);
     },
     callbackOnError
   );
@@ -49,5 +56,37 @@ export const getBudgetPeriodById = (id: string) =>
         toDate: data.toDate.toDate(),
         createdAt: data.createdAt.toDate(),
         lastUpdated: data.lastUpdated.toDate(),
-      } as Period)
+      } as BudgetPeriod)
   );
+
+export const postBudgetPeriod = (data: Form) =>
+  addDoc(collection(db, COLLECTION["budgetPeriods"]), {
+    ...data,
+    members: [...data.members, getAuth().currentUser?.uid],
+    author: getAuth()?.currentUser?.uid,
+    createdAt: new Date(),
+    lastUpdated: new Date(),
+    key: shortid(),
+  });
+
+interface Form {
+  fromDate: BudgetPeriod["fromDate"] | null;
+  toDate: BudgetPeriod["toDate"] | null;
+  members: BudgetPeriod["members"];
+}
+
+export const deleteBudgetPeriod = (periodId: string) => {
+  return Promise.all([
+    deleteDoc(doc(db, COLLECTION["budgetPeriods"], periodId)),
+    getDocs(
+      query(
+        collection(db, COLLECTION["transactions"]),
+        where("periodId", "==", periodId)
+      )
+    ).then(function (document) {
+      const batch = writeBatch(db);
+      document.forEach((d) => batch.delete(d.ref));
+      return batch.commit();
+    }),
+  ]);
+};
