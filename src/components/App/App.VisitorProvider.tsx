@@ -69,7 +69,9 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
       value={state.data ? { ...state.data, getFriendById } : undefined}
     >
       {state.status === "pending" ? (
-        <Loading fullPage>Hämtar besökare...</Loading>
+        <Loading fullPage delay={1500}>
+          Hämtar besökare...
+        </Loading>
       ) : (
         children
       )}
