@@ -15,13 +15,8 @@ describe("Manage budget", () => {
 
   it("should create a new budget period", () => {
     cy.findByRole("button", { name: /\+/i }).click();
-    cy.findAllByRole("button").contains(1).click();
-    cy.get(".react-datepicker")
-      .last()
-      .findAllByRole("button")
-      .contains(25)
-      .last()
-      .click();
+    cy.get(".react-datepicker").first().find("div").contains(1).last().click();
+    cy.get(".react-datepicker").last().find("div").contains(25).last().click();
     cy.findByRole("checkbox", { name: /tillsammans med\?/i }).click();
     cy.findByRole("button", { name: /Skapa/i }).click();
   });
@@ -43,11 +38,7 @@ describe("Manage budget", () => {
       cy.findByDisplayValue(/0/i).clear().type(amount);
       cy.findByRole("textbox", { name: /händelse/i }).type(name);
       cy.findByRole("combobox", { name: /kategori/i }).select(category);
-      cy.get(".react-datepicker")
-        .first()
-        .findAllByRole("button")
-        .contains(10)
-        .click();
+      cy.get(".react-datepicker").first().find("div").contains(10).click();
 
       if (shared) {
         cy.findByRole("checkbox", { name: /gemensam\?/i }).click();
