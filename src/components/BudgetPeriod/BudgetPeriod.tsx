@@ -1,13 +1,13 @@
 import { getBudgetPeriodById } from "api/budgetPeriod";
 import { getTransactionsForPeriod } from "api/transaction";
 import { ActionBarTitle } from "components/ActionBar";
-import { Card, CardTitle } from "components/Card";
+import { Card, CardCol, CardRow, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AsyncState, BudgetPeriod as PeriodType } from "shared";
 import styled from "styled-components";
-import { breakpoint, fontSize, space } from "theme";
+import { space } from "theme";
 import { displayDate } from "utils";
 import { categories, categoriesForBoard } from "./BudgetPeriod.categories";
 import { Category } from "./BudgetPeriod.Category";
@@ -18,8 +18,16 @@ import {
   Table,
 } from "./BudgetPeriod.CreateMultipleTransactions";
 import { Loading } from "components/Loading";
-import { FloatingActionMenu } from "./BudgetPeriod.FloatingActionMenu";
+import {
+  FloatingActionMenu,
+  FloatingMenu,
+} from "./BudgetPeriod.FloatingActionMenu";
 import { useVisitor } from "components/App/App.VisitorProvider";
+
+import * as TransactionCard from "./BudgetPeriod.TransactionCard";
+import * as Modal from "./BudgetPeriod.Modal";
+import * as Board from "./BudgetPeriod.Board";
+import * as OverviewItem from "./BudgetPeriod.OverviewItem";
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
@@ -75,33 +83,39 @@ export const BudgetPeriod = () => {
       />
 
       <TopContent>
-        <Item>
-          <ItemMoney highlight>{displayMoney(summarizedTotals.left)}</ItemMoney>
-          <ItemMoneyLabel>Kvar</ItemMoneyLabel>
-        </Item>
-        <Item>
-          <ItemMoney>{displayMoney(summarizedTotals.income)}</ItemMoney>
-          <ItemMoneyLabel>Inkomster</ItemMoneyLabel>
-        </Item>
-        <Item>
-          <ItemMoney>{displayMoney(summarizedTotals.expenses)}</ItemMoney>
-          <ItemMoneyLabel>Utgifter</ItemMoneyLabel>
-        </Item>
+        <OverviewItem.Wrapper>
+          <OverviewItem.Value highlight>
+            {displayMoney(summarizedTotals.left)}
+          </OverviewItem.Value>
+          <OverviewItem.Label>Kvar</OverviewItem.Label>
+        </OverviewItem.Wrapper>
+        <OverviewItem.Wrapper>
+          <OverviewItem.Value>
+            {displayMoney(summarizedTotals.income)}
+          </OverviewItem.Value>
+          <OverviewItem.Label>Inkomster</OverviewItem.Label>
+        </OverviewItem.Wrapper>
+        <OverviewItem.Wrapper>
+          <OverviewItem.Value>
+            {displayMoney(summarizedTotals.expenses)}
+          </OverviewItem.Value>
+          <OverviewItem.Label>Utgifter</OverviewItem.Label>
+        </OverviewItem.Wrapper>
       </TopContent>
 
       <MarginBottomFix />
 
-      <Card height="calc(50vh)">
-        <Board columns={transactionsPerCategory.length}>
+      <Card height="calc(100vh - 250px)">
+        <Board.Wrapper columns={transactionsPerCategory.length}>
           {transactionsPerCategory.map(
             ({ type, categoryName, transactions }) => (
-              <Lane key={type}>
-                <LaneHeader>
+              <Board.Lane key={type}>
+                <Board.LaneHeader>
                   <CardTitle>{categoryName}</CardTitle>
-                </LaneHeader>
-                <LaneContent>
+                </Board.LaneHeader>
+                <Board.LaneContent>
                   {transactions.map((transaction) => (
-                    <TransactionCard
+                    <TransactionCard.Wrapper
                       gender={
                         transaction.shared
                           ? "none"
@@ -115,31 +129,34 @@ export const BudgetPeriod = () => {
                         })
                       }
                     >
-                      <TransactionRow>
-                        <TransactionCol>
+                      <TransactionCard.Row>
+                        <TransactionCard.Column>
                           {transaction.shared
                             ? "Gemensam"
                             : getFriendById(transaction.author)?.name}
-                        </TransactionCol>
-                        <TransactionCol highlight>
-                          {transaction.label}
-                        </TransactionCol>
-                      </TransactionRow>
-                      <TransactionRow>
-                        <TransactionCol>
+                        </TransactionCard.Column>
+                        <TransactionCard.Column highlight>
+                          {transaction.label.replace(/swish/i, "")}
+                        </TransactionCard.Column>
+                      </TransactionCard.Row>
+                      <TransactionCard.Row>
+                        <TransactionCard.Column>
                           {displayDate(transaction.date)}
-                        </TransactionCol>
-                        <TransactionCol highlight big>
+                        </TransactionCard.Column>
+                        <TransactionCard.Column highlight big>
                           {displayMoney(transaction.amount)}kr
-                        </TransactionCol>
-                      </TransactionRow>
-                    </TransactionCard>
+                        </TransactionCard.Column>
+                      </TransactionCard.Row>
+                      {transaction.label.toLowerCase().includes("swish") ? (
+                        <TransactionCard.SwishIcon />
+                      ) : null}
+                    </TransactionCard.Wrapper>
                   ))}
-                </LaneContent>
-              </Lane>
+                </Board.LaneContent>
+              </Board.Lane>
             )
           )}
-        </Board>
+        </Board.Wrapper>
       </Card>
 
       <Card>
@@ -221,23 +238,27 @@ export const BudgetPeriod = () => {
       </FloatingActionMenu>
 
       {budgetPeriodAction === "create" ? (
-        <Overlay>
-          <Modal>
-            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
+        <Modal.Overlay>
+          <Modal.Wrapper>
+            <Modal.CloseButton onClick={resetTransactionAction}>
+              x
+            </Modal.CloseButton>
             <CreateOrUpdateTransaction
               period={period}
               transaction={undefined}
               onUpdated={resetTransactionAction}
             />
-          </Modal>
-        </Overlay>
+          </Modal.Wrapper>
+        </Modal.Overlay>
       ) : null}
 
       {budgetPeriodAction === "update" &&
       period.transactions.find((t) => t.id === updateTransactionId) ? (
-        <Overlay>
-          <Modal>
-            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
+        <Modal.Overlay>
+          <Modal.Wrapper>
+            <Modal.CloseButton onClick={resetTransactionAction}>
+              x
+            </Modal.CloseButton>
             <CreateOrUpdateTransaction
               period={period}
               transaction={
@@ -249,26 +270,30 @@ export const BudgetPeriod = () => {
               }
               onUpdated={resetTransactionAction}
             />
-          </Modal>
-        </Overlay>
+          </Modal.Wrapper>
+        </Modal.Overlay>
       ) : null}
 
       {budgetPeriodAction === "create-many" ? (
-        <Overlay>
-          <Modal>
-            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
+        <Modal.Overlay>
+          <Modal.Wrapper>
+            <Modal.CloseButton onClick={resetTransactionAction}>
+              x
+            </Modal.CloseButton>
             <CreateMultipleTransactions
               period={period}
               onUpdated={resetTransactionAction}
             />
-          </Modal>
-        </Overlay>
+          </Modal.Wrapper>
+        </Modal.Overlay>
       ) : null}
 
       {budgetPeriodAction === "show-overview" ? (
-        <Overlay>
-          <Modal>
-            <CloseButton onClick={resetTransactionAction}>x</CloseButton>
+        <Modal.Overlay>
+          <Modal.Wrapper>
+            <Modal.CloseButton onClick={resetTransactionAction}>
+              x
+            </Modal.CloseButton>
             <CardTitle>Översikt</CardTitle>
             <Table>
               <thead>
@@ -290,8 +315,8 @@ export const BudgetPeriod = () => {
                 ))}
               </tbody>
             </Table>
-          </Modal>
-        </Overlay>
+          </Modal.Wrapper>
+        </Modal.Overlay>
       ) : null}
     </Content>
   );
@@ -494,191 +519,6 @@ const TopContent = styled.div`
   z-index: -1;
 `;
 
-const Item = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: end;
-`;
-const ItemMoney = styled.div<{ highlight?: boolean }>`
-  color: var(--color-text-action-bar);
-  font-weight: 500;
-  align-items: center;
-  font-size: ${(props) => (props.highlight ? fontSize(5) : fontSize(3))};
-  justify-self: flex-start;
-`;
-const ItemMoneyLabel = styled.div`
-  color: #4d82d7;
-`;
-
 const MarginBottomFix = styled.div`
   margin-bottom: 90px;
-`;
-
-const Board = styled.div<{ columns: number }>`
-  flex: 1;
-  display: grid;
-  grid-template-columns: ${(props) => `repeat(${props.columns}, 200px)`};
-  overflow-y: hidden;
-  overflow-x: scroll;
-  height: 100%;
-`;
-
-const LaneContent = styled.div`
-  flex: 1;
-  border-top: 2px solid var(--color-border);
-  padding: ${space(2)};
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
-`;
-
-const Lane = styled.div<{ noBorders?: boolean }>`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-
-  ${LaneContent} {
-    border-bottom: 2px solid var(--color-border);
-    border-left: 2px solid var(--color-border);
-  }
-  &:first-child {
-    ${LaneContent} {
-      border-left: none;
-    }
-  }
-`;
-
-const LaneHeader = styled.div`
-  color: var(--color-text);
-  text-align: center;
-  text-transform: uppercase;
-  font-size: ${fontSize(0)};
-`;
-
-const Overlay = styled.div`
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-`;
-
-// todo add click outside
-const Modal = styled.div`
-  background-color: #fff;
-  padding: ${space(3)} ${space(3)};
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 60px;
-  bottom: 0;
-  overflow: auto;
-
-  ${breakpoint(0)} {
-    position: relative;
-    top: unset;
-    min-width: 500px;
-    max-width: 500px;
-    min-height: 80vh;
-    max-height: 80vh;
-  }
-`;
-
-const CloseButton = styled.button`
-  outline: 0;
-  border: 0;
-  position: absolute;
-  right: ${space(2)};
-  top: ${space(2)};
-  background-color: inherit;
-  border-radius: 50%;
-  height: 25px;
-  width: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const TransactionCard = styled.div<{ gender: "none" | "male" | "female" }>`
-  border: 1px solid var(--color-border);
-  padding: ${space(1)};
-  margin-bottom: ${space(2)};
-  font-size: ${fontSize(0)};
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  background-color: ${(props) => genderColorMap[props.gender]};
-`;
-
-const genderColorMap = {
-  male: "rgba(144, 238, 144, 0.2)",
-  female: "rgba(255, 182, 193, 0.2)",
-  none: "#fff",
-};
-
-const TransactionRow = styled.div`
-  display: flex;
-  flex: 1;
-  justify-content: space-between;
-
-  &:first-child {
-    margin-bottom: ${space(4)};
-  }
-`;
-
-const TransactionCol = styled.div<{ highlight?: boolean; big?: boolean }>`
-  color: ${(props) =>
-    props.highlight ? "var(--color-text-strong)" : "inherit"};
-  font-weight: ${(props) => (props.big ? "bold" : "normal")};
-  font-size: ${(props) => (props.big ? fontSize(1) : "inherit")};
-`;
-
-const CardCol = styled.div`
-  color: var(--color-text-strong);
-`;
-
-const CardRow = styled.div`
-  margin-bottom: ${space(1)};
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  padding: ${space(2)} 0;
-
-  ${CardCol} {
-    &:first-child {
-      flex: 1;
-    }
-  }
-
-  &:last-child {
-    margin-top: ${space(2)};
-    border: 0;
-    font-weight: bold;
-    margin-bottom: 0;
-  }
-`;
-
-const FloatingMenu = styled.div`
-  background-color: #fff;
-  border: 1px solid #eee;
-  margin-bottom: ${space(1)};
-
-  div {
-    cursor: pointer;
-    padding: ${space(2)} ${space(4)} ${space(2)} ${space(2)};
-    border-bottom: 1px solid #eee;
-    &:last-child {
-      border: 0;
-    }
-    &:hover {
-      color: #000;
-    }
-  }
 `;

@@ -23,3 +23,27 @@ export const CardTitle = styled.span`
   font-weight: 500;
   display: block;
 `;
+
+export const CardCol = styled.div`
+  color: var(--color-text-strong);
+`;
+
+export const CardRow = styled.div`
+  margin-bottom: ${space(1)};
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  padding: ${space(2)} 0;
+
+  ${CardCol} {
+    &:first-child {
+      flex: 1;
+    }
+  }
+
+  &:last-child {
+    margin-top: ${space(2)};
+    border: 0;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+`;

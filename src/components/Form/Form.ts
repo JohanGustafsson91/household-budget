@@ -8,7 +8,7 @@ export const FormField = styled.div`
 export const Input = styled.input`
   border: 0;
   border-bottom: 1px solid #ccc;
-  background-color: #fff;
+  background-color: var(--color-form-element-background);
 `;
 
 export const Label = styled.label`
@@ -26,7 +26,7 @@ export const Label = styled.label`
 export const Select = styled.select`
   border: 0;
   border-bottom: 1px solid #ccc;
-  background-color: #fff;
+  background-color: var(--color-form-element-background);
 `;
 
 export const Button = styled.button``;

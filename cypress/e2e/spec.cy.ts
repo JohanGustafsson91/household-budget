@@ -6,7 +6,7 @@ describe("Manage budget", () => {
   it("should login user", () => {
     cy.visit("http://localhost:3000");
     login("test@example.com", "test123");
-    cy.findByText(/välkommen chaplin/i);
+    cy.findByText(/välkommen chaplin/i).should("be.visible");
   });
 
   it("should clean up previously created budget periods", () => {
@@ -129,7 +129,8 @@ describe("Manage budget", () => {
     cy.get("div").contains("Lägg till många").click();
 
     const input = [
-      { amount: "10000", name: "Lön", category: "Inkomst", shared: false },
+      { amount: "9500", name: "Lön", category: "Inkomst", shared: false },
+      { amount: "500", name: "Swish Mat", category: "Inkomst", shared: false },
       { amount: "-500", name: "Hyra", category: "Boende", shared: true },
       { amount: "-500", name: "Coop", category: "Mat", shared: false },
       { amount: "-500", name: "Bensin", category: "Transport", shared: false },
@@ -233,15 +234,18 @@ function login(email: string, password: string) {
 }
 
 function cleanUp() {
-  cy.get("body")
-    .then(($body) => {
-      if ($body.text().includes("Inga skapade budgetperioder")) {
+  cy.wait(1000); // Wait for request, bad practice
+
+  cy.findAllByRole("button", { name: /ta bort/i })
+    .should("have.length.gte", 0)
+    .then(($budgetPeriods) => {
+      if ($budgetPeriods.length === 0) {
+        cy.log("No budget periods to delete");
         return;
       }
 
-      return cy
-        .findAllByRole("button", { name: /ta bort/i })
-        .each((button) => button.click());
-    })
-    .then(() => cy.get("p").contains(/Inga skapade budgetperioder./i));
+      return cy.wrap($budgetPeriods).click({ force: true, multiple: true });
+    });
+
+  cy.get("p").contains(/Inga skapade budgetperioder./i);
 }

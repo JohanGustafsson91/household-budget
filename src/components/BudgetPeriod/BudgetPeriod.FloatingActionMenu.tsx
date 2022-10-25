@@ -1,7 +1,7 @@
 import { Button } from "components/Form";
 import { useState } from "react";
 import styled from "styled-components";
-import { fontSize } from "theme";
+import { fontSize, space } from "theme";
 
 export const FloatingActionMenu = ({
   children,
@@ -39,5 +39,23 @@ const Wrapper = styled.div`
     font-size: ${fontSize(4)};
     font-weight: bold;
     float: right;
+  }
+`;
+
+export const FloatingMenu = styled.div`
+  background-color: var(--color-form-element-background);
+  border: 1px solid #eee;
+  margin-bottom: ${space(1)};
+
+  div {
+    cursor: pointer;
+    padding: ${space(2)} ${space(4)} ${space(2)} ${space(2)};
+    border-bottom: 1px solid #eee;
+    &:last-child {
+      border: 0;
+    }
+    &:hover {
+      color: #000;
+    }
   }
 `;
