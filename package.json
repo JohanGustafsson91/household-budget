@@ -59,7 +59,7 @@
     "@types/shortid": "0.0.29",
     "@types/styled-components": "^5.1.20",
     "@types/use-double-click": "^1.0.1",
-    "cypress": "^10.9.0",
+    "cypress": "^10.11.0",
     "env-cmd": "^10.1.0"
   }
 }
