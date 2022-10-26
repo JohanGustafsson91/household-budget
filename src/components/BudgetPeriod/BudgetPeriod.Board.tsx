@@ -6,7 +6,7 @@ export const Wrapper = styled.div<{ columns: number }>`
   display: grid;
   grid-template-columns: ${(props) => `repeat(${props.columns}, 200px)`};
   overflow-y: hidden;
-  overflow-x: scroll;
+  overflow-x: auto;
   height: 100%;
 `;
 
@@ -16,7 +16,7 @@ export const LaneContent = styled.div`
   padding: ${space(2)};
   height: 100%;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 
 export const Lane = styled.div<{ noBorders?: boolean }>`
