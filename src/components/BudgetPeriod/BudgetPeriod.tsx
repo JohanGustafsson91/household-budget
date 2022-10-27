@@ -3,9 +3,9 @@ import { getTransactionsForPeriod } from "api/transaction";
 import { ActionBarTitle } from "components/ActionBar";
 import { Card, CardCol, CardRow, CardTitle } from "components/Card";
 import { pagePadding } from "components/Page";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { AsyncState, BudgetPeriod as PeriodType } from "shared";
+import { BudgetPeriod as PeriodType } from "shared";
 import styled from "styled-components";
 import { space } from "theme";
 import { displayDate } from "utils";
@@ -28,6 +28,7 @@ import * as TransactionCard from "./BudgetPeriod.TransactionCard";
 import * as Modal from "./BudgetPeriod.Modal";
 import * as Board from "./BudgetPeriod.Board";
 import * as OverviewItem from "./BudgetPeriod.OverviewItem";
+import { useAsync } from "shared/useAsync";
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
@@ -349,72 +350,55 @@ type BudgetPeriodAction =
 
 function useBudgetPeriod(periodId: string) {
   const { getFriendById: getFriendNameById, ...visitor } = useVisitor();
-
-  const [period, setPeriod] = useState<AsyncState<PeriodType>>({
-    data: undefined,
-    status: "pending",
-  });
-
-  const [transactions, setTransactions] = useState<AsyncState<Transaction[]>>({
-    data: undefined,
-    status: "pending",
-  });
+  const { data: period, status: periodStatus, run } = useAsync<PeriodType>();
+  const {
+    data: transactions,
+    setData: setTransactions,
+    setError: setTransactionsError,
+    status: transactionsStatus,
+  } = useAsync<Transaction[]>();
 
   useEffect(
     function getPeriodById() {
-      if (periodId) {
-        getBudgetPeriodById(periodId)
-          .then((data) =>
-            setPeriod({
-              status: "resolved",
-              data,
-            })
-          )
-          .catch(() => setPeriod({ data: undefined, status: "rejected" }));
+      if (periodId && periodStatus === "idle") {
+        run(getBudgetPeriodById(periodId));
       }
     },
-    [periodId]
+    [periodId, periodStatus, run]
   );
 
   useEffect(
     function subscribeToTransactions() {
-      if (period.data?.members.length) {
-        const unsubscribe = getTransactionsForPeriod(
-          period.data,
-          (data) => setTransactions({ data, status: "resolved" }),
-          function onError(_e) {
-            setTransactions({ data: undefined, status: "rejected" });
-          }
+      if (periodStatus === "resolved" && period.members.length) {
+        return getTransactionsForPeriod(
+          period,
+          setTransactions,
+          setTransactionsError
         );
-
-        return unsubscribe;
       }
     },
-    [period.data]
+    [period, periodStatus, setTransactions, setTransactionsError]
   );
 
-  if (period.status === "rejected" || transactions.status === "rejected") {
+  if (periodStatus === "rejected" || transactionsStatus === "rejected") {
     return {
       status: "rejected" as const,
     };
   }
 
-  if (period.status === "pending" || transactions.status === "pending") {
+  if (periodStatus !== "resolved" || transactionsStatus !== "resolved") {
     return {
       status: "pending" as const,
     };
   }
 
-  const categorizedTransactions = (transactions.data || []).reduce(
-    (acc, curr) => {
-      const previous = acc[curr.category] || [];
-      return {
-        ...acc,
-        [curr.category]: [...previous, curr],
-      };
-    },
-    {} as Record<Category["type"], Transaction[]>
-  );
+  const categorizedTransactions = transactions.reduce((acc, curr) => {
+    const previous = acc[curr.category] || [];
+    return {
+      ...acc,
+      [curr.category]: [...previous, curr],
+    };
+  }, {} as Record<Category["type"], Transaction[]>);
 
   const income = summarize(categorizedTransactions["INCOME"] || []);
   const { INCOME, ...rest } = categorizedTransactions;
@@ -424,8 +408,8 @@ function useBudgetPeriod(periodId: string) {
   return {
     status: "resolved" as const,
     period: {
-      ...period.data,
-      transactions: transactions.data,
+      ...period,
+      transactions,
     },
     summarizedTotals: {
       income,
@@ -442,7 +426,7 @@ function useBudgetPeriod(periodId: string) {
       type,
       transactions: categorizedTransactions[type] || [],
     })),
-    transactionsPerMember: period.data.members.map((userId) => {
+    transactionsPerMember: period.members.map((userId) => {
       const transactionsByUser = categoriesForBoard.reduce((acc, curr) => {
         const transaction = categorizedTransactions[curr.type] || [];
 
@@ -451,7 +435,7 @@ function useBudgetPeriod(periodId: string) {
           .map((transaction) => ({
             ...transaction,
             amount: transaction.shared
-              ? transaction.amount / period.data.members.length
+              ? transaction.amount / period.members.length
               : transaction.amount,
           }));
 
@@ -477,8 +461,8 @@ function useBudgetPeriod(periodId: string) {
         })),
       };
     }),
-    overview: (transactions.data || [])
-      ?.filter((i) => i.author === visitor.id)
+    overview: transactions
+      .filter((i) => i.author === visitor.id)
       .map((t) => {
         return {
           date: t.date,

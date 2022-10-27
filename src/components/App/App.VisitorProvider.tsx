@@ -13,62 +13,42 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useState,
 } from "react";
-import { AsyncState } from "shared";
+import { useAsync } from "shared/useAsync";
 
 const VisitorContext = createContext<ProviderProps | undefined>(undefined);
 
 export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
   const [auth, authIsLoading] = useAuth();
-
-  const [state, setState] = useState<AsyncState<Visitor>>({
-    data: undefined,
-    status: "pending",
-  });
+  const { status, data, setData, setError } = useAsync<Visitor>();
 
   useEffect(
     function getVisitorData() {
-      if (authIsLoading) {
-        return;
-      }
-
-      const unsubscribe = getVisitor(
-        auth?.uid,
-        function onCallback(data) {
-          return setState({
-            data,
-            status: "resolved",
-          });
-        },
-        function onError() {
-          setState({ data: undefined, status: "rejected" });
-        }
-      );
-
-      return unsubscribe;
+      return !authIsLoading
+        ? getVisitor(auth?.uid, setData, setError)
+        : undefined;
     },
-    [auth, authIsLoading]
+    [auth?.uid, authIsLoading, setData, setError]
   );
 
   const getFriendById = useCallback(
     function findFriendName(friendId: string) {
-      return friendId === state.data?.id
-        ? state.data
-        : state.data?.friends.find(({ id }) => id === friendId);
+      return friendId === data?.id
+        ? data
+        : data?.friends.find(({ id }) => id === friendId);
     },
-    [state.data]
+    [data]
   );
 
-  if (state.status === "rejected") {
+  if (status === "rejected") {
     throw new Error("GET_VISITOR");
   }
 
   return (
     <VisitorContext.Provider
-      value={state.data ? { ...state.data, getFriendById } : undefined}
+      value={data ? { ...data, getFriendById } : undefined}
     >
-      {state.status === "pending" ? (
+      {["idle", "pending"].includes(status) ? (
         <Loading fullPage delay={1500}>
           Hämtar besökare...
         </Loading>

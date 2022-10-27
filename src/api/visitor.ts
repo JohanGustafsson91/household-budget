@@ -1,6 +1,5 @@
 import {
   collection,
-  FirestoreError,
   getDocs,
   onSnapshot,
   query,
@@ -12,12 +11,12 @@ import { getAuth } from "./auth";
 export const getVisitor = (
   id: string | undefined,
   callbackOnSnapshot: (value: Visitor) => void,
-  callbackOnError: (error?: FirestoreError) => void
+  callbackOnError: (error: string) => void
 ) => {
   const currentVisitorId = getAuth().currentUser?.uid;
 
   if (currentVisitorId !== id) {
-    return callbackOnError();
+    return callbackOnError("Invalid id");
   }
 
   if (!currentVisitorId) {
@@ -58,7 +57,7 @@ export const getVisitor = (
         friends: friendsData,
       });
     },
-    callbackOnError
+    (e) => callbackOnError(e.message)
   );
 };
 

@@ -6,34 +6,29 @@ import { Card } from "components/Card";
 import { Button } from "components/Form";
 import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AsyncState, BudgetPeriod } from "shared";
+import { BudgetPeriod } from "shared";
+import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils";
 
 export const Overview = () => {
   const navigate = useNavigate();
   const visitor = useVisitor();
-  const [budgetPeriods, setBudgetPeriods] = useState<
-    AsyncState<BudgetPeriod[]>
-  >({
-    data: undefined,
-    status: "pending",
-  });
+  const {
+    status,
+    data: budgetPeriods,
+    setData: setBudgetPeriods,
+    setError: setBudgetPeriodsError,
+  } = useAsync<BudgetPeriod[]>();
 
-  useEffect(function subscribeToBudgetPeriods() {
-    const unsubscribe = getBudgetPeriods(
-      function onSnapshot(data) {
-        setBudgetPeriods({ data, status: "resolved" });
-      },
-      function onError() {
-        setBudgetPeriods(() => ({ status: "rejected", data: undefined }));
-      }
-    );
-
-    return unsubscribe;
-  }, []);
+  useEffect(
+    function subscribeToBudgetPeriods() {
+      return getBudgetPeriods(setBudgetPeriods, setBudgetPeriodsError);
+    },
+    [setBudgetPeriods, setBudgetPeriodsError]
+  );
 
   function navigateTo(url: string) {
     return () => navigate(url);
@@ -43,19 +38,18 @@ export const Overview = () => {
     <>
       <ActionBarTitle title={`Välkommen ${visitor.name}`} />
 
-      {budgetPeriods.status === "pending" ? (
+      {status === "pending" ? (
         <Loading fullPage={false}>
           <p>Hämtar budgetperioder...</p>
         </Loading>
       ) : null}
 
-      {budgetPeriods.status === "resolved" &&
-      budgetPeriods.data.length === 0 ? (
+      {status === "resolved" && budgetPeriods.length === 0 ? (
         <p>Inga skapade budgetperioder.</p>
       ) : null}
 
-      {budgetPeriods.status === "resolved"
-        ? budgetPeriods.data.map((period) => {
+      {status === "resolved"
+        ? budgetPeriods.map((period) => {
             const memberWith = period.members
               .filter((userId) => userId !== getAuth().currentUser?.uid)
               .map((u) => visitor.getFriendById(u)?.name ?? "")

@@ -1,12 +1,12 @@
 import { login } from "api/auth";
 import { Button, Input } from "components/Form";
 import React, { useState } from "react";
+import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
-
-// TODO loading on button
 
 export const Login = () => {
   const [form, setForm] = useState({ email: "", password: "", error: "" });
+  const { run, status } = useAsync<undefined>();
 
   const updateForm = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prevState) => ({
@@ -17,12 +17,7 @@ export const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(form.email, form.password).catch(() =>
-      setForm((prevState) => ({
-        ...prevState,
-        error: "Ange korrekt email och/eller lösenord.",
-      }))
-    );
+    run(login(form.email, form.password));
   };
 
   return (
@@ -45,10 +40,14 @@ export const Login = () => {
           onChange={updateForm}
           autoComplete="current-password"
         />
-        {form.error && <ErrorMessage>{form.error}</ErrorMessage>}
+        <ErrorMessage>
+          {status === "rejected" && "Ange korrekt email och/eller lösenord"}
+        </ErrorMessage>
 
         <p>
-          <Button type="submit">Logga in</Button>
+          <Button type="submit" disabled={status === "pending"}>
+            Logga in
+          </Button>
         </p>
       </Form>
     </Wrapper>
@@ -60,6 +59,7 @@ const Header = styled.h2``;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
 `;
 
 const Form = styled.form`
@@ -68,6 +68,12 @@ const Form = styled.form`
   flex-direction: column;
   max-width: 300px;
   align-self: center;
+
+  input {
+    width: 100%;
+  }
 `;
 
-const ErrorMessage = styled.p``;
+const ErrorMessage = styled.p`
+  color: red;
+`;

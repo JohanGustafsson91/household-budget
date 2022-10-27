@@ -3,7 +3,6 @@ import {
   collection,
   deleteDoc,
   doc,
-  FirestoreError,
   getDocs,
   onSnapshot,
   query,
@@ -17,7 +16,7 @@ import { getAuth } from "./auth";
 
 export const getBudgetPeriods = (
   callbackOnSnapshot: (value: BudgetPeriod[]) => void,
-  callbackOnError: (error: FirestoreError) => void
+  callbackOnError: (error: string) => void
 ) =>
   onSnapshot(
     query(
@@ -43,7 +42,7 @@ export const getBudgetPeriods = (
 
       callbackOnSnapshot(periods as BudgetPeriod[]);
     },
-    callbackOnError
+    (e) => callbackOnError(e.message)
   );
 
 export const getBudgetPeriodById = (id: string) =>

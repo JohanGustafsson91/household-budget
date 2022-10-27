@@ -1,13 +1,16 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, DatePicker, FormField, Input, Label } from "components/Form";
 import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/budgetPeriod";
 import { useVisitor } from "components/App/App.VisitorProvider";
+import { useAsync } from "shared/useAsync";
+import { BudgetPeriod } from "shared";
 
 export const CreateBudgetPeriod = () => {
   const visitor = useVisitor();
   const navigate = useNavigate();
+  const state = useAsync<BudgetPeriod>();
 
   const [form, setForm] = useState<Form>({
     fromDate: new Date(),
@@ -15,10 +18,18 @@ export const CreateBudgetPeriod = () => {
     members: [],
   });
 
+  useEffect(
+    function navigateToCreatedBudgetPeriod() {
+      if (state.status === "resolved") {
+        navigate(`/period/${state.data.id}`);
+      }
+    },
+    [state.data?.id, navigate, state.status]
+  );
+
   async function createBudgetPeriod(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const result = await postBudgetPeriod(form).catch(() => undefined);
-    result && navigate(`/period/${result.id}`);
+    state.run(postBudgetPeriod(form));
   }
 
   function handleUpdateDateInForm(name: "fromDate" | "toDate") {
@@ -92,7 +103,10 @@ export const CreateBudgetPeriod = () => {
         </FormField>
 
         <FormField>
-          <Button disabled={!validForm} type="submit">
+          <Button
+            disabled={!validForm || state.status === "pending"}
+            type="submit"
+          >
             Skapa
           </Button>
         </FormField>

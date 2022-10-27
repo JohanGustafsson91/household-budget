@@ -4,6 +4,7 @@ import { CardTitle } from "components/Card";
 import { Button, Select } from "components/Form";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared";
+import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";
 import { space } from "theme";
@@ -18,6 +19,7 @@ interface Props {
 export function CreateMultipleTransactions({ period, onUpdated }: Props) {
   const [pastedText, setPastedText] = useState("");
   const [transations, setTransactions] = useState<NewTransaction[]>([]);
+  const { run, status } = useAsync<undefined>();
 
   useEffect(
     function onPastedText() {
@@ -51,14 +53,18 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
   );
 
   async function createMultipleTransactions() {
-    await Promise.all(
-      transations.map((transaction) =>
-        postTransaction(transaction).catch(() => undefined)
+    run(
+      Promise.all(
+        transations.map((transaction) => postTransaction(transaction))
       )
     );
-
-    onUpdated?.();
   }
+
+  useEffect(() => {
+    if (status === "resolved") {
+      onUpdated?.();
+    }
+  }, [onUpdated, status]);
 
   return (
     <Content>
@@ -114,7 +120,12 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
         </Table>
       ) : null}
 
-      <Button onClick={createMultipleTransactions}>Lägg till</Button>
+      <Button
+        onClick={createMultipleTransactions}
+        disabled={status === "pending"}
+      >
+        Lägg till
+      </Button>
     </Content>
   );
 }

@@ -4,7 +4,6 @@ import {
 } from "components/BudgetPeriod/BudgetPeriod.Transaction";
 import {
   collection,
-  FirestoreError,
   onSnapshot,
   query,
   where,
@@ -19,7 +18,7 @@ import { COLLECTION, db } from "utils";
 export const getTransactionsForPeriod = (
   period: BudgetPeriod,
   callbackOnSnapshot: (value: Transaction[]) => void,
-  callbackOnError: (error: FirestoreError) => void
+  callbackOnError: (error: string) => void
 ) => {
   return onSnapshot(
     query(
@@ -43,7 +42,7 @@ export const getTransactionsForPeriod = (
 
       callbackOnSnapshot(transactions as Transaction[]);
     },
-    callbackOnError
+    (e) => callbackOnError(e.message)
   );
 };
 
