@@ -1,7 +1,48 @@
+import { PropsWithChildren, RefObject, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { breakpoint, space } from "theme";
 
-export const Overlay = styled.div`
+export const Modal = ({
+  children,
+  onClose,
+}: PropsWithChildren<{ onClose: () => void }>) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(modalRef, onClose);
+
+  return (
+    <Overlay>
+      <Wrapper ref={modalRef}>
+        <CloseButton onClick={onClose}>X</CloseButton>
+        {children}
+      </Wrapper>
+    </Overlay>
+  );
+};
+
+type Event = MouseEvent | TouchEvent;
+
+const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
+  ref: RefObject<T>,
+  handler: (event: Event) => void
+) => {
+  useEffect(() => {
+    const listener = (event: Event) => {
+      if (!ref.current?.contains(event?.target as Node)) {
+        handler(event);
+      }
+    };
+
+    document.addEventListener("mousedown", listener);
+    document.addEventListener("touchstart", listener);
+
+    return () => {
+      document.removeEventListener("mousedown", listener);
+      document.removeEventListener("touchstart", listener);
+    };
+  }, [ref, handler]);
+};
+
+const Overlay = styled.div`
   top: 0;
   bottom: 0;
   left: 0;
@@ -13,8 +54,7 @@ export const Overlay = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
-// todo add click outside
-export const Wrapper = styled.div`
+const Wrapper = styled.div`
   background-color: var(--color-form-element-background);
   padding: ${space(3)} ${space(3)};
   position: absolute;
@@ -34,7 +74,7 @@ export const Wrapper = styled.div`
   }
 `;
 
-export const CloseButton = styled.button`
+const CloseButton = styled.button`
   outline: 0;
   border: 0;
   position: absolute;

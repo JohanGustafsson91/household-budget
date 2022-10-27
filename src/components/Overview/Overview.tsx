@@ -38,50 +38,55 @@ export const Overview = () => {
     <>
       <ActionBarTitle title={`Välkommen ${visitor.name}`} />
 
-      {status === "pending" ? (
-        <Loading fullPage={false}>
-          <p>Hämtar budgetperioder...</p>
-        </Loading>
-      ) : null}
+      {
+        {
+          idle: null,
+          pending: (
+            <Loading fullPage={false}>
+              <p>Hämtar budgetperioder...</p>
+            </Loading>
+          ),
+          rejected: <p>Kunde inte hämta budgetperioder...</p>,
+          resolved: budgetPeriods?.length ? (
+            budgetPeriods.map((period) => {
+              const memberWith = period.members
+                .filter((userId) => userId !== getAuth().currentUser?.uid)
+                .map((u) => visitor.getFriendById(u)?.name ?? "")
+                .join(", ");
 
-      {status === "resolved" && budgetPeriods.length === 0 ? (
-        <p>Inga skapade budgetperioder.</p>
-      ) : null}
-
-      {status === "resolved"
-        ? budgetPeriods.map((period) => {
-            const memberWith = period.members
-              .filter((userId) => userId !== getAuth().currentUser?.uid)
-              .map((u) => visitor.getFriendById(u)?.name ?? "")
-              .join(", ");
-
-            return (
-              <Card
-                key={period.id}
-                onClick={navigateTo(`/period/${period.id}`)}
-                role="listitem"
-              >
-                <Content>
-                  <div>
-                    Från {displayDate(period.fromDate)} -{" "}
-                    {displayDate(period.toDate)}
+              return (
+                <Card
+                  key={period.id}
+                  onClick={navigateTo(`/period/${period.id}`)}
+                  role="listitem"
+                >
+                  <Content>
                     <div>
-                      {memberWith.length ? `Tillsammans med ${memberWith}` : ""}
+                      Från {displayDate(period.fromDate)} -{" "}
+                      {displayDate(period.toDate)}
+                      <div>
+                        {memberWith.length
+                          ? `Tillsammans med ${memberWith}`
+                          : ""}
+                      </div>
                     </div>
-                  </div>
-                  <Button
-                    onClick={function handleDeleteBugdetPeriod(e) {
-                      e.stopPropagation();
-                      return deleteBudgetPeriod(period.id);
-                    }}
-                  >
-                    Ta bort
-                  </Button>
-                </Content>
-              </Card>
-            );
-          })
-        : null}
+                    <Button
+                      onClick={function handleDeleteBugdetPeriod(e) {
+                        e.stopPropagation();
+                        return deleteBudgetPeriod(period.id);
+                      }}
+                    >
+                      Ta bort
+                    </Button>
+                  </Content>
+                </Card>
+              );
+            })
+          ) : (
+            <p>Inga skapade budgetperioder.</p>
+          ),
+        }[status]
+      }
 
       <ActionButton onClick={navigateTo("/period/add")}>+</ActionButton>
     </>

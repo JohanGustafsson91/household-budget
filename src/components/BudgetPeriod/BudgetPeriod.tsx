@@ -25,7 +25,7 @@ import {
 import { useVisitor } from "components/App/App.VisitorProvider";
 
 import * as TransactionCard from "./BudgetPeriod.TransactionCard";
-import * as Modal from "./BudgetPeriod.Modal";
+import { Modal } from "./BudgetPeriod.Modal";
 import * as Board from "./BudgetPeriod.Board";
 import * as OverviewItem from "./BudgetPeriod.OverviewItem";
 import { useAsync } from "shared/useAsync";
@@ -238,101 +238,82 @@ export const BudgetPeriod = () => {
         )}
       </FloatingActionMenu>
 
-      {budgetPeriodAction === "create" ? (
-        <Modal.Overlay>
-          <Modal.Wrapper>
-            <Modal.CloseButton onClick={resetTransactionAction}>
-              x
-            </Modal.CloseButton>
-            <CreateOrUpdateTransaction
-              period={period}
-              transaction={undefined}
-              onUpdated={resetTransactionAction}
-            />
-          </Modal.Wrapper>
-        </Modal.Overlay>
-      ) : null}
-
-      {budgetPeriodAction === "update" &&
-      period.transactions.find((t) => t.id === updateTransactionId) ? (
-        <Modal.Overlay>
-          <Modal.Wrapper>
-            <Modal.CloseButton onClick={resetTransactionAction}>
-              x
-            </Modal.CloseButton>
-            <CreateOrUpdateTransaction
-              period={period}
-              transaction={
-                budgetPeriodAction === "update"
-                  ? period.transactions.find(
-                      (t) => t.id === updateTransactionId
-                    )
-                  : undefined
-              }
-              onUpdated={resetTransactionAction}
-            />
-          </Modal.Wrapper>
-        </Modal.Overlay>
-      ) : null}
-
-      {budgetPeriodAction === "create-many" ? (
-        <Modal.Overlay>
-          <Modal.Wrapper>
-            <Modal.CloseButton onClick={resetTransactionAction}>
-              x
-            </Modal.CloseButton>
-            <CreateMultipleTransactions
-              period={period}
-              onUpdated={resetTransactionAction}
-            />
-          </Modal.Wrapper>
-        </Modal.Overlay>
-      ) : null}
-
-      {budgetPeriodAction === "show-overview" ? (
-        <Modal.Overlay>
-          <Modal.Wrapper>
-            <Modal.CloseButton onClick={resetTransactionAction}>
-              x
-            </Modal.CloseButton>
-            <CardTitle>Översikt</CardTitle>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Namn</th>
-                  <th>Belopp</th>
-                  <th>Datum</th>
-                  <th>Kategori</th>
-                </tr>
-              </thead>
-              <tbody>
-                {overview.map(({ name, amount, category, date, id }) => (
-                  <tr key={id}>
-                    <td>{name}</td>
-                    <td>{amount}</td>
-                    <td>{displayDate(date)}</td>
-                    <td>{category}</td>
+      {/* Modals */}
+      {
+        {
+          create: (
+            <Modal onClose={resetTransactionAction}>
+              <CreateOrUpdateTransaction
+                period={period}
+                transaction={undefined}
+                onUpdated={resetTransactionAction}
+              />
+            </Modal>
+          ),
+          update: period.transactions.find(
+            (t) => t.id === updateTransactionId
+          ) ? (
+            <Modal onClose={resetTransactionAction}>
+              <CreateOrUpdateTransaction
+                period={period}
+                transaction={
+                  budgetPeriodAction === "update"
+                    ? period.transactions.find(
+                        (t) => t.id === updateTransactionId
+                      )
+                    : undefined
+                }
+                onUpdated={resetTransactionAction}
+              />
+            </Modal>
+          ) : null,
+          "create-many": (
+            <Modal onClose={resetTransactionAction}>
+              <CreateMultipleTransactions
+                period={period}
+                onUpdated={resetTransactionAction}
+              />
+            </Modal>
+          ),
+          "show-overview": (
+            <Modal onClose={resetTransactionAction}>
+              <CardTitle>Översikt</CardTitle>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Namn</th>
+                    <th>Belopp</th>
+                    <th>Datum</th>
+                    <th>Kategori</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Modal.Wrapper>
-        </Modal.Overlay>
-      ) : null}
+                </thead>
+                <tbody>
+                  {overview.map(({ name, amount, category, date, id }) => (
+                    <tr key={id}>
+                      <td>{name}</td>
+                      <td>{amount}</td>
+                      <td>{displayDate(date)}</td>
+                      <td>{category}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Modal>
+          ),
+          none: null,
+        }[budgetPeriodAction]
+      }
     </Content>
   );
 };
 
 const getMode = (param: string | null) => {
-  const foundMode = [
-    "create",
-    "create-many",
-    "update",
-    "show-overview",
-    "none",
-  ].find((mode) => mode === param);
+  const foundMode =
+    ["create", "create-many", "update", "show-overview", "none"].find(
+      (mode) => mode === param
+    ) ?? "none";
 
-  return (foundMode ?? "none") as
+  return foundMode as
     | "create"
     | "create-many"
     | "update"
@@ -380,7 +361,7 @@ function useBudgetPeriod(periodId: string) {
     [period, periodStatus, setTransactions, setTransactionsError]
   );
 
-  if (periodStatus === "rejected" || transactionsStatus === "rejected") {
+  if ([periodStatus, transactionsStatus].includes("rejected")) {
     return {
       status: "rejected" as const,
     };
