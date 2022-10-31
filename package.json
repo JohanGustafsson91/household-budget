@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@testing-library/cypress": "^8.0.3",
-    "@types/react-datepicker": "^4.4.2",
+    "@types/react-datepicker": "^4.8.0",
     "@types/react-router-dom": "^5.3.3",
     "@types/shortid": "0.0.29",
     "@types/styled-components": "^5.1.20",
