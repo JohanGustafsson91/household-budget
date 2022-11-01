@@ -2,6 +2,9 @@
   "name": "household-budget",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "16.18.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -32,34 +35,34 @@
     ]
   },
   "dependencies": {
-    "firebase": "^9.10.0",
-    "react": "^18.2.0",
-    "react-datepicker": "^4.8.0",
-    "react-dom": "^18.2.0",
-    "react-error-boundary": "^3.1.4",
-    "react-firebase-hooks": "^5.0.3",
-    "react-router-dom": "^6.2.1",
+    "firebase": "9.10.0",
+    "react": "18.2.0",
+    "react-datepicker": "4.8.0",
+    "react-dom": "18.2.0",
+    "react-error-boundary": "3.1.4",
+    "react-firebase-hooks": "5.0.3",
+    "react-router-dom": "6.2.1",
     "react-scripts": "5.0.1",
-    "shortid": "^2.2.16",
-    "styled-components": "^5.3.3",
-    "typescript": "^4.5.4",
-    "web-vitals": "^3.0.4"
+    "shortid": "2.2.16",
+    "styled-components": "5.3.3",
+    "typescript": "4.8.4",
+    "web-vitals": "3.0.4"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^14.4.3",
-    "@types/jest": "^29.2.0",
-    "@types/node": "^18.11.5",
-    "@types/react": "^18.0.23",
-    "@types/react-dom": "^18.0.7",
-    "@testing-library/cypress": "^8.0.3",
-    "@types/react-datepicker": "^4.4.2",
-    "@types/react-router-dom": "^5.3.3",
+    "@testing-library/jest-dom": "5.16.1",
+    "@testing-library/react": "13.4.0",
+    "@testing-library/user-event": "14.4.3",
+    "@types/jest": "29.2.0",
+    "@types/node": "18.11.5",
+    "@types/react": "18.0.23",
+    "@types/react-dom": "18.0.7",
+    "@testing-library/cypress": "8.0.3",
+    "@types/react-datepicker": "4.4.2",
+    "@types/react-router-dom": "5.3.3",
     "@types/shortid": "0.0.29",
-    "@types/styled-components": "^5.1.20",
-    "@types/use-double-click": "^1.0.1",
-    "cypress": "^10.11.0",
-    "env-cmd": "^10.1.0"
+    "@types/styled-components": "5.1.20",
+    "@types/use-double-click": "1.0.1",
+    "cypress": "10.11.0",
+    "env-cmd": "10.1.0"
   }
 }
