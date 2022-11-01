@@ -48,7 +48,7 @@ describe("Manage budget", () => {
       cy.findByDisplayValue(0);
     });
 
-    cy.findByRole("button", { name: /x/i }).click();
+    cy.findByTitle("Close").click();
   });
 
   it("should have correct summarized overview values", () => {

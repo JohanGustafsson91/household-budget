@@ -12,7 +12,9 @@ export const Modal = ({
   return (
     <Overlay>
       <Wrapper ref={modalRef}>
-        <CloseButton onClick={onClose}>X</CloseButton>
+        <CloseButton title="Close" onClick={onClose}>
+          X
+        </CloseButton>
         {children}
       </Wrapper>
     </Overlay>
