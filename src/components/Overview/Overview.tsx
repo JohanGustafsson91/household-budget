@@ -62,8 +62,10 @@ export const Overview = () => {
                 >
                   <Content>
                     <div>
-                      Från {displayDate(period.fromDate)} -{" "}
-                      {displayDate(period.toDate)}
+                      <Text>
+                        Från {displayDate(period.fromDate)} -{" "}
+                        {displayDate(period.toDate)}
+                      </Text>
                       <div>
                         {memberWith.length
                           ? `Tillsammans med ${memberWith}`
@@ -104,4 +106,8 @@ const Content = styled.div`
   ${Button} {
     float: right;
   }
+`;
+
+const Text = styled.span`
+  font-weight: bold;
 `;

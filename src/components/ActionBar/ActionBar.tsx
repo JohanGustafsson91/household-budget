@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
-import backIcon from "./ActionBar.backIcon.png";
-import logoutIcon from "./ActionBar.logoutIcon.png";
+import backIcon from "./ActionBar.back.icon.svg";
+import logoutIcon from "./ActionBar.logout.icon.svg";
 
 const ActionBarContext = React.createContext<ProviderProps | undefined>(
   undefined
@@ -39,7 +39,7 @@ export const ActionBar = () => {
   return (
     <PageHeader>
       {location.pathname !== "/" && (
-        <Link to="/">
+        <Link style={{ lineHeight: 0 }} to="/">
           <Icon src={backIcon} alt="back" />
         </Link>
       )}
@@ -77,19 +77,20 @@ const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${space(3)};
+  padding: 0 ${space(3)};
   background-color: var(--color-background-action-bar);
   color: var(--color-text-action-bar);
+  height: 44pt;
 `;
 
 const Icon = styled.img<{ noMargin?: boolean }>`
-  width: 24px;
+  width: ${space(3)};
   height: auto;
   margin-right: ${(props) => (props.noMargin ? 0 : space(3))};
 `;
 
 const Title = styled.span`
   flex: 1;
-  font-weight: 500;
+  font-weight: 700;
   font-size: ${fontSize(2)};
 `;
