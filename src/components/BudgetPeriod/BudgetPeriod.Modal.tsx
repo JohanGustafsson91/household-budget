@@ -1,4 +1,5 @@
-import { PropsWithChildren, RefObject, useEffect, useRef } from "react";
+import { PropsWithChildren, useRef } from "react";
+import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
 import { breakpoint, space } from "theme";
 
@@ -21,29 +22,6 @@ export const Modal = ({
   );
 };
 
-type Event = MouseEvent | TouchEvent;
-
-const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
-  ref: RefObject<T>,
-  handler: (event: Event) => void
-) => {
-  useEffect(() => {
-    const listener = (event: Event) => {
-      if (!ref.current?.contains(event?.target as Node)) {
-        handler(event);
-      }
-    };
-
-    document.addEventListener("mousedown", listener);
-    document.addEventListener("touchstart", listener);
-
-    return () => {
-      document.removeEventListener("mousedown", listener);
-      document.removeEventListener("touchstart", listener);
-    };
-  }, [ref, handler]);
-};
-
 const Overlay = styled.div`
   top: 0;
   bottom: 0;
@@ -53,7 +31,11 @@ const Overlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: transparent;
+  cursor: pointer;
+  ${breakpoint(1)} {
+    background-color: rgba(0, 0, 0, 0.85);
+  }
 `;
 
 const Wrapper = styled.div`

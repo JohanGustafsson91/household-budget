@@ -20,7 +20,7 @@ import {
 import { Loading } from "components/Loading";
 import {
   FloatingActionMenu,
-  FloatingMenu,
+  FloatingMenuItem,
 } from "./BudgetPeriod.FloatingActionMenu";
 import { useVisitor } from "components/App/App.VisitorProvider";
 
@@ -29,6 +29,10 @@ import { Modal } from "./BudgetPeriod.Modal";
 import * as Board from "./BudgetPeriod.Board";
 import * as OverviewItem from "./BudgetPeriod.OverviewItem";
 import { useAsync } from "shared/useAsync";
+
+import AddIcon from "./BudgetPeriod.Add.icon.svg";
+import AddManyIcon from "./BudgetPeriod.AddMany.icon.svg";
+import OverviewIcon from "./BudgetPeriod.Overview.icon.svg";
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
@@ -206,35 +210,35 @@ export const BudgetPeriod = () => {
 
       <FloatingActionMenu>
         {({ closeMenu }) => (
-          <FloatingMenu>
-            <div
+          <>
+            <FloatingMenuItem
               role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "create" });
                 closeMenu();
               }}
-            >
-              Lägg till
-            </div>
-            <div
+              text="Lägg till"
+              icon={AddIcon}
+            />
+            <FloatingMenuItem
               role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "create-many" });
                 closeMenu();
               }}
-            >
-              Lägg till många
-            </div>
-            <div
+              text="Lägg till många"
+              icon={AddManyIcon}
+            />
+            <FloatingMenuItem
               role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "show-overview" });
                 closeMenu();
               }}
-            >
-              Visa översikt
-            </div>
-          </FloatingMenu>
+              text="Visa översikt"
+              icon={OverviewIcon}
+            />
+          </>
         )}
       </FloatingActionMenu>
 
