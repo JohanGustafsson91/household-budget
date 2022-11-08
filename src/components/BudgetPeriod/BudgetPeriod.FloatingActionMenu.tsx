@@ -43,7 +43,6 @@ const Wrapper = styled.div<{ open: boolean }>`
   position: absolute;
   bottom: 0;
   right: 0;
-  z-index: 1;
 
   width: ${(props) => (props.open ? "100%" : "auto")};
   height: ${(props) => (props.open ? "100vh" : "auto")};
@@ -75,7 +74,6 @@ const FloatingButton = styled(Button)<{ open: boolean }>`
   font-size: ${(props) => fontSize(props.open ? 3 : 4)};
   font-weight: bold;
   float: right;
-  z-index: 10;
 `;
 
 export const Menu = styled.div`
