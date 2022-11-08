@@ -1,4 +1,4 @@
-import { Button } from "components/Form";
+import { ActionButton } from "components/Button";
 import { useRef, useState } from "react";
 import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
@@ -59,20 +59,17 @@ const Wrapper = styled.div<{ open: boolean }>`
 
 const Content = styled.div``;
 
-const FloatingButton = styled(Button)<{ open: boolean }>`
-  border-radius: 50%;
+const FloatingButton = styled(ActionButton)<{ open: boolean }>`
+  position: relative;
+  bottom: 0;
+  right: 0;
   height: ${(props) => fontSize(props.open ? 6 : 6)};
   width: ${(props) => fontSize(props.open ? 6 : 6)};
-  outline: 0;
-  border: 0;
   background-color: ${(props) =>
     props.open ? "#A5A5A8" : "var(--color-background-action-bar)"};
   color: ${(props) =>
     props.open ? "#57575A" : "var(--color-text-action-bar)"};
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   font-size: ${(props) => fontSize(props.open ? 3 : 4)};
-  font-weight: bold;
   float: right;
 `;
 
