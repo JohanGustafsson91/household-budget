@@ -31,7 +31,7 @@ export const FloatingActionMenu = ({
 };
 
 export const FloatingMenuItem = ({ onClick, icon, text }: any) => (
-  <MenuItem onClick={onClick}>
+  <MenuItem onClick={onClick} role="listitem">
     <MenuItemText>{text}</MenuItemText>
     <MenuItemIcon src={icon} />
   </MenuItem>

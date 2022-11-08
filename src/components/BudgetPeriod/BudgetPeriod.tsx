@@ -212,7 +212,6 @@ export const BudgetPeriod = () => {
         {({ closeMenu }) => (
           <>
             <FloatingMenuItem
-              role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "create" });
                 closeMenu();
@@ -221,7 +220,6 @@ export const BudgetPeriod = () => {
               icon={AddIcon}
             />
             <FloatingMenuItem
-              role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "create-many" });
                 closeMenu();
@@ -230,7 +228,6 @@ export const BudgetPeriod = () => {
               icon={AddManyIcon}
             />
             <FloatingMenuItem
-              role="listitem"
               onClick={() => {
                 setBudgetPeriodAction({ mode: "show-overview" });
                 closeMenu();
