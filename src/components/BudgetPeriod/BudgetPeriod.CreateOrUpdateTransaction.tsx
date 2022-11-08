@@ -8,6 +8,7 @@ import {
   Label,
   Select,
   Button,
+  Checkbox,
 } from "components/Form";
 import { Transaction } from "./BudgetPeriod.Transaction";
 import shortid from "shortid";
@@ -180,7 +181,7 @@ export const CreateOrUpdateTransaction = ({
         <FormField>
           <Label>
             Gemensam?
-            <Input
+            <Checkbox
               name="shared"
               type="checkbox"
               checked={form.shared}

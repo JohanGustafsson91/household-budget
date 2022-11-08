@@ -1,7 +1,7 @@
 import { getAuth } from "api/auth";
 import { postTransaction } from "api/transaction";
 import { CardTitle } from "components/Card";
-import { Button, Select } from "components/Form";
+import { Button, FormField, Select, Textarea } from "components/Form";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared";
 import { useAsync } from "shared/useAsync";
@@ -70,10 +70,12 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
     <Content>
       <CardTitle>Lägg till många</CardTitle>
 
-      <Textarea
-        value={pastedText}
-        onChange={(e) => setPastedText(e.target.value)}
-      />
+      <FormField>
+        <Textarea
+          value={pastedText}
+          onChange={(e) => setPastedText(e.target.value)}
+        />
+      </FormField>
 
       {transations.length ? (
         <Table>
@@ -131,11 +133,6 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
 }
 
 const Content = styled.div``;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  height: 300px;
-`;
 
 export const Table = styled.table`
   width: 100%;
