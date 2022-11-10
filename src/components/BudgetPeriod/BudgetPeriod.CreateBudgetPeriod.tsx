@@ -1,6 +1,12 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, DatePicker, FormField, Input, Label } from "components/Form";
+import {
+  Button,
+  Checkbox,
+  DatePicker,
+  FormField,
+  Label,
+} from "components/Form";
 import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/budgetPeriod";
 import { useVisitor } from "components/App/App.VisitorProvider";
@@ -88,14 +94,14 @@ export const CreateBudgetPeriod = () => {
             {visitor.friends.map((friend) => (
               <div key={friend.id}>
                 <Label>
-                  <Input
+                  {friend.name}
+                  <Checkbox
                     type="checkbox"
                     id={friend.id}
                     name={friend.id}
                     onChange={handleUpdateMembersInForm}
                     checked={form.members.includes(friend.id)}
                   />
-                  {friend.name}
                 </Label>
               </div>
             ))}

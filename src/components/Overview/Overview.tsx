@@ -75,7 +75,12 @@ export const Overview = () => {
                     <Button
                       onClick={function handleDeleteBugdetPeriod(e) {
                         e.stopPropagation();
-                        return deleteBudgetPeriod(period.id);
+
+                        return window.confirm(
+                          "Är du säker på att du vill ta bort budgetperioden?"
+                        )
+                          ? deleteBudgetPeriod(period.id)
+                          : undefined;
                       }}
                     >
                       Ta bort
