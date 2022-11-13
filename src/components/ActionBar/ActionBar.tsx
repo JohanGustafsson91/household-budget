@@ -1,14 +1,21 @@
 import { logout } from "api/auth";
-import React, { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  createContext,
+  ReactElement,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useRef,
+} from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
 import backIcon from "./ActionBar.back.icon.svg";
 import logoutIcon from "./ActionBar.logout.icon.svg";
 
-const ActionBarContext = React.createContext<ProviderProps | undefined>(
-  undefined
-);
+const ActionBarContext = createContext<ProviderProps | undefined>(undefined);
 
 export const ActionBarProvider = ({ children }: Props) => {
   const [title, setTitle] = useState("");
@@ -20,30 +27,21 @@ export const ActionBarProvider = ({ children }: Props) => {
   );
 };
 
-const useActionBar = (): ProviderProps => {
-  const ctx = React.useContext(ActionBarContext);
-
-  if (!ctx) {
-    throw new Error(
-      "[useActionBar]: You must wrap your component with <ActionBarProvider />."
-    );
-  }
-
-  return ctx;
-};
-
 export const ActionBar = () => {
   const { title } = useActionBar();
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const previousPathname = usePrevious(pathname);
+  const navigationCompleted =
+    !previousPathname || previousPathname === pathname;
 
   return (
     <PageHeader>
-      {location.pathname !== "/" && (
+      {pathname !== "/" && (
         <Link style={{ lineHeight: 0 }} to="/">
           <Icon src={backIcon} alt="back" />
         </Link>
       )}
-      <Title>{title}</Title>
+      <Title>{navigationCompleted ? title : ""}</Title>
       <Icon src={logoutIcon} alt="logout" onClick={logout} noMargin />
     </PageHeader>
   );
@@ -64,13 +62,35 @@ export const ActionBarTitle = ({ title }: { title: string }) => {
   return null;
 };
 
+function useActionBar(): ProviderProps {
+  const ctx = useContext(ActionBarContext);
+
+  if (!ctx) {
+    throw new Error(
+      "[useActionBar]: You must wrap your component with <ActionBarProvider />."
+    );
+  }
+
+  return ctx;
+}
+
+function usePrevious(value: unknown) {
+  const ref = useRef<unknown>();
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
+
 interface Props {
-  children: React.ReactElement;
+  children: ReactElement;
 }
 
 interface ProviderProps {
   title: string;
-  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  setTitle: Dispatch<SetStateAction<string>>;
 }
 
 const PageHeader = styled.div`

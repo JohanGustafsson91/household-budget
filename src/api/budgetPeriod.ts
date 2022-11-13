@@ -23,7 +23,6 @@ export const getBudgetPeriods = (
       collection(db, COLLECTION["budgetPeriods"]),
       where("members", "array-contains", auth.currentUser?.uid ?? "")
     ),
-
     function onSnapshot(querySnapshot) {
       const periods = querySnapshot.docs
         .map((doc) => {
@@ -68,24 +67,23 @@ export const postBudgetPeriod = (data: Form) =>
     key: shortid(),
   });
 
-interface Form {
-  fromDate: BudgetPeriod["fromDate"] | null;
-  toDate: BudgetPeriod["toDate"] | null;
-  members: BudgetPeriod["members"];
-}
-
-export const deleteBudgetPeriod = (periodId: string) => {
-  return Promise.all([
+export const deleteBudgetPeriod = (periodId: string) =>
+  Promise.all([
     deleteDoc(doc(db, COLLECTION["budgetPeriods"], periodId)),
     getDocs(
       query(
         collection(db, COLLECTION["transactions"]),
         where("periodId", "==", periodId)
       )
-    ).then(function (document) {
+    ).then((document) => {
       const batch = writeBatch(db);
       document.forEach((d) => batch.delete(d.ref));
       return batch.commit();
     }),
   ]);
-};
+
+interface Form {
+  fromDate: BudgetPeriod["fromDate"] | null;
+  toDate: BudgetPeriod["toDate"] | null;
+  members: BudgetPeriod["members"];
+}

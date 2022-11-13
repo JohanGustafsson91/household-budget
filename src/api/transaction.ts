@@ -19,8 +19,8 @@ export const getTransactionsForPeriod = (
   period: BudgetPeriod,
   callbackOnSnapshot: (value: Transaction[]) => void,
   callbackOnError: (error: string) => void
-) => {
-  return onSnapshot(
+) =>
+  onSnapshot(
     query(
       collection(db, COLLECTION["transactions"]),
       where("periodId", "==", period.id),
@@ -44,7 +44,6 @@ export const getTransactionsForPeriod = (
     },
     (e) => callbackOnError(e.message)
   );
-};
 
 export const postTransaction = (transaction: NewTransaction) =>
   addDoc(collection(db, COLLECTION["transactions"]), {
