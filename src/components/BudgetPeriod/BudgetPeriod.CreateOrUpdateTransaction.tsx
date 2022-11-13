@@ -7,9 +7,9 @@ import {
   Input,
   Label,
   Select,
-  Button,
   Checkbox,
 } from "components/Form";
+import { Button } from "components/Button";
 import { Transaction } from "./BudgetPeriod.Transaction";
 import shortid from "shortid";
 import {

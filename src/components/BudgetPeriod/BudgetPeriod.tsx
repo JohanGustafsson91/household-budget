@@ -2,7 +2,6 @@ import { getBudgetPeriodById } from "api/budgetPeriod";
 import { getTransactionsForPeriod } from "api/transaction";
 import { ActionBarTitle } from "components/ActionBar";
 import { Card, CardCol, CardRow, CardTitle } from "components/Card";
-import { pagePadding } from "components/Page";
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BudgetPeriod as PeriodType } from "shared";
@@ -481,7 +480,7 @@ const TopContent = styled.div`
   padding: ${space(3)} ${space(4)} ${space(6)} ${space(4)};
   left: 0;
   right: 0;
-  margin-top: -${pagePadding};
+  margin-top: -${space(3)};
   z-index: -1;
 `;
 

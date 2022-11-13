@@ -57,5 +57,3 @@ export const Label = styled.label`
 export const Select = styled.select`
   ${inputStyle};
 `;
-
-export const Button = styled.button``;

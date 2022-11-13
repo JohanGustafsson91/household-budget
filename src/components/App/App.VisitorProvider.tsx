@@ -48,12 +48,12 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
     <VisitorContext.Provider
       value={data ? { ...data, getFriendById } : undefined}
     >
-      {["idle", "pending"].includes(status) ? (
+      {status === "resolved" ? (
+        children
+      ) : (
         <Loading fullPage delay={1500}>
           Hämtar besökare...
         </Loading>
-      ) : (
-        children
       )}
     </VisitorContext.Provider>
   );

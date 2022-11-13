@@ -1,7 +1,6 @@
 import { ActionBar, ActionBarProvider } from "components/ActionBar";
 import { Login } from "components/Login";
 import { Overview } from "components/Overview";
-import { PageContent, PageWrapper } from "components/Page";
 import { BudgetPeriod, CreateBudgetPeriod } from "components/BudgetPeriod";
 import { PropsWithChildren, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -16,13 +15,15 @@ import {
   VisitorProvider,
   VisitorType,
 } from "./App.VisitorProvider";
+import styled from "styled-components";
+import { space } from "theme";
 
 export const App = () => (
   <ErrorBoundary
     fallbackRender={({ error, resetErrorBoundary }) => (
       <PageWrapper>
         <PageContent>
-          <h1>Vi har lite problem just nu</h1>
+          <h1>Vi har lite problem just nu :/</h1>
           <pre>Felkod: {error.message}</pre>
           <button onClick={resetErrorBoundary}>Försök igen</button>
         </PageContent>
@@ -33,18 +34,18 @@ export const App = () => (
       <Router>
         <Routes>
           <Route
-            path={ROUTES.login}
+            path={routes.login}
             element={
               <Page
                 visitorTypes={["anonymous"]}
-                navigateToPageIfNotAllowed={ROUTES.main}
+                navigateToPageIfNotAllowed={routes.main}
               >
                 <Login />
               </Page>
             }
           />
           <Route
-            path={ROUTES.main}
+            path={routes.main}
             element={
               <RegisteredVisitorPage>
                 <Overview />
@@ -52,7 +53,7 @@ export const App = () => (
             }
           />
           <Route
-            path={ROUTES.createPeriod}
+            path={routes.createPeriod}
             element={
               <RegisteredVisitorPage>
                 <CreateBudgetPeriod />
@@ -60,7 +61,7 @@ export const App = () => (
             }
           />
           <Route
-            path={ROUTES.period}
+            path={routes.period}
             element={
               <RegisteredVisitorPage>
                 <BudgetPeriod />
@@ -73,27 +74,14 @@ export const App = () => (
   </ErrorBoundary>
 );
 
-function RegisteredVisitorPage({ children }: PropsWithChildren<{}>) {
-  return (
-    <Page visitorTypes={["registered"]}>
-      <ActionBarProvider>
-        <PageWrapper>
-          <ActionBar />
-          <PageContent>{children}</PageContent>
-        </PageWrapper>
-      </ActionBarProvider>
-    </Page>
-  );
-}
-
-function Page({
+const Page = ({
   visitorTypes,
-  navigateToPageIfNotAllowed = ROUTES.login,
+  navigateToPageIfNotAllowed = routes.login,
   children,
 }: PropsWithChildren<{
   visitorTypes: VisitorType[];
-  navigateToPageIfNotAllowed?: ValueOf<typeof ROUTES>;
-}>) {
+  navigateToPageIfNotAllowed?: ValueOf<typeof routes>;
+}>) => {
   const { type } = useVisitor();
   const navigate = useNavigate();
 
@@ -109,13 +97,48 @@ function Page({
   );
 
   return <>{children}</>;
-}
+};
 
-export const ROUTES = {
+const RegisteredVisitorPage = ({ children }: PropsWithChildren<{}>) => (
+  <Page visitorTypes={["registered"]}>
+    <ActionBarProvider>
+      <PageWrapper>
+        <ActionBar />
+        <PageContent>{children}</PageContent>
+      </PageWrapper>
+    </ActionBarProvider>
+  </Page>
+);
+
+const routes = Object.freeze({
   login: "/login",
   main: "/",
   createPeriod: "/period/add",
   period: "/period/:id",
-};
+});
+
+const PageWrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  float: left;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
+
+const PageContent = styled.div<{ overflowHidden?: boolean }>`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: ${space(3)};
+  overflow: auto;
+
+  ${(props) =>
+    props.overflowHidden &&
+    `
+  overflow: hidden;
+`}
+`;
 
 type ValueOf<T> = T[keyof T];

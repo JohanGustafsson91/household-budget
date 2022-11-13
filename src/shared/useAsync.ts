@@ -149,7 +149,7 @@ type RejectedState = {
   error: string;
 };
 
-export type State<Data> =
+type State<Data> =
   | IdleState
   | PendingState
   | ResolvedState<Data>

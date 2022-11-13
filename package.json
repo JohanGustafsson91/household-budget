@@ -15,7 +15,8 @@
     "deploy:prod": "env-cmd -f .env.production.local npm run build && firebase deploy -P production",
     "typecheck": "tsc",
     "cypress": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "lint:exports": "node find-unused-exports.js"
   },
   "eslintConfig": {
     "extends": [
@@ -50,19 +51,20 @@
     "web-vitals": "3.0.4"
   },
   "devDependencies": {
+    "@testing-library/cypress": "8.0.3",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.4.0",
     "@testing-library/user-event": "14.4.3",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
-    "@types/react-dom": "18.0.8",
-    "@testing-library/cypress": "8.0.3",
     "@types/react-datepicker": "4.8.0",
+    "@types/react-dom": "18.0.8",
     "@types/react-router-dom": "5.3.3",
     "@types/shortid": "0.0.29",
     "@types/styled-components": "5.1.26",
     "@types/use-double-click": "1.0.1",
     "cypress": "10.11.0",
-    "env-cmd": "10.1.0"
+    "env-cmd": "10.1.0",
+    "ts-unused-exports": "^8.0.0"
   }
 }

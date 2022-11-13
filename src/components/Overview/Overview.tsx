@@ -3,7 +3,7 @@ import { ActionBarTitle } from "components/ActionBar";
 import { useVisitor } from "components/App/App.VisitorProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
-import { Button } from "components/Form";
+import { Button } from "components/Button";
 import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";

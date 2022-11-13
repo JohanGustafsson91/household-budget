@@ -1,7 +1,8 @@
 import { getAuth } from "api/auth";
 import { postTransaction } from "api/transaction";
 import { CardTitle } from "components/Card";
-import { Button, FormField, Select, Textarea } from "components/Form";
+import { FormField, Select, Textarea } from "components/Form";
+import { Button } from "components/Button";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared";
 import { useAsync } from "shared/useAsync";

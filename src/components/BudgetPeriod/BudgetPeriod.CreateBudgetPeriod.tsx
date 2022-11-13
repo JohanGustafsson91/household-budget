@@ -1,12 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Checkbox,
-  DatePicker,
-  FormField,
-  Label,
-} from "components/Form";
+import { Checkbox, DatePicker, FormField, Label } from "components/Form";
+import { Button } from "components/Button";
 import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/budgetPeriod";
 import { useVisitor } from "components/App/App.VisitorProvider";

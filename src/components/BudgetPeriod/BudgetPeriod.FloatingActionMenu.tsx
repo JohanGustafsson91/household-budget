@@ -73,12 +73,12 @@ const FloatingButton = styled(ActionButton)<{ open: boolean }>`
   float: right;
 `;
 
-export const Menu = styled.div`
+const Menu = styled.div`
   background-color: transparent;
   margin-bottom: ${space(1)};
 `;
 
-export const MenuItem = styled.div`
+const MenuItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
