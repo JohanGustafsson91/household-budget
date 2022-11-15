@@ -24,48 +24,43 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
 
   useEffect(
     function onPastedText() {
-      const newTransactions = pastedText
-        .split("\n")
-        .map(function parseLine(line) {
-          const [amount, label, date] = line.split("\t \t").reverse();
-          const category: Transaction["category"] = amount.startsWith("-")
-            ? "OTHER"
-            : "INCOME";
+      setTransactions(
+        pastedText
+          .split("\n")
+          .map(function parseLine(line) {
+            const [amount, label, date] = line.split("\t \t").reverse();
 
-          return {
-            label,
-            category,
-            date: new Date(date),
-            amount: Number.parseFloat(
-              amount.replace(",", ".").replace("-", "").replace(" ", "")
-            ),
-            author: getAuth()?.currentUser?.uid,
-            createdAt: new Date(),
-            lastUpdated: new Date(),
-            periodId: period.id,
-            id: shortid(),
-          } as NewTransaction;
-        })
-        .filter(({ amount }) => amount);
-
-      setTransactions(newTransactions);
+            return {
+              label,
+              category: amount.startsWith("-")
+                ? "OTHER"
+                : ("INCOME" as Transaction["category"]),
+              date: new Date(date),
+              amount: Number.parseFloat(
+                amount.replace(",", ".").replace("-", "").replace(" ", "")
+              ),
+              author: getAuth()?.currentUser?.uid,
+              createdAt: new Date(),
+              lastUpdated: new Date(),
+              periodId: period.id,
+              id: shortid(),
+              shared: false,
+            };
+          })
+          .filter(({ amount }) => amount)
+      );
     },
     [period.id, pastedText]
   );
 
-  async function createMultipleTransactions() {
-    run(
-      Promise.all(
-        transations.map((transaction) => postTransaction(transaction))
-      )
-    );
-  }
-
-  useEffect(() => {
-    if (status === "resolved") {
-      onUpdated?.();
-    }
-  }, [onUpdated, status]);
+  useEffect(
+    function callbackWhenCreated() {
+      if (status === "resolved") {
+        onUpdated?.();
+      }
+    },
+    [onUpdated, status]
+  );
 
   return (
     <Content>
@@ -124,7 +119,13 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
       ) : null}
 
       <Button
-        onClick={createMultipleTransactions}
+        onClick={function createMultipleTransactions() {
+          run(
+            Promise.all(
+              transations.map((transaction) => postTransaction(transaction))
+            )
+          );
+        }}
         disabled={status === "pending"}
       >
         Lägg till

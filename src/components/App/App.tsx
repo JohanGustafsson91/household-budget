@@ -1,7 +1,7 @@
 import { ActionBar, ActionBarProvider } from "components/ActionBar";
 import { Login } from "components/Login";
 import { Overview } from "components/Overview";
-import { BudgetPeriod, CreateBudgetPeriod } from "components/BudgetPeriod";
+import { BudgetPeriod } from "components/BudgetPeriod";
 import { PropsWithChildren, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import {
@@ -17,6 +17,7 @@ import {
 } from "./App.VisitorProvider";
 import styled from "styled-components";
 import { space } from "theme";
+import { CreateBudgetPeriod } from "components/CreateBudgetPeriod";
 
 export const App = () => (
   <ErrorBoundary

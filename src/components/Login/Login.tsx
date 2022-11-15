@@ -9,21 +9,22 @@ export const Login = () => {
   const [form, setForm] = useState({ email: "", password: "", error: "" });
   const { run, status } = useAsync<undefined>();
 
-  const updateForm = (e: React.ChangeEvent<HTMLInputElement>) =>
+  function updateForm(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
       error: "",
     }));
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    run(login(form.email, form.password));
-  };
+  }
 
   return (
     <Wrapper>
-      <Form onSubmit={handleLogin}>
+      <Form
+        onSubmit={function handleLogin(e: React.FormEvent) {
+          e.preventDefault();
+          run(login(form.email, form.password));
+        }}
+      >
         <Header>Hushållsbudget</Header>
 
         <FormField>
@@ -47,7 +48,7 @@ export const Login = () => {
           />
         </FormField>
         <ErrorMessage>
-          {status === "rejected" && "Ange korrekt email och/eller lösenord"}
+          {status === "rejected" ? "Ange korrekt email och/eller lösenord" : ""}
         </ErrorMessage>
 
         <p>

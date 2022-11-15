@@ -11,36 +11,25 @@ import {
 } from "components/Form";
 import { Button } from "components/Button";
 import { Transaction } from "./BudgetPeriod.Transaction";
-import shortid from "shortid";
-import {
-  postTransaction,
-  putTransaction,
-  deleteTransaction,
-} from "api/transaction";
-import { getAuth } from "api/auth";
+import { putTransaction, deleteTransaction } from "api/transaction";
 import { CardTitle } from "components/Card";
 import { useAsync } from "shared/useAsync";
 
-export const CreateOrUpdateTransaction = ({
+export const UpdateTransaction = ({
   period,
   transaction,
   onUpdated,
 }: Props) => {
-  const { status: statusCreated, setIdle, run: runCreate } = useAsync();
   const { status: statusUpdatedOrDeleted, run: runUpdateOrDelete } = useAsync();
 
-  const [form, setForm] = useState<Form>(() =>
-    !transaction
-      ? getInitFormState(period.fromDate)
-      : {
-          id: transaction.id,
-          label: transaction.label,
-          category: transaction.category,
-          amount: transaction.amount,
-          date: transaction.date,
-          shared: transaction.shared,
-        }
-  );
+  const [form, setForm] = useState<Form>(() => ({
+    id: transaction.id,
+    label: transaction.label,
+    category: transaction.category,
+    amount: transaction.amount,
+    date: transaction.date,
+    shared: transaction.shared,
+  }));
 
   const focusRef = useRef<HTMLInputElement | null>(null);
 
@@ -51,16 +40,6 @@ export const CreateOrUpdateTransaction = ({
       }
     },
     [form.amount]
-  );
-
-  useEffect(
-    function resetFormWhenCreated() {
-      if (statusCreated === "resolved") {
-        setForm(getInitFormState(period.fromDate));
-        setIdle();
-      }
-    },
-    [period.fromDate, setIdle, statusCreated]
   );
 
   useEffect(
@@ -82,55 +61,26 @@ export const CreateOrUpdateTransaction = ({
     }));
   }
 
-  function handleUpdateDateInForm(newDate: Date | null) {
-    newDate && setForm((prev) => ({ ...prev, date: newDate }));
-  }
-
-  async function addTransaction(e: FormEvent<HTMLFormElement>) {
+  function handleUpdateTransaction(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    runCreate(
-      postTransaction({
+    runUpdateOrDelete(
+      putTransaction(transaction.id, {
         ...form,
-        author: getAuth()?.currentUser?.uid ?? "",
-        createdAt: new Date(),
-        lastUpdated: new Date(),
-        periodId: period.id,
-        id: shortid(),
         date: form.date ?? new Date(),
+        shared: form.shared ? true : false,
+        lastUpdated: new Date(),
       })
     );
   }
 
-  async function handleUpdateTransaction(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    if (transaction) {
-      runUpdateOrDelete(
-        putTransaction(transaction.id, {
-          ...form,
-          date: form.date ?? new Date(),
-          shared: form.shared ? true : false,
-          lastUpdated: new Date(),
-        })
-      );
-    }
-  }
-
-  async function handleDeleteTransaction() {
-    if (transaction) {
-      runUpdateOrDelete(deleteTransaction(transaction.id));
-    }
-  }
-
   const validForm = Object.values(form).every((val) => val !== "" || val !== 0);
-
-  const isPending = [statusCreated, statusUpdatedOrDeleted].includes("pending");
+  const isPending = [statusUpdatedOrDeleted].includes("pending");
 
   return (
     <div>
-      <CardTitle>{transaction ? "Ändra" : "Lägg till"}</CardTitle>
-      <form onSubmit={transaction ? handleUpdateTransaction : addTransaction}>
+      <CardTitle>Ändra</CardTitle>
+      <form onSubmit={handleUpdateTransaction}>
         <FormField>
           <Label>
             Belopp
@@ -172,7 +122,9 @@ export const CreateOrUpdateTransaction = ({
             locale="sv"
             name="date"
             selected={form.date}
-            onChange={handleUpdateDateInForm}
+            onChange={(newDate) =>
+              newDate && setForm((prev) => ({ ...prev, date: newDate }))
+            }
             minDate={period.fromDate}
             maxDate={period.toDate}
             inline
@@ -191,35 +143,24 @@ export const CreateOrUpdateTransaction = ({
         </FormField>
         <FormField>
           <Button type="submit" disabled={!validForm || isPending}>
-            {transaction ? "Spara" : "Lägg till"}
+            "Spara"
           </Button>
-          {transaction && (
-            <Button
-              type="button"
-              onClick={handleDeleteTransaction}
-              disabled={isPending}
-            >
-              Ta bort
-            </Button>
-          )}
+          <Button
+            type="button"
+            onClick={() => runUpdateOrDelete(deleteTransaction(transaction.id))}
+            disabled={isPending}
+          >
+            Ta bort
+          </Button>
         </FormField>
       </form>
     </div>
   );
 };
 
-const getInitFormState = (date: Date) => ({
-  id: "notDefined",
-  label: "",
-  category: "OTHER" as const,
-  amount: 0,
-  date,
-  shared: false,
-});
-
 interface Props {
   period: BudgetPeriod;
-  transaction: Transaction | undefined;
+  transaction: Transaction;
   onUpdated?: Function;
 }
 

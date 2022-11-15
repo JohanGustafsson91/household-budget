@@ -16,8 +16,6 @@ import {
 } from "react";
 import { useAsync } from "shared/useAsync";
 
-const VisitorContext = createContext<ProviderProps | undefined>(undefined);
-
 export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
   const [auth, authIsLoading] = useAuth();
   const { status, data, setData, setError } = useAsync<Visitor>();
@@ -32,11 +30,10 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
   );
 
   const getFriendById = useCallback(
-    function findFriendName(friendId: string) {
-      return friendId === data?.id
+    (friendId: string) =>
+      friendId === data?.id
         ? data
-        : data?.friends.find(({ id }) => id === friendId);
-    },
+        : data?.friends.find(({ id }) => id === friendId),
     [data]
   );
 
@@ -58,6 +55,8 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
     </VisitorContext.Provider>
   );
 };
+
+const VisitorContext = createContext<ProviderProps | undefined>(undefined);
 
 export function useVisitor(): ProviderProps {
   const ctx = useContext(VisitorContext);

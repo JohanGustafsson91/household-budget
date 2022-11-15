@@ -11,7 +11,7 @@ import { displayDate } from "utils";
 import { categories, categoriesForBoard } from "./BudgetPeriod.categories";
 import { Category } from "./BudgetPeriod.Category";
 import { Transaction } from "./BudgetPeriod.Transaction";
-import { CreateOrUpdateTransaction } from "./BudgetPeriod.CreateOrUpdateTransaction";
+import { CreateTransaction } from "./BudgetPeriod.CreateTransaction";
 import {
   CreateMultipleTransactions,
   Table,
@@ -32,6 +32,7 @@ import { useAsync } from "shared/useAsync";
 import AddIcon from "./BudgetPeriod.Add.icon.svg";
 import AddManyIcon from "./BudgetPeriod.AddMany.icon.svg";
 import OverviewIcon from "./BudgetPeriod.Overview.icon.svg";
+import { UpdateTransaction } from "./BudgetPeriod.UpdateTransaction";
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
@@ -243,25 +244,17 @@ export const BudgetPeriod = () => {
         {
           create: (
             <Modal onClose={resetTransactionAction}>
-              <CreateOrUpdateTransaction
-                period={period}
-                transaction={undefined}
-                onUpdated={resetTransactionAction}
-              />
+              <CreateTransaction period={period} />
             </Modal>
           ),
           update: period.transactions.find(
             (t) => t.id === updateTransactionId
           ) ? (
             <Modal onClose={resetTransactionAction}>
-              <CreateOrUpdateTransaction
+              <UpdateTransaction
                 period={period}
                 transaction={
-                  budgetPeriodAction === "update"
-                    ? period.transactions.find(
-                        (t) => t.id === updateTransactionId
-                      )
-                    : undefined
+                  period.transactions.find((t) => t.id === updateTransactionId)!
                 }
                 onUpdated={resetTransactionAction}
               />
