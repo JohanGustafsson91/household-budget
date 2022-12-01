@@ -143,7 +143,7 @@ export const UpdateTransaction = ({
         </FormField>
         <FormField>
           <Button type="submit" disabled={!validForm || isPending}>
-            "Spara"
+            Spara
           </Button>
           <Button
             type="button"
