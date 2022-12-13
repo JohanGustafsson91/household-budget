@@ -63,7 +63,7 @@
     "@types/shortid": "0.0.29",
     "@types/styled-components": "5.1.26",
     "@types/use-double-click": "1.0.1",
-    "cypress": "11.2.0",
+    "cypress": "12.1.0",
     "env-cmd": "10.1.0",
     "ts-unused-exports": "^8.0.0"
   }
