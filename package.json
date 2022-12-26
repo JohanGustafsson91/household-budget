@@ -65,6 +65,6 @@
     "@types/use-double-click": "1.0.1",
     "cypress": "11.2.0",
     "env-cmd": "10.1.0",
-    "ts-unused-exports": "^8.0.0"
+    "ts-unused-exports": "^9.0.0"
   }
 }
