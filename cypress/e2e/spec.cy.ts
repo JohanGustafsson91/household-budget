@@ -140,7 +140,7 @@ describe("Manage budget", () => {
       { amount: "-500", name: "Hus", category: "Lån", shared: true },
     ];
 
-    const monthNumber = new Date().getMonth();
+    const monthNumber = new Date().getMonth() + 1;
     const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
 
     const text = input.reduce((acc, curr) => {
