@@ -16,7 +16,8 @@
     "typecheck": "tsc",
     "cypress": "cypress open",
     "cypress:run": "cypress run",
-    "lint:exports": "node find-unused-exports.js"
+    "lint:exports": "node find-unused-exports.js",
+    "postinstall": "patch-package"
   },
   "eslintConfig": {
     "extends": [
@@ -43,7 +44,7 @@
     "react-dom": "18.2.0",
     "react-error-boundary": "3.1.4",
     "react-firebase-hooks": "5.1.1",
-    "react-router-dom": "6.6.1",
+    "react-router-dom": "6.6.2",
     "react-scripts": "5.0.1",
     "shortid": "2.2.16",
     "styled-components": "5.3.6",
@@ -51,7 +52,7 @@
     "web-vitals": "3.1.0"
   },
   "devDependencies": {
-    "@testing-library/cypress": "8.0.7",
+    "@testing-library/cypress": "9.0.0",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.4.0",
     "@testing-library/user-event": "14.4.3",
@@ -63,8 +64,9 @@
     "@types/shortid": "0.0.29",
     "@types/styled-components": "5.1.26",
     "@types/use-double-click": "1.0.1",
-    "cypress": "11.2.0",
+    "cypress": "12.3.0",
     "env-cmd": "10.1.0",
+    "patch-package": "6.5.1",
     "ts-unused-exports": "9.0.1"
   }
 }
