@@ -1,4 +1,4 @@
-import { deleteBudgetPeriod, getBudgetPeriods } from "api/budgetPeriod";
+import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
 import { ActionBarTitle } from "components/ActionBar";
 import { useVisitor } from "components/App/App.VisitorProvider";
 import { ActionButton } from "components/Button";

@@ -6,7 +6,6 @@ import {
   RegisteredVisitor,
   Visitor,
 } from "api/visitor";
-import { Loading } from "components/Loading";
 import {
   createContext,
   PropsWithChildren,
@@ -45,13 +44,7 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
     <VisitorContext.Provider
       value={data ? { ...data, getFriendById } : undefined}
     >
-      {status === "resolved" ? (
-        children
-      ) : (
-        <Loading fullPage delay={1500}>
-          Hämtar besökare...
-        </Loading>
-      )}
+      {status === "resolved" ? children : null}
     </VisitorContext.Provider>
   );
 };

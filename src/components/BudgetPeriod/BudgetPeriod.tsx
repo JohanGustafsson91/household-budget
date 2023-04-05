@@ -1,4 +1,4 @@
-import { getBudgetPeriodById } from "api/budgetPeriod";
+import { getBudgetPeriodById } from "api/budget-period";
 import { getTransactionsForPeriod } from "api/transaction";
 import { ActionBarTitle } from "components/ActionBar";
 import { Card, CardCol, CardRow, CardTitle } from "components/Card";

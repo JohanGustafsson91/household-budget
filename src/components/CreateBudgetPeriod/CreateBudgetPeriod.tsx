@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Checkbox, DatePicker, FormField, Label } from "components/Form";
 import { Button } from "components/Button";
 import { ActionBarTitle } from "components/ActionBar";
-import { postBudgetPeriod } from "api/budgetPeriod";
+import { postBudgetPeriod } from "api/budget-period";
 import { useVisitor } from "components/App/App.VisitorProvider";
 import { useAsync } from "shared/useAsync";
 import { BudgetPeriod } from "shared";
