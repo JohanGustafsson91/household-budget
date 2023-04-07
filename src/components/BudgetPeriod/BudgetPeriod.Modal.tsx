@@ -1,7 +1,7 @@
 import { PropsWithChildren, useRef } from "react";
 import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
-import { breakpoint, space } from "theme";
+import { breakpoint, space__deprecated } from "theme";
 
 export const Modal = ({
   children,
@@ -40,7 +40,7 @@ const Overlay = styled.div`
 
 const Wrapper = styled.div`
   background-color: var(--color-form-element-background);
-  padding: ${space(3)} ${space(3)};
+  padding: ${space__deprecated(3)} ${space__deprecated(3)};
   position: absolute;
   left: 0;
   right: 0;
@@ -62,8 +62,8 @@ const CloseButton = styled.button`
   outline: 0;
   border: 0;
   position: absolute;
-  right: ${space(2)};
-  top: ${space(2)};
+  right: ${space__deprecated(2)};
+  top: ${space__deprecated(2)};
   background-color: inherit;
   border-radius: 50%;
   height: 25px;

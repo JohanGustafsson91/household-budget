@@ -16,7 +16,7 @@ import {
   VisitorType,
 } from "./App.VisitorProvider";
 import styled from "styled-components";
-import { space } from "theme";
+import { space__deprecated } from "theme";
 import { CreateBudgetPeriod } from "components/CreateBudgetPeriod";
 
 export const App = () => (
@@ -132,7 +132,7 @@ const PageContent = styled.div<{ overflowHidden?: boolean }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: ${space(3)};
+  padding: ${space__deprecated(3)};
   overflow: auto;
 
   ${(props) =>

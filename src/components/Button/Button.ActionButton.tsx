@@ -1,10 +1,10 @@
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space__deprecated } from "theme";
 
 export const ActionButton = styled.button`
   position: fixed;
-  bottom: ${space(3)};
-  right: ${space(3)};
+  bottom: ${space__deprecated(3)};
+  right: ${space__deprecated(3)};
   border-radius: 50%;
   height: ${fontSize(6)};
   width: ${fontSize(6)};

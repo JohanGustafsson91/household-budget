@@ -2,7 +2,7 @@ import { ActionButton } from "components/Button";
 import { useRef, useState } from "react";
 import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space__deprecated } from "theme";
 
 export const FloatingActionMenu = ({
   children,
@@ -47,8 +47,8 @@ const Wrapper = styled.div<{ open: boolean }>`
   width: ${(props) => (props.open ? "100%" : "auto")};
   height: ${(props) => (props.open ? "100vh" : "auto")};
 
-  padding-right: ${space(3)};
-  padding-bottom: ${space(3)};
+  padding-right: ${space__deprecated(3)};
+  padding-bottom: ${space__deprecated(3)};
 
   display: flex;
   flex-direction: column;
@@ -75,7 +75,7 @@ const FloatingButton = styled(ActionButton)<{ open: boolean }>`
 
 const Menu = styled.div`
   background-color: transparent;
-  margin-bottom: ${space(1)};
+  margin-bottom: ${space__deprecated(1)};
 `;
 
 const MenuItem = styled.div`
@@ -83,10 +83,11 @@ const MenuItem = styled.div`
   align-items: center;
   justify-content: flex-end;
   cursor: pointer;
-  padding: ${space(2)} ${space(0)} ${space(2)} ${space(2)};
+  padding: ${space__deprecated(2)} ${space__deprecated(0)}
+    ${space__deprecated(2)} ${space__deprecated(2)};
   color: #a5a5a8;
 
-  margin-bottom: ${space(2)};
+  margin-bottom: ${space__deprecated(2)};
 
   &:hover {
     color: #fff;
@@ -102,5 +103,5 @@ const MenuItemIcon = styled.img`
 `;
 
 const MenuItemText = styled.span`
-  margin-right: ${space(3)};
+  margin-right: ${space__deprecated(3)};
 `;

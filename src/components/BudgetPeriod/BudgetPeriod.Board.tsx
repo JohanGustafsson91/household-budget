@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space__deprecated } from "theme";
 
 export const Wrapper = styled.div<{ columns: number }>`
   flex: 1;
@@ -13,7 +13,7 @@ export const Wrapper = styled.div<{ columns: number }>`
 export const LaneContent = styled.div`
   flex: 1;
   border-top: 2px solid var(--color-border);
-  padding: ${space(2)};
+  padding: ${space__deprecated(2)};
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;

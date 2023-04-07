@@ -1,15 +1,15 @@
 import styled, { css } from "styled-components";
-import { breakpoint, fontSize, space } from "theme";
+import { breakpoint, fontSize, space__deprecated } from "theme";
 
 export const FormField = styled.div`
-  margin-bottom: ${space(2)};
+  margin-bottom: ${space__deprecated(2)};
 `;
 
 const inputStyle = css`
   border: 0;
   background-color: var(--color-form-element-background);
-  padding: ${space(2)};
-  border-radius: ${space(1)};
+  padding: ${space__deprecated(2)};
+  border-radius: ${space__deprecated(1)};
   outline: 0;
   border: 1px solid #dddddd;
 
@@ -36,8 +36,8 @@ export const Textarea = styled.textarea`
 export const Checkbox = styled.input`
   border: 0;
   background-color: var(--color-form-element-background);
-  padding: ${space(2)};
-  border-radius: ${space(1)};
+  padding: ${space__deprecated(2)};
+  border-radius: ${space__deprecated(1)};
   outline: 0;
   border: 1px solid #dddddd;
 `;
@@ -48,7 +48,7 @@ export const Label = styled.label`
   input,
   select,
   div {
-    margin-top: ${space(1)};
+    margin-top: ${space__deprecated(1)};
     font-size: ${fontSize(2)};
     display: block;
   }

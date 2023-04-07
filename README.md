@@ -46,8 +46,6 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).
 
 TODOs:
+
 - Sortera på datum, senast ändrad.
-- Gemensam option!
-- Millan rosa.
 - Snackbar för händelser
-- Header back button

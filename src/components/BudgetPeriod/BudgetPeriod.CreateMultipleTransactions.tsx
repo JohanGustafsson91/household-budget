@@ -8,7 +8,7 @@ import { BudgetPeriod } from "shared";
 import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";
-import { space } from "theme";
+import { space__deprecated } from "theme";
 import { categories } from "./BudgetPeriod.categories";
 import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
 
@@ -142,7 +142,7 @@ export const Table = styled.table`
   th,
   td {
     text-align: left;
-    padding: ${space(1)} 0;
+    padding: ${space__deprecated(1)} 0;
     border-bottom: 1px solid #eee;
   }
 `;

@@ -11,7 +11,7 @@ import {
 } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space__deprecated } from "theme";
 import backIcon from "./ActionBar.back.icon.svg";
 import logoutIcon from "./ActionBar.logout.icon.svg";
 
@@ -97,16 +97,16 @@ const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 ${space(3)};
+  padding: 0 ${space__deprecated(3)};
   background-color: var(--color-background-action-bar);
   color: var(--color-text-action-bar);
   height: 44pt;
 `;
 
 const Icon = styled.img<{ noMargin?: boolean }>`
-  width: ${space(3)};
+  width: ${space__deprecated(3)};
   height: auto;
-  margin-right: ${(props) => (props.noMargin ? 0 : space(3))};
+  margin-right: ${(props) => (props.noMargin ? 0 : space__deprecated(3))};
 `;
 
 const Title = styled.span`

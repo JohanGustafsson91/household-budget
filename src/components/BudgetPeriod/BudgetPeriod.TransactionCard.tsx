@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space__deprecated } from "theme";
 import swishIcon from "./swish.png";
 
 const genderColorMap = {
@@ -13,8 +13,8 @@ export const Wrapper = styled.div<{
 }>`
   position: relative;
   border: 1px solid var(--color-border);
-  padding: ${space(1)};
-  margin-bottom: ${space(2)};
+  padding: ${space__deprecated(1)};
+  margin-bottom: ${space__deprecated(2)};
   font-size: ${fontSize(0)};
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@ export const Row = styled.div`
   justify-content: space-between;
 
   &:first-child {
-    margin-bottom: ${space(4)};
+    margin-bottom: ${space__deprecated(4)};
   }
 `;
 

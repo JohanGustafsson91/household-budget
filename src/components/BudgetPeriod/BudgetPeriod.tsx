@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BudgetPeriod as PeriodType } from "shared";
 import styled from "styled-components";
-import { space } from "theme";
+import { space__deprecated } from "theme";
 import { displayDate } from "utils";
 import { categories, categoriesForBoard } from "./BudgetPeriod.categories";
 import { Category } from "./BudgetPeriod.Category";
@@ -462,7 +462,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  margin-bottom: ${space(2)};
+  margin-bottom: ${space__deprecated(2)};
 `;
 
 const TopContent = styled.div`
@@ -470,10 +470,11 @@ const TopContent = styled.div`
   display: flex;
   position: absolute;
   justify-content: space-between;
-  padding: ${space(3)} ${space(4)} ${space(6)} ${space(4)};
+  padding: ${space__deprecated(3)} ${space__deprecated(4)}
+    ${space__deprecated(6)} ${space__deprecated(4)};
   left: 0;
   right: 0;
-  margin-top: -${space(3)};
+  margin-top: -${space__deprecated(3)};
   z-index: -1;
 `;
 
