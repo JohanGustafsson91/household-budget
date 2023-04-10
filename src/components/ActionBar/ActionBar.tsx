@@ -1,19 +1,18 @@
 import { logout } from "api/auth";
 import {
-  useEffect,
   useState,
   createContext,
   ReactElement,
   Dispatch,
   SetStateAction,
-  useContext,
   useRef,
+  PropsWithChildren,
 } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
-import { fontSize, space__deprecated } from "theme";
-import backIcon from "./ActionBar.back.icon.svg";
-import logoutIcon from "./ActionBar.logout.icon.svg";
+import { fontSize, space } from "theme";
+import backIcon from "./back.icon.svg";
 
 const ActionBarContext = createContext<ProviderProps | undefined>(undefined);
 
@@ -27,62 +26,54 @@ export const ActionBarProvider = ({ children }: Props) => {
   );
 };
 
-export const ActionBar = () => {
-  const { title } = useActionBar();
+interface ActionBarProps {
+  title?: string;
+  renderMenu?: ({ closeMenu }: { closeMenu: () => void }) => JSX.Element;
+}
+
+export const ActionBar = ({
+  title,
+  renderMenu,
+  children,
+}: PropsWithChildren<ActionBarProps>) => {
   const { pathname } = useLocation();
-  const previousPathname = usePrevious(pathname);
-  const navigationCompleted =
-    !previousPathname || previousPathname === pathname;
+  const popupMenuRef = useRef<HTMLDivElement | null>(null);
+  const [menu, setMenu] = useState<"open" | "closed">("closed");
+
+  useOnClickOutside(popupMenuRef, () => setMenu("closed"));
 
   return (
-    <PageHeader>
-      {pathname !== "/" && (
-        <Link style={{ lineHeight: 0 }} to="/">
-          <Icon src={backIcon} alt="back" />
-        </Link>
-      )}
-      <Title>{navigationCompleted ? title : ""}</Title>
-      <Icon src={logoutIcon} alt="logout" onClick={logout} noMargin />
-    </PageHeader>
+    <>
+      <Container>
+        {pathname !== "/" ? (
+          <MenuItem>
+            <Link style={{ lineHeight: 0 }} to="/">
+              <Icon src={backIcon} alt="back" />
+            </Link>
+          </MenuItem>
+        ) : null}
+        <MenuItem flex={1}>
+          <span>{title ?? ""}</span>
+        </MenuItem>
+        <MenuItem>{children}</MenuItem>
+        <Avatar onClick={() => setMenu("open")}>
+          <img
+            src="https://st3.depositphotos.com/9998432/13335/v/600/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg"
+            alt="profile"
+          />
+        </Avatar>
+      </Container>
+      {menu === "open" ? (
+        <PopupMenu>
+          <PopupMenuContent ref={popupMenuRef}>
+            {renderMenu?.({ closeMenu: () => setMenu("closed") })}
+            <PopupMenuItem onClick={logout}>Logga ut</PopupMenuItem>
+          </PopupMenuContent>
+        </PopupMenu>
+      ) : null}
+    </>
   );
 };
-
-export const ActionBarTitle = ({ title }: { title: string }) => {
-  const { title: currentTitle, setTitle } = useActionBar();
-
-  useEffect(
-    function setActionBarTitle() {
-      if (currentTitle !== title) {
-        setTitle(title);
-      }
-    },
-    [currentTitle, setTitle, title]
-  );
-
-  return null;
-};
-
-function useActionBar(): ProviderProps {
-  const ctx = useContext(ActionBarContext);
-
-  if (!ctx) {
-    throw new Error(
-      "[useActionBar]: You must wrap your component with <ActionBarProvider />."
-    );
-  }
-
-  return ctx;
-}
-
-function usePrevious(value: unknown) {
-  const ref = useRef<unknown>();
-
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-
-  return ref.current;
-}
 
 interface Props {
   children: ReactElement;
@@ -93,24 +84,71 @@ interface ProviderProps {
   setTitle: Dispatch<SetStateAction<string>>;
 }
 
-const PageHeader = styled.div`
+const Container = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
-  padding: 0 ${space__deprecated(3)};
-  background-color: var(--color-background-action-bar);
-  color: var(--color-text-action-bar);
-  height: 44pt;
+  ${space({ py: 3, mb: 3 })};
 `;
 
-const Icon = styled.img<{ noMargin?: boolean }>`
-  width: ${space__deprecated(3)};
-  height: auto;
-  margin-right: ${(props) => (props.noMargin ? 0 : space__deprecated(3))};
+const MenuItem = styled.div<{ flex?: number }>`
+  flex: ${(props) => props.flex ?? 0};
+  ${space({ mr: 3 })}
+  width: auto;
 `;
 
-const Title = styled.span`
-  flex: 1;
-  font-weight: 700;
+const Icon = styled.img`
+  width: 24px;
+  height: 100%;
+`;
+
+const Avatar = styled.div`
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  border: 1px solid #e4e4e4;
+  overflow: hidden;
+
+  img {
+    height: 100%;
+    width: 100%;
+  }
+`;
+
+const PopupMenu = styled.div`
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  justify-content: center;
+
+  background-color: rgba(0, 0, 0, 0.85);
+`;
+
+const PopupMenuContent = styled.div`
+  background-color: var(--color-background);
+  text-align: center;
+  ${space({ py: 5 })};
+`;
+
+export const PopupMenuSection = styled.div`
+  ${space({ mb: 5 })};
+`;
+
+export const PopupMenuTitle = styled.div`
+  ${space({ p: 2 })};
   font-size: ${fontSize(2)};
+`;
+
+export const PopupMenuItem = styled.div<{ active?: boolean }>`
+  ${space({ p: 2 })};
+  font-size: ${fontSize(4)};
+  font-weight: ${(props) => (props.active ? "bold" : "normal")};
+  text-transform: capitalize;
 `;

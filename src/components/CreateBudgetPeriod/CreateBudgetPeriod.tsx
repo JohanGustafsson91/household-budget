@@ -2,11 +2,12 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Checkbox, DatePicker, FormField, Label } from "components/Form";
 import { Button } from "components/Button";
-import { ActionBarTitle } from "components/ActionBar";
+// import { ActionBarTitle } from "components/ActionBar";
 import { postBudgetPeriod } from "api/budget-period";
 import { useVisitor } from "components/App/App.VisitorProvider";
 import { useAsync } from "shared/useAsync";
 import { BudgetPeriod } from "shared";
+import { ActionBar } from "components/ActionBar";
 
 export const CreateBudgetPeriod = () => {
   const visitor = useVisitor();
@@ -53,7 +54,7 @@ export const CreateBudgetPeriod = () => {
 
   return (
     <>
-      <ActionBarTitle title="Skapa budgetperiod" />
+      <ActionBar title="Skapa budgetperiod" />
 
       <form onSubmit={createBudgetPeriod}>
         <FormField>

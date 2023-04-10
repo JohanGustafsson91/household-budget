@@ -1,6 +1,6 @@
 import { getBudgetPeriodById } from "api/budget-period";
 import { getTransactionsForPeriod } from "api/transaction";
-import { ActionBarTitle } from "components/ActionBar";
+// import { ActionBarTitle } from "components/ActionBar";
 import { Card, CardCol, CardRow, CardTitle } from "components/Card";
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -81,11 +81,11 @@ export const BudgetPeriod = () => {
 
   return (
     <Content>
-      <ActionBarTitle
+      {/* <ActionBarTitle
         title={`Period ${displayDate(period.fromDate)} - ${displayDate(
           period.toDate
         )}`}
-      />
+      /> */}
 
       <TopContent>
         <OverviewItem.Wrapper>
@@ -449,11 +449,11 @@ function useBudgetPeriod(periodId: string) {
   };
 }
 
-function summarize(list: Array<{ amount: number }>) {
+export function summarize(list: Array<{ amount: number }>) {
   return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
 }
 
-function displayMoney(value: number) {
+export function displayMoney(value: number) {
   return Math.floor(value);
 }
 

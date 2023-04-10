@@ -1,7 +1,6 @@
-import { ActionBar, ActionBarProvider } from "components/ActionBar";
+import { ActionBarProvider } from "components/ActionBar";
 import { Login } from "components/Login";
 import { Overview } from "components/Overview";
-import { BudgetPeriod } from "components/BudgetPeriod";
 import { PropsWithChildren, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import {
@@ -16,8 +15,9 @@ import {
   VisitorType,
 } from "./App.VisitorProvider";
 import styled from "styled-components";
-import { space__deprecated } from "theme";
+import { space } from "theme";
 import { CreateBudgetPeriod } from "components/CreateBudgetPeriod";
+import { BudgetPeriodNew } from "components/BudgetPeriodNew";
 
 export const App = () => (
   <ErrorBoundary
@@ -65,7 +65,7 @@ export const App = () => (
             path={routes.period}
             element={
               <RegisteredVisitorPage>
-                <BudgetPeriod />
+                <BudgetPeriodNew />
               </RegisteredVisitorPage>
             }
           />
@@ -104,7 +104,6 @@ const RegisteredVisitorPage = ({ children }: PropsWithChildren<{}>) => (
   <Page visitorTypes={["registered"]}>
     <ActionBarProvider>
       <PageWrapper>
-        <ActionBar />
         <PageContent>{children}</PageContent>
       </PageWrapper>
     </ActionBarProvider>
@@ -119,27 +118,21 @@ const routes = Object.freeze({
 });
 
 const PageWrapper = styled.div`
-  width: 100%;
-  height: 100vh;
-  float: left;
-  position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 `;
 
-const PageContent = styled.div<{ overflowHidden?: boolean }>`
-  flex: 1;
+const PageContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${space__deprecated(3)};
-  overflow: auto;
-
-  ${(props) =>
-    props.overflowHidden &&
-    `
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  ${space({ px: 3 })};
+  flex: 1;
   overflow: hidden;
-`}
 `;
 
 type ValueOf<T> = T[keyof T];

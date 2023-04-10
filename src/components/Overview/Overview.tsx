@@ -1,5 +1,5 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-import { ActionBarTitle } from "components/ActionBar";
+// import { ActionBarTitle } from "components/ActionBar";
 import { useVisitor } from "components/App/App.VisitorProvider";
 import { ActionButton } from "components/Button";
 import { Card } from "components/Card";
@@ -12,6 +12,7 @@ import { BudgetPeriod } from "shared";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils";
+import { ActionBar } from "components/ActionBar";
 
 export const Overview = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export const Overview = () => {
 
   return (
     <>
-      <ActionBarTitle title={`Välkommen ${visitor.name}`} />
+      <ActionBar title={`Välkommen ${visitor.name}`} />
 
       {
         {

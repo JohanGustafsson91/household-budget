@@ -1,5 +1,6 @@
 :root {
-  --color-background: #E9F2F6;
+  --color-background: #FFF;
+  --color-dark: #313131;
   --color-background-card: #FFFFFF;
   --color-border: #EDEFF1;
   --color-background-action-bar: #0338A5;
@@ -17,7 +18,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-background);
-  color: var(--color-text);
+  color: var(--color-dark);
 }
 
 * {
