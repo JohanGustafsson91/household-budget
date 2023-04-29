@@ -1,30 +1,10 @@
 import { logout } from "api/auth";
-import {
-  useState,
-  createContext,
-  ReactElement,
-  Dispatch,
-  SetStateAction,
-  useRef,
-  PropsWithChildren,
-} from "react";
+import { useState, useRef, PropsWithChildren } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
 import backIcon from "./back.icon.svg";
-
-const ActionBarContext = createContext<ProviderProps | undefined>(undefined);
-
-export const ActionBarProvider = ({ children }: Props) => {
-  const [title, setTitle] = useState("");
-
-  return (
-    <ActionBarContext.Provider value={{ title, setTitle }}>
-      {children}
-    </ActionBarContext.Provider>
-  );
-};
 
 interface ActionBarProps {
   title?: string;
@@ -74,15 +54,6 @@ export const ActionBar = ({
     </>
   );
 };
-
-interface Props {
-  children: ReactElement;
-}
-
-interface ProviderProps {
-  title: string;
-  setTitle: Dispatch<SetStateAction<string>>;
-}
 
 const Container = styled.div`
   display: flex;

@@ -39,67 +39,72 @@ export const Overview = () => {
     <>
       <ActionBar title={`Välkommen ${visitor.name}`} />
 
-      {
+      <Container>
         {
-          idle: null,
-          pending: (
-            <Loading fullPage={false}>
-              <p>Hämtar budgetperioder...</p>
-            </Loading>
-          ),
-          rejected: <p>Kunde inte hämta budgetperioder...</p>,
-          resolved: budgetPeriods?.length ? (
-            budgetPeriods.map((period) => {
-              const memberWith = period.members
-                .filter((userId) => userId !== getAuth().currentUser?.uid)
-                .map((u) => visitor.getFriendById(u)?.name ?? "")
-                .join(", ");
+          {
+            idle: null,
+            pending: (
+              <Loading fullPage={false}>
+                <p>Hämtar budgetperioder...</p>
+              </Loading>
+            ),
+            rejected: <p>Kunde inte hämta budgetperioder...</p>,
+            resolved: budgetPeriods?.length ? (
+              budgetPeriods.map((period) => {
+                const memberWith = period.members
+                  .filter((userId) => userId !== getAuth().currentUser?.uid)
+                  .map((u) => visitor.getFriendById(u)?.name ?? "")
+                  .join(", ");
 
-              return (
-                <Card
-                  key={period.id}
-                  onClick={navigateTo(`/period/${period.id}`)}
-                  role="listitem"
-                >
-                  <Content>
-                    <div>
-                      <Text>
-                        Från {displayDate(period.fromDate)} -{" "}
-                        {displayDate(period.toDate)}
-                      </Text>
+                return (
+                  <Card
+                    key={period.id}
+                    onClick={navigateTo(`/period/${period.id}`)}
+                    role="listitem"
+                  >
+                    <Content>
                       <div>
-                        {memberWith.length
-                          ? `Tillsammans med ${memberWith}`
-                          : ""}
+                        <Text>
+                          Från {displayDate(period.fromDate)} -{" "}
+                          {displayDate(period.toDate)}
+                        </Text>
+                        <div>
+                          {memberWith.length
+                            ? `Tillsammans med ${memberWith}`
+                            : ""}
+                        </div>
                       </div>
-                    </div>
-                    <Button
-                      onClick={function handleDeleteBugdetPeriod(e) {
-                        e.stopPropagation();
+                      <Button
+                        onClick={function handleDeleteBugdetPeriod(e) {
+                          e.stopPropagation();
 
-                        return window.confirm(
-                          "Är du säker på att du vill ta bort budgetperioden?"
-                        )
-                          ? deleteBudgetPeriod(period.id)
-                          : undefined;
-                      }}
-                    >
-                      Ta bort
-                    </Button>
-                  </Content>
-                </Card>
-              );
-            })
-          ) : (
-            <p>Inga skapade budgetperioder.</p>
-          ),
-        }[status]
-      }
-
+                          return window.confirm(
+                            "Är du säker på att du vill ta bort budgetperioden?"
+                          )
+                            ? deleteBudgetPeriod(period.id)
+                            : undefined;
+                        }}
+                      >
+                        Ta bort
+                      </Button>
+                    </Content>
+                  </Card>
+                );
+              })
+            ) : (
+              <p>Inga skapade budgetperioder.</p>
+            ),
+          }[status]
+        }
+      </Container>
       <ActionButton onClick={navigateTo("/period/add")}>+</ActionButton>
     </>
   );
 };
+
+const Container = styled.div`
+  overflow-y: auto;
+`;
 
 const Content = styled.div`
   display: flex;

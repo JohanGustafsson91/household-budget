@@ -1,336 +1,55 @@
 import { getBudgetPeriodById } from "api/budget-period";
 import { getTransactionsForPeriod } from "api/transaction";
-// import { ActionBarTitle } from "components/ActionBar";
-import { Card, CardCol, CardRow, CardTitle } from "components/Card";
-import { useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { BudgetPeriod as PeriodType } from "shared";
-import styled from "styled-components";
-import { space__deprecated } from "theme";
-import { displayDate } from "utils";
-import { categories, categoriesForBoard } from "./BudgetPeriod.categories";
-import { Category } from "./BudgetPeriod.Category";
-import { Transaction } from "./BudgetPeriod.Transaction";
-import { CreateTransaction } from "./BudgetPeriod.CreateTransaction";
 import {
-  CreateMultipleTransactions,
-  Table,
-} from "./BudgetPeriod.CreateMultipleTransactions";
-import { Loading } from "components/Loading";
-import {
-  FloatingActionMenu,
-  FloatingMenuItem,
-} from "./BudgetPeriod.FloatingActionMenu";
+  ActionBar,
+  PopupMenuItem,
+  PopupMenuSection,
+  PopupMenuTitle,
+} from "components/ActionBar";
 import { useVisitor } from "components/App/App.VisitorProvider";
-
-import * as TransactionCard from "./BudgetPeriod.TransactionCard";
-import { Modal } from "./BudgetPeriod.Modal";
-import * as Board from "./BudgetPeriod.Board";
-import * as OverviewItem from "./BudgetPeriod.OverviewItem";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useAsync } from "shared/useAsync";
+import styled from "styled-components";
+import { fontSize, space } from "theme";
+import { BudgetPeriod as PeriodType } from "shared";
+import { displayDate } from "utils";
 
-import AddIcon from "./BudgetPeriod.Add.icon.svg";
-import AddManyIcon from "./BudgetPeriod.AddMany.icon.svg";
-import OverviewIcon from "./BudgetPeriod.Overview.icon.svg";
-import { UpdateTransaction } from "./BudgetPeriod.UpdateTransaction";
+import * as Diagram from "./Diagram";
+import { useOnClickOutside } from "shared/useClickOutside";
+import { Category, Transaction } from "./types";
+import { CreateMultipleTransactions } from "./CreateMultipleTransactions";
+import { UpdateTransaction } from "./UpdateTransaction";
+
+// TODO wip with colors
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
-  const {
-    period,
-    summarizedTotals,
-    transactionsPerCategory,
-    transactionsPerMember,
-    overview,
-    status,
-  } = useBudgetPeriod(periodId ?? "");
-  const { getFriendById } = useVisitor();
-  const navigate = useNavigate();
-
-  // TODO collect in a custom hook
-  const [searchParams, setSearchParams] = useSearchParams();
-  const budgetPeriodAction = getMode(searchParams.get("mode"));
-  const updateTransactionId =
-    budgetPeriodAction === "update"
-      ? searchParams.get("updateTransactionId")
-      : null;
-
-  function setBudgetPeriodAction(action: BudgetPeriodAction) {
-    setSearchParams(action);
-  }
-
-  function resetTransactionAction() {
-    setSearchParams({});
-  }
-
-  if (!periodId) {
-    navigate("/");
-  }
-
-  if (status === "pending") {
-    return (
-      <Content>
-        <Loading>Hämtar budgetperiod...</Loading>
-      </Content>
-    );
-  }
-
-  if (status === "rejected") {
-    return <Content>Kunde inte ladda budgetperiod...</Content>;
-  }
-
-  return (
-    <Content>
-      {/* <ActionBarTitle
-        title={`Period ${displayDate(period.fromDate)} - ${displayDate(
-          period.toDate
-        )}`}
-      /> */}
-
-      <TopContent>
-        <OverviewItem.Wrapper>
-          <OverviewItem.Value highlight>
-            {displayMoney(summarizedTotals.left)}
-          </OverviewItem.Value>
-          <OverviewItem.Label>Kvar</OverviewItem.Label>
-        </OverviewItem.Wrapper>
-        <OverviewItem.Wrapper>
-          <OverviewItem.Value>
-            {displayMoney(summarizedTotals.income)}
-          </OverviewItem.Value>
-          <OverviewItem.Label>Inkomster</OverviewItem.Label>
-        </OverviewItem.Wrapper>
-        <OverviewItem.Wrapper>
-          <OverviewItem.Value>
-            {displayMoney(summarizedTotals.expenses)}
-          </OverviewItem.Value>
-          <OverviewItem.Label>Utgifter</OverviewItem.Label>
-        </OverviewItem.Wrapper>
-      </TopContent>
-
-      <MarginBottomFix />
-
-      <Card height="calc(100vh - 250px)">
-        <Board.Wrapper columns={transactionsPerCategory.length}>
-          {transactionsPerCategory.map(
-            ({ type, categoryName, transactions }) => (
-              <Board.Lane key={type}>
-                <Board.LaneHeader>
-                  <CardTitle>{categoryName}</CardTitle>
-                </Board.LaneHeader>
-                <Board.LaneContent>
-                  {transactions.map((transaction) => (
-                    <TransactionCard.Wrapper
-                      gender={
-                        transaction.shared
-                          ? "none"
-                          : getFriendById(transaction.author)?.gender || "male"
-                      }
-                      key={transaction.id}
-                      onClick={() =>
-                        setBudgetPeriodAction({
-                          mode: "update",
-                          updateTransactionId: transaction.id,
-                        })
-                      }
-                    >
-                      <TransactionCard.Row>
-                        <TransactionCard.Column>
-                          {transaction.shared
-                            ? "Gemensam"
-                            : getFriendById(transaction.author)?.name}
-                        </TransactionCard.Column>
-                        <TransactionCard.Column highlight>
-                          {transaction.label.replace(/swish/i, "")}
-                        </TransactionCard.Column>
-                      </TransactionCard.Row>
-                      <TransactionCard.Row>
-                        <TransactionCard.Column>
-                          {displayDate(transaction.date)}
-                        </TransactionCard.Column>
-                        <TransactionCard.Column highlight big>
-                          {displayMoney(transaction.amount)}kr
-                        </TransactionCard.Column>
-                      </TransactionCard.Row>
-                      {transaction.label.toLowerCase().includes("swish") ? (
-                        <TransactionCard.SwishIcon />
-                      ) : null}
-                    </TransactionCard.Wrapper>
-                  ))}
-                </Board.LaneContent>
-              </Board.Lane>
-            )
-          )}
-        </Board.Wrapper>
-      </Card>
-
-      <Card>
-        <CardTitle>Tillsammans</CardTitle>
-        <CardRow>
-          <CardCol>Inkomst</CardCol>
-          <CardCol>+{displayMoney(summarizedTotals.income)} kr</CardCol>
-        </CardRow>
-        {summarizedTotals.totalsPerCategory.map(
-          ({ type, categoryName, amount }) => (
-            <CardRow key={`shared-${type}`}>
-              <CardCol>{categoryName}</CardCol>
-              <CardCol>-{displayMoney(amount)} kr</CardCol>
-            </CardRow>
-          )
-        )}
-        <CardRow>
-          <CardCol>Totalt</CardCol>
-          <CardCol>{displayMoney(summarizedTotals.left)} kr</CardCol>
-        </CardRow>
-      </Card>
-
-      {transactionsPerMember.map(
-        ({ name, userId, income, left, totalsPerCategory }) => (
-          <Card key={`sum-${userId}`}>
-            <CardTitle>{name}</CardTitle>
-
-            <CardRow>
-              <CardCol>Inkomst</CardCol>
-              <CardCol>+{displayMoney(income)} kr</CardCol>
-            </CardRow>
-
-            {totalsPerCategory.map(({ type, categoryName, amount }) => (
-              <CardRow key={`${userId}-${type}`}>
-                <CardCol>{categoryName}</CardCol>
-                <CardCol>-{displayMoney(amount)} kr</CardCol>
-              </CardRow>
-            ))}
-            <CardRow>
-              <CardCol>Totalt</CardCol>
-              <CardCol>{displayMoney(left)} kr</CardCol>
-            </CardRow>
-          </Card>
-        )
-      )}
-
-      <FloatingActionMenu>
-        {({ closeMenu }) => (
-          <>
-            <FloatingMenuItem
-              onClick={() => {
-                setBudgetPeriodAction({ mode: "create" });
-                closeMenu();
-              }}
-              text="Lägg till"
-              icon={AddIcon}
-            />
-            <FloatingMenuItem
-              onClick={() => {
-                setBudgetPeriodAction({ mode: "create-many" });
-                closeMenu();
-              }}
-              text="Lägg till många"
-              icon={AddManyIcon}
-            />
-            <FloatingMenuItem
-              onClick={() => {
-                setBudgetPeriodAction({ mode: "show-overview" });
-                closeMenu();
-              }}
-              text="Visa översikt"
-              icon={OverviewIcon}
-            />
-          </>
-        )}
-      </FloatingActionMenu>
-
-      {/* Modals */}
-      {
-        {
-          create: (
-            <Modal onClose={resetTransactionAction}>
-              <CreateTransaction period={period} />
-            </Modal>
-          ),
-          update: period.transactions.find(
-            (t) => t.id === updateTransactionId
-          ) ? (
-            <Modal onClose={resetTransactionAction}>
-              <UpdateTransaction
-                period={period}
-                transaction={
-                  period.transactions.find((t) => t.id === updateTransactionId)!
-                }
-                onUpdated={resetTransactionAction}
-              />
-            </Modal>
-          ) : null,
-          "create-many": (
-            <Modal onClose={resetTransactionAction}>
-              <CreateMultipleTransactions
-                period={period}
-                onUpdated={resetTransactionAction}
-              />
-            </Modal>
-          ),
-          "show-overview": (
-            <Modal onClose={resetTransactionAction}>
-              <CardTitle>Översikt</CardTitle>
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Namn</th>
-                    <th>Belopp</th>
-                    <th>Datum</th>
-                    <th>Kategori</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {overview.map(({ name, amount, category, date, id }) => (
-                    <tr key={id}>
-                      <td>{name}</td>
-                      <td>{amount}</td>
-                      <td>{displayDate(date)}</td>
-                      <td>{category}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Modal>
-          ),
-          none: null,
-        }[budgetPeriodAction]
-      }
-    </Content>
-  );
-};
-
-const getMode = (param: string | null) => {
-  const foundMode =
-    ["create", "create-many", "update", "show-overview", "none"].find(
-      (mode) => mode === param
-    ) ?? "none";
-
-  return foundMode as
-    | "create"
-    | "create-many"
-    | "update"
-    | "show-overview"
-    | "none";
-};
-
-type BudgetPeriodAction =
-  | {
-      mode: "create";
-    }
-  | { mode: "create-many" }
-  | { mode: "update"; updateTransactionId: string }
-  | { mode: "show-overview" };
-
-function useBudgetPeriod(periodId: string) {
-  const { getFriendById: getFriendNameById, ...visitor } = useVisitor();
+  const { getFriendById: getUserById } = useVisitor();
   const { data: period, status: periodStatus, run } = useAsync<PeriodType>();
   const {
-    data: transactions,
+    data: transactions = [],
     setData: setTransactions,
     setError: setTransactionsError,
-    status: transactionsStatus,
   } = useAsync<Transaction[]>();
+
+  const [displayForUser, setDisplayForUser] = useState<{
+    id: string;
+    name: string;
+  }>({ id: "both", name: "tillsammans" });
+
+  const [selectedCategory, setSelectedCategory] = useState<
+    Category | undefined
+  >(undefined);
+  const [view, setView] = useState<"create" | "overview" | "update">(
+    "overview"
+  );
+  const [transaction, setTransaction] = useState<Transaction | undefined>(
+    undefined
+  );
+  const viewRef = useRef<HTMLDivElement | null>(null);
+
+  useOnClickOutside(viewRef, () => setView("overview"));
 
   useEffect(
     function getPeriodById() {
@@ -354,19 +73,21 @@ function useBudgetPeriod(periodId: string) {
     [period, periodStatus, setTransactions, setTransactionsError]
   );
 
-  if ([periodStatus, transactionsStatus].includes("rejected")) {
-    return {
-      status: "rejected" as const,
-    };
+  useEffect(() => {
+    if (transaction) {
+      setView("update");
+    }
+  }, [transaction]);
+
+  if (!period) {
+    return null;
   }
 
-  if (periodStatus !== "resolved" || transactionsStatus !== "resolved") {
-    return {
-      status: "pending" as const,
-    };
-  }
+  const transactionsPerVisitor = transactions.filter(
+    ({ author }) => displayForUser.id === "both" || displayForUser.id === author
+  );
 
-  const categorizedTransactions = transactions.reduce((acc, curr) => {
+  const categorizedTransactions = transactionsPerVisitor.reduce((acc, curr) => {
     const previous = acc[curr.category] || [];
     return {
       ...acc,
@@ -379,105 +100,336 @@ function useBudgetPeriod(periodId: string) {
   const expenses = summarize(Object.values(rest).flat());
   const left = income - expenses;
 
-  return {
-    status: "resolved" as const,
-    period: {
-      ...period,
-      transactions,
-    },
-    summarizedTotals: {
-      income,
-      expenses,
-      left,
-      totalsPerCategory: categoriesForBoard.map(({ type, text }) => ({
-        type,
-        categoryName: text,
-        amount: summarize(categorizedTransactions[type] || []),
-      })),
-    },
-    transactionsPerCategory: categories.map(({ type, text }) => ({
-      categoryName: text,
-      type,
-      transactions: categorizedTransactions[type] || [],
-    })),
-    transactionsPerMember: period.members.map((userId) => {
-      const transactionsByUser = categoriesForBoard.reduce((acc, curr) => {
-        const transaction = categorizedTransactions[curr.type] || [];
+  const filteredTransactions = selectedCategory
+    ? categorizedTransactions?.[selectedCategory.type] ?? []
+    : transactionsPerVisitor;
 
-        const userTransactions = transaction
-          .filter(({ author, shared }) => author === userId || shared === true)
-          .map((transaction) => ({
-            ...transaction,
-            amount: transaction.shared
-              ? transaction.amount / period.members.length
-              : transaction.amount,
-          }));
-
-        const previous = acc[curr.type] || [];
-        return { ...acc, [curr.type]: [...previous, ...userTransactions] };
-      }, {} as Record<Category["type"], Transaction[]>);
-
-      const income = summarize(
-        (categorizedTransactions.INCOME || []).filter(
-          ({ author }) => author === userId
-        )
+  function handleShowCategory(category: Category) {
+    return () =>
+      setSelectedCategory(
+        selectedCategory?.type === category.type ? undefined : category
       );
+  }
 
-      return {
-        name: getFriendNameById(userId)?.name,
-        userId,
-        income,
-        left: income - summarize(Object.values(transactionsByUser).flat()),
-        totalsPerCategory: categoriesForBoard.map(({ type, text }) => ({
-          type,
-          categoryName: text,
-          amount: summarize(transactionsByUser[type] || []),
-        })),
-      };
-    }),
-    overview: transactions
-      .filter((i) => i.author === visitor.id)
-      .map((t) => {
-        return {
-          date: t.date,
-          amount: t.category === "INCOME" ? t.amount : -t.amount,
-          name: t.label,
-          id: t.id,
-          category: categories.find((c) => c.type === t.category)?.text,
-        };
-      }),
-  };
-}
+  const displayForUserOptions = [
+    ...period.members.map((id) => ({
+      id,
+      name: getUserById(id)?.name ?? "",
+    })),
+    {
+      id: "both",
+      name: "tillsammans",
+    },
+  ];
 
-export function summarize(list: Array<{ amount: number }>) {
+  return (
+    <>
+      <ActionBar
+        title={`${displayDate(period.fromDate)} - ${displayDate(
+          period.toDate
+        )}`}
+        renderMenu={({ closeMenu }) => (
+          <PopupMenuSection>
+            <PopupMenuTitle>Välj vy</PopupMenuTitle>
+            {displayForUserOptions.map(({ id, name }) => (
+              <PopupMenuItem
+                key={id}
+                active={displayForUser.id === id}
+                onClick={() => {
+                  setDisplayForUser({ id, name });
+                  closeMenu();
+                }}
+              >
+                {name}
+              </PopupMenuItem>
+            ))}
+          </PopupMenuSection>
+        )}
+      >
+        <ModeButton
+          onClick={() =>
+            setView((prev) => {
+              console.log("click", prev);
+              return "create";
+            })
+          }
+        >
+          {
+            {
+              update: "Stäng",
+              create: "Stäng",
+              overview: "Lägg till",
+            }[view]
+          }
+        </ModeButton>
+      </ActionBar>
+
+      {
+        {
+          create: (
+            <View ref={viewRef}>
+              <CreateMultipleTransactions
+                period={period}
+                onUpdated={() => setView("overview")}
+              />
+            </View>
+          ),
+          update: (
+            <View ref={viewRef}>
+              {transaction ? (
+                <UpdateTransaction
+                  period={period}
+                  transaction={transaction}
+                  onUpdated={() => setView("overview")}
+                />
+              ) : null}
+            </View>
+          ),
+          overview: (
+            <>
+              <OverviewContainer>
+                <Overview>
+                  <OverviewItem
+                    clickable={true}
+                    active={selectedCategory?.type === "INCOME"}
+                    onClick={handleShowCategory({
+                      type: "INCOME",
+                      text: "Inkomst",
+                    })}
+                  >
+                    <Title>Inkomster</Title>
+                    <Money>{displayMoney(income)}</Money>
+                  </OverviewItem>
+                  <OverviewItem>
+                    <Title>Utgifter</Title>
+                    <Money>{displayMoney(expenses)}</Money>
+                  </OverviewItem>
+                  <OverviewItem>
+                    <Title>Saldo</Title>
+                    <Money>{displayMoney(left)}</Money>
+                  </OverviewItem>
+                </Overview>
+
+                <Diagram.DiagramContainer>
+                  {categoriesForBoard.map((category, i) => {
+                    const expensesForCategory = summarize(
+                      categorizedTransactions?.[category.type] ?? []
+                    );
+                    let expensesInPercentage = Number(
+                      (expensesForCategory / (income - left)) * 100
+                    );
+                    expensesInPercentage = isNaN(expensesInPercentage)
+                      ? 0
+                      : expensesInPercentage;
+                    const active = category.type === selectedCategory?.type;
+
+                    return (
+                      <Diagram.DiagramCategory
+                        key={category.type}
+                        onClick={handleShowCategory(category)}
+                        active={active}
+                      >
+                        <Diagram.DiagramBarWrapper>
+                          <Diagram.DiagramBar
+                            height={expensesInPercentage}
+                            active={active}
+                          >
+                            <Diagram.DiagramBarPercentage>
+                              {expensesInPercentage.toFixed(0)}%
+                            </Diagram.DiagramBarPercentage>
+                          </Diagram.DiagramBar>
+                        </Diagram.DiagramBarWrapper>
+                        <Diagram.DiagramText>
+                          {category.text}
+                        </Diagram.DiagramText>
+
+                        <Diagram.PopupSum
+                          floatfrom={
+                            i === 0
+                              ? "left"
+                              : i + 1 === categoriesForBoard.length
+                              ? "right"
+                              : "none"
+                          }
+                        >
+                          {displayMoney(expensesForCategory)}kr
+                        </Diagram.PopupSum>
+                      </Diagram.DiagramCategory>
+                    );
+                  })}
+                </Diagram.DiagramContainer>
+              </OverviewContainer>
+
+              <List>
+                <h3>
+                  Transaktioner {displayForUser.name}{" "}
+                  {selectedCategory
+                    ? `för ${selectedCategory.text.toLowerCase()}`
+                    : ""}
+                </h3>
+                {filteredTransactions.map((transaction) => (
+                  <ListItem
+                    key={transaction.id}
+                    onClick={() => setTransaction(transaction)}
+                  >
+                    <ListItemValue minWidth="80px">
+                      {
+                        categories.find((c) => c.type === transaction.category)
+                          ?.text
+                      }
+                      {displayForUser.id === "both" ? (
+                        <TransactionInfo>
+                          {getUserById(transaction.author)?.name}
+                        </TransactionInfo>
+                      ) : null}
+                    </ListItemValue>
+                    <ListItemValue flex={1}>
+                      <TransactionName>{transaction.label}</TransactionName>
+                      <TransactionInfo>
+                        {displayDate(transaction.date)}
+                      </TransactionInfo>
+                    </ListItemValue>
+                    <ListItemValue>
+                      {transaction.category === "INCOME" ? "+" : "-"}
+                      {displayMoney(transaction.amount)}kr
+                    </ListItemValue>
+                  </ListItem>
+                ))}
+                {filteredTransactions.length === 0 ? "Inga transaktioner" : ""}
+              </List>
+            </>
+          ),
+        }[view]
+      }
+    </>
+  );
+};
+
+export const categories: Category[] = [
+  {
+    type: "INCOME",
+    text: "Inkomst",
+  },
+  {
+    type: "LIVING",
+    text: "Boende",
+  },
+  {
+    type: "FOOD",
+    text: "Mat",
+  },
+  {
+    type: "TRANSPORT",
+    text: "Transport",
+  },
+  {
+    type: "CLOTHES",
+    text: "Kläder",
+  },
+  {
+    type: "SAVINGS",
+    text: "Sparande",
+  },
+  {
+    type: "OTHER",
+    text: "Övrigt",
+  },
+  {
+    type: "LOAN",
+    text: "Lån",
+  },
+];
+
+const categoriesForBoard = categories.filter(({ type }) => type !== "INCOME");
+
+function summarize(list: Array<{ amount: number }>) {
   return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
 }
 
-export function displayMoney(value: number) {
+function displayMoney(value: number) {
   return Math.floor(value);
 }
 
-const Content = styled.div`
-  flex: 1;
+const OverviewContainer = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
-  margin-bottom: ${space__deprecated(2)};
+  flex: 1;
+  ${space({ mb: 3 })};
 `;
 
-const TopContent = styled.div`
-  background-color: var(--color-background-action-bar);
+const Overview = styled.div`
   display: flex;
-  position: absolute;
+  flex-direction: row;
   justify-content: space-between;
-  padding: ${space__deprecated(3)} ${space__deprecated(4)}
-    ${space__deprecated(6)} ${space__deprecated(4)};
-  left: 0;
-  right: 0;
-  margin-top: -${space__deprecated(3)};
-  z-index: -1;
 `;
 
-const MarginBottomFix = styled.div`
-  margin-bottom: 90px;
+const OverviewItem = styled.div<{ clickable?: boolean; active?: boolean }>`
+  ${(props) =>
+    props.clickable
+      ? `
+cursor: pointer;
+`
+      : ""}
+  ${(props) =>
+    props.active
+      ? `
+    ${Money} {
+      color: #C3A2ED;
+    }
+    `
+      : ""}
+`;
+
+const List = styled.div`
+  flex: 2;
+  overflow-y: auto;
+`;
+
+const ListItem = styled.div`
+  display: flex;
+  align-items: center;
+  ${space({ mb: 3, py: 1 })};
+  cursor: pointer;
+`;
+
+const ListItemValue = styled.div<{ flex?: number; minWidth?: string }>`
+  ${space({ mr: 3 })}
+  ${(props) => (props.flex ? `flex: ${props.flex}` : "")};
+  min-width: ${(props) => props.minWidth ?? "none"};
+`;
+
+const TransactionName = styled.p`
+  font-size: ${fontSize(2)};
+  ${space({ m: 0 })};
+  font-weight: 700;
+  color: var(--color-dark);
+`;
+
+const TransactionInfo = styled.div`
+  font-size: ${fontSize(0)};
+`;
+
+const Title = styled.h1`
+  font-size: ${fontSize(2)};
+  color: #c2c2c2;
+  ${space({ m: 0, mb: 1 })};
+  font-weight: normal;
+`;
+
+const Money = styled.h2`
+  color: #313131;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const View = styled.div`
+  ${space({ mb: 3 })};
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const ModeButton = styled.div`
+  width: 50px;
+  cursor: pointer;
 `;

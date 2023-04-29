@@ -1,7 +1,4 @@
-import {
-  NewTransaction,
-  Transaction,
-} from "components/BudgetPeriod/BudgetPeriod.Transaction";
+import { NewTransaction, Transaction } from "components/BudgetPeriod/types";
 import {
   collection,
   onSnapshot,
@@ -38,7 +35,7 @@ export const getTransactionsForPeriod = (
             date: data.date.toDate(),
           };
         })
-        .sort((a, b) => a.date - b.date);
+        .sort((a, b) => b.date - a.date);
 
       callbackOnSnapshot(transactions as Transaction[]);
     },

@@ -1,4 +1,3 @@
-import { ActionBarProvider } from "components/ActionBar";
 import { Login } from "components/Login";
 import { Overview } from "components/Overview";
 import { PropsWithChildren, useEffect } from "react";
@@ -17,7 +16,7 @@ import {
 import styled from "styled-components";
 import { space } from "theme";
 import { CreateBudgetPeriod } from "components/CreateBudgetPeriod";
-import { BudgetPeriodNew } from "components/BudgetPeriodNew";
+import { BudgetPeriod } from "components/BudgetPeriod";
 
 export const App = () => (
   <ErrorBoundary
@@ -34,41 +33,45 @@ export const App = () => (
     <VisitorProvider>
       <Router>
         <Routes>
-          <Route
-            path={routes.login}
-            element={
-              <Page
-                visitorTypes={["anonymous"]}
-                navigateToPageIfNotAllowed={routes.main}
-              >
-                <Login />
-              </Page>
-            }
-          />
-          <Route
-            path={routes.main}
-            element={
-              <RegisteredVisitorPage>
-                <Overview />
-              </RegisteredVisitorPage>
-            }
-          />
-          <Route
-            path={routes.createPeriod}
-            element={
-              <RegisteredVisitorPage>
-                <CreateBudgetPeriod />
-              </RegisteredVisitorPage>
-            }
-          />
-          <Route
-            path={routes.period}
-            element={
-              <RegisteredVisitorPage>
-                <BudgetPeriodNew />
-              </RegisteredVisitorPage>
-            }
-          />
+          {[
+            {
+              path: routes.login,
+              element: (
+                <Page
+                  visitorTypes={["anonymous"]}
+                  navigateToPageIfNotAllowed={routes.main}
+                >
+                  <Login />
+                </Page>
+              ),
+            },
+            {
+              path: routes.main,
+              element: (
+                <RegisteredVisitorPage>
+                  <Overview />
+                </RegisteredVisitorPage>
+              ),
+            },
+            {
+              path: routes.createPeriod,
+              element: (
+                <RegisteredVisitorPage>
+                  <CreateBudgetPeriod />
+                </RegisteredVisitorPage>
+              ),
+            },
+            {
+              path: routes.period,
+              element: (
+                <RegisteredVisitorPage>
+                  <BudgetPeriod />
+                </RegisteredVisitorPage>
+              ),
+            },
+          ].map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
         </Routes>
       </Router>
     </VisitorProvider>
@@ -102,11 +105,9 @@ const Page = ({
 
 const RegisteredVisitorPage = ({ children }: PropsWithChildren<{}>) => (
   <Page visitorTypes={["registered"]}>
-    <ActionBarProvider>
-      <PageWrapper>
-        <PageContent>{children}</PageContent>
-      </PageWrapper>
-    </ActionBarProvider>
+    <PageWrapper>
+      <PageContent>{children}</PageContent>
+    </PageWrapper>
   </Page>
 );
 

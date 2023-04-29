@@ -12,7 +12,7 @@ import { Button } from "components/Button";
 import { putTransaction, deleteTransaction } from "api/transaction";
 import { CardTitle } from "components/Card";
 import { useAsync } from "shared/useAsync";
-import { categories } from "./BudgetPeriodNew";
+import { categories } from "./BudgetPeriod";
 import { Transaction } from "./types";
 
 export const UpdateTransaction = ({

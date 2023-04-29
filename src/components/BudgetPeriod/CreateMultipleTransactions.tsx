@@ -9,8 +9,8 @@ import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";
 import { space__deprecated } from "theme";
-import { categories } from "./BudgetPeriod.categories";
-import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
+import { NewTransaction, Transaction } from "./types";
+import { categories } from "./BudgetPeriod";
 
 interface Props {
   period: BudgetPeriod;
@@ -28,16 +28,20 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
         pastedText
           .split("\n")
           .map(function parseLine(line) {
-            const [amount, label, date] = line.split("\t \t").reverse();
+            const [amount, label, date] = line
+              .split("\t")
+              .map((t) => t.trim())
+              .filter(Boolean)
+              .reverse();
 
             return {
               label,
-              category: amount.startsWith("-")
+              category: amount?.startsWith("-")
                 ? "OTHER"
                 : ("INCOME" as Transaction["category"]),
               date: new Date(date),
               amount: Number.parseFloat(
-                amount.replace(",", ".").replace("-", "").replace(" ", "")
+                amount?.replace(",", ".").replace("-", "").replace(" ", "")
               ),
               author: getAuth()?.currentUser?.uid,
               createdAt: new Date(),
@@ -61,6 +65,8 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
     },
     [onUpdated, status]
   );
+
+  console.log({ transations });
 
   return (
     <Content>
@@ -136,7 +142,7 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
 
 const Content = styled.div``;
 
-export const Table = styled.table`
+const Table = styled.table`
   width: 100%;
 
   th,

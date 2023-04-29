@@ -62,30 +62,30 @@ interface Props {
   px?: SpaceValue;
 }
 
-const shortenedColorMap = {
-  color: ["color"],
-  bg: ["background-color"],
-};
+// const shortenedColorMap = {
+//   color: ["color"],
+//   bg: ["background-color"],
+// };
 
-const colorsMap: Record<Color, string> = {
-  primary: "black",
-};
+// const colorsMap: Record<Color, string> = {
+//   primary: "black",
+// };
 
-export const colors = (values: ColorProps) => {
-  return Object.keys(values).reduce((acc, key) => {
-    const cssKeys = shortenedColorMap[key as keyof typeof shortenedColorMap];
-    const value = values[key as keyof typeof shortenedColorMap];
-    const cssKeyValue = cssKeys.reduce(
-      (a, c) => `${a}${c}: ${colorsMap[value as keyof typeof colorsMap]};\n`,
-      ""
-    );
-    return `${acc}${cssKeyValue}`;
-  }, "");
-};
+// export const colors = (values: ColorProps) => {
+//   return Object.keys(values).reduce((acc, key) => {
+//     const cssKeys = shortenedColorMap[key as keyof typeof shortenedColorMap];
+//     const value = values[key as keyof typeof shortenedColorMap];
+//     const cssKeyValue = cssKeys.reduce(
+//       (a, c) => `${a}${c}: ${colorsMap[value as keyof typeof colorsMap]};\n`,
+//       ""
+//     );
+//     return `${acc}${cssKeyValue}`;
+//   }, "");
+// };
 
-type Color = "primary";
+// type Color = "primary";
 
-interface ColorProps {
-  color?: Color;
-  bg?: Color;
-}
+// interface ColorProps {
+//   color?: Color;
+//   bg?: Color;
+// }
