@@ -10,7 +10,7 @@ import shortid from "shortid";
 import styled from "styled-components";
 import { space__deprecated } from "theme";
 import { NewTransaction, Transaction } from "./types";
-import { categories } from "./BudgetPeriod";
+import { categories } from "shared/categories";
 
 interface Props {
   period: BudgetPeriod;
@@ -65,8 +65,6 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
     },
     [onUpdated, status]
   );
-
-  console.log({ transations });
 
   return (
     <Content>

@@ -17,9 +17,10 @@ import { displayDate } from "utils";
 
 import * as Diagram from "./Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";
-import { Category, Transaction } from "./types";
+import { Transaction } from "./types";
 import { CreateMultipleTransactions } from "./CreateMultipleTransactions";
 import { UpdateTransaction } from "./UpdateTransaction";
+import { categories, Category } from "shared/categories";
 
 // TODO wip with colors
 
@@ -129,10 +130,11 @@ export const BudgetPeriod = () => {
           period.toDate
         )}`}
         renderMenu={({ closeMenu }) => (
-          <PopupMenuSection>
+          <PopupMenuSection role="alert">
             <PopupMenuTitle>Välj vy</PopupMenuTitle>
             {displayForUserOptions.map(({ id, name }) => (
               <PopupMenuItem
+                title={`Menu option ${name}`}
                 key={id}
                 active={displayForUser.id === id}
                 onClick={() => {
@@ -190,11 +192,12 @@ export const BudgetPeriod = () => {
               <OverviewContainer>
                 <Overview>
                   <OverviewItem
+                    title={`Summary for Inkomster`}
                     clickable={true}
                     active={selectedCategory?.type === "INCOME"}
                     onClick={handleShowCategory({
                       type: "INCOME",
-                      text: "Inkomst",
+                      text: "Inkomster",
                     })}
                   >
                     <Title>Inkomster</Title>
@@ -225,6 +228,7 @@ export const BudgetPeriod = () => {
 
                     return (
                       <Diagram.DiagramCategory
+                        title={`Summary for ${category.text}`}
                         key={category.type}
                         onClick={handleShowCategory(category)}
                         active={active}
@@ -267,34 +271,37 @@ export const BudgetPeriod = () => {
                     ? `för ${selectedCategory.text.toLowerCase()}`
                     : ""}
                 </h3>
-                {filteredTransactions.map((transaction) => (
-                  <ListItem
-                    key={transaction.id}
-                    onClick={() => setTransaction(transaction)}
-                  >
-                    <ListItemValue minWidth="80px">
-                      {
-                        categories.find((c) => c.type === transaction.category)
-                          ?.text
-                      }
-                      {displayForUser.id === "both" ? (
+                {filteredTransactions.map((transaction) => {
+                  const userName = getUserById(transaction.author)?.name;
+                  const categoryName = categories.find(
+                    (c) => c.type === transaction.category
+                  )?.text;
+                  const formattedMoney = `${
+                    transaction.category === "INCOME" ? "+" : "-"
+                  }${displayMoney(transaction.amount)}kr`;
+
+                  return (
+                    <ListItem
+                      key={transaction.id}
+                      onClick={() => setTransaction(transaction)}
+                      title={`${userName} ${formattedMoney} till ${transaction.label} för ${categoryName}`}
+                    >
+                      <ListItemValue minWidth="80px">
+                        {categoryName}
+                        {displayForUser.id === "both" ? (
+                          <TransactionInfo>{userName}</TransactionInfo>
+                        ) : null}
+                      </ListItemValue>
+                      <ListItemValue flex={1}>
+                        <TransactionName>{transaction.label}</TransactionName>
                         <TransactionInfo>
-                          {getUserById(transaction.author)?.name}
+                          {displayDate(transaction.date)}
                         </TransactionInfo>
-                      ) : null}
-                    </ListItemValue>
-                    <ListItemValue flex={1}>
-                      <TransactionName>{transaction.label}</TransactionName>
-                      <TransactionInfo>
-                        {displayDate(transaction.date)}
-                      </TransactionInfo>
-                    </ListItemValue>
-                    <ListItemValue>
-                      {transaction.category === "INCOME" ? "+" : "-"}
-                      {displayMoney(transaction.amount)}kr
-                    </ListItemValue>
-                  </ListItem>
-                ))}
+                      </ListItemValue>
+                      <ListItemValue>{formattedMoney}</ListItemValue>
+                    </ListItem>
+                  );
+                })}
                 {filteredTransactions.length === 0 ? "Inga transaktioner" : ""}
               </List>
             </>
@@ -304,41 +311,6 @@ export const BudgetPeriod = () => {
     </>
   );
 };
-
-export const categories: Category[] = [
-  {
-    type: "INCOME",
-    text: "Inkomst",
-  },
-  {
-    type: "LIVING",
-    text: "Boende",
-  },
-  {
-    type: "FOOD",
-    text: "Mat",
-  },
-  {
-    type: "TRANSPORT",
-    text: "Transport",
-  },
-  {
-    type: "CLOTHES",
-    text: "Kläder",
-  },
-  {
-    type: "SAVINGS",
-    text: "Sparande",
-  },
-  {
-    type: "OTHER",
-    text: "Övrigt",
-  },
-  {
-    type: "LOAN",
-    text: "Lån",
-  },
-];
 
 const categoriesForBoard = categories.filter(({ type }) => type !== "INCOME");
 
@@ -380,12 +352,13 @@ cursor: pointer;
       : ""}
 `;
 
-const List = styled.div`
+const List = styled.ul`
   flex: 2;
   overflow-y: auto;
+  ${space({ m: 0, p: 0 })};
 `;
 
-const ListItem = styled.div`
+const ListItem = styled.li`
   display: flex;
   align-items: center;
   ${space({ mb: 3, py: 1 })};

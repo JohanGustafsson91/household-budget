@@ -23,7 +23,7 @@ export const App = () => (
     fallbackRender={({ error, resetErrorBoundary }) => (
       <PageWrapper>
         <PageContent>
-          <h1>Vi har lite problem just nu :/</h1>
+          <h1>Någonting gick fel...</h1>
           <pre>Felkod: {error.message}</pre>
           <button onClick={resetErrorBoundary}>Försök igen</button>
         </PageContent>
@@ -78,6 +78,13 @@ export const App = () => (
   </ErrorBoundary>
 );
 
+const routes = Object.freeze({
+  login: "/login",
+  main: "/",
+  createPeriod: "/period/add",
+  period: "/period/:id",
+});
+
 const Page = ({
   visitorTypes,
   navigateToPageIfNotAllowed = routes.login,
@@ -110,13 +117,6 @@ const RegisteredVisitorPage = ({ children }: PropsWithChildren<{}>) => (
     </PageWrapper>
   </Page>
 );
-
-const routes = Object.freeze({
-  login: "/login",
-  main: "/",
-  createPeriod: "/period/add",
-  period: "/period/:id",
-});
 
 const PageWrapper = styled.div`
   display: flex;

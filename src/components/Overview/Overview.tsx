@@ -1,8 +1,5 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-// import { ActionBarTitle } from "components/ActionBar";
 import { useVisitor } from "components/App/App.VisitorProvider";
-import { ActionButton } from "components/Button";
-import { Card } from "components/Card";
 import { Button } from "components/Button";
 import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
@@ -13,6 +10,7 @@ import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils";
 import { ActionBar } from "components/ActionBar";
+import { fontSize, space__deprecated } from "theme";
 
 export const Overview = () => {
   const navigate = useNavigate();
@@ -120,5 +118,33 @@ const Content = styled.div`
 `;
 
 const Text = styled.span`
+  font-weight: bold;
+`;
+
+const Card = styled.div<{ height?: string }>`
+  padding: ${space__deprecated(3)};
+  margin-bottom: ${space__deprecated(3)};
+  min-height: ${(props) => props.height ?? "auto"};
+  height: ${(props) => props.height ?? "auto"};
+  background-color: var(--color-background-card);
+  border-radius: ${space__deprecated(2)};
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  cursor: ${(props) => (props.onClick ? "pointer" : "default")};
+`;
+
+const ActionButton = styled.button`
+  position: fixed;
+  bottom: ${space__deprecated(3)};
+  right: ${space__deprecated(3)};
+  border-radius: 50%;
+  height: ${fontSize(6)};
+  width: ${fontSize(6)};
+  outline: 0;
+  border: 0;
+  background-color: var(--color-background-action-bar);
+  color: var(--color-text-action-bar);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  font-size: ${fontSize(4)};
   font-weight: bold;
 `;

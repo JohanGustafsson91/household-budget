@@ -21,124 +21,18 @@ describe("Manage budget", () => {
     cy.findByRole("button", { name: /Skapa/i }).click();
   });
 
-  it("should add transactions", () => {
-    cy.findByRole("button", { name: /\+/i }).click();
-    cy.get("div").contains("Lägg till").click();
+  it("should add transactions for Chaplin", () => {
+    cy.findByText(/lägg till/i).click();
 
-    [
-      { amount: "50000", name: "Lön", category: "Inkomst", shared: false },
-      { amount: "1000", name: "Hyra", category: "Boende", shared: true },
-      { amount: "1000", name: "Coop", category: "Mat", shared: false },
-      { amount: "1000", name: "Bensin", category: "Transport", shared: false },
-      { amount: "1000", name: "Tröja", category: "Kläder", shared: false },
-      { amount: "1000", name: "Pension", category: "Sparande", shared: false },
-      { amount: "1000", name: "Netflix", category: "Övrigt", shared: false },
-      { amount: "1000", name: "Hus", category: "Lån", shared: true },
-    ].forEach(({ amount, name, category, shared }) => {
-      cy.findByDisplayValue(/0/i).clear().type(amount);
-      cy.findByRole("textbox", { name: /händelse/i }).type(name);
-      cy.findByRole("combobox", { name: /kategori/i }).select(category);
-      cy.get(".react-datepicker").first().find("div").contains(10).click();
-
-      if (shared) {
-        cy.findByRole("checkbox", { name: /gemensam\?/i }).click();
-      }
-
-      cy.findByRole("button", { name: /lägg till/i }).click();
-      cy.findByDisplayValue(0);
-    });
-
-    cy.findByTitle("Close").click();
-  });
-
-  it("should have correct summarized overview values", () => {
-    [
-      { text: "Kvar", value: "43000" },
-      { text: "Inkomster", value: "50000" },
-      { text: "Utgifter", value: "7000" },
-    ].forEach(({ text, value }) =>
-      cy.get("div").contains(text).parent().get("div").contains(value)
-    );
-  });
-
-  it("should have correct summarized detailed values", () => {
-    cy.get("span").contains("Tillsammans").parent().as("togheterWrapper");
-    cy.get("span").contains("Charlie").parent().as("charlieWrapper");
-    cy.get("span").contains("Chaplin").parent().as("chaplinWrapper");
-
-    [
-      // TOGHETER
-      { text: "Inkomst", value: "+50000 kr", wrapper: "@togheterWrapper" },
-      { text: "Boende", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Mat", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Transport", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Kläder", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Sparande", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Övrigt", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Lån", value: "-1000 kr", wrapper: "@togheterWrapper" },
-      { text: "Totalt", value: "43000 kr", wrapper: "@togheterWrapper" },
-      // CHARLIE
-      { text: "Inkomst", value: "+0 kr", wrapper: "@charlieWrapper" },
-      { text: "Boende", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Mat", value: "-0 kr", wrapper: "@charlieWrapper" },
-      { text: "Transport", value: "-0 kr", wrapper: "@charlieWrapper" },
-      { text: "Kläder", value: "-0 kr", wrapper: "@charlieWrapper" },
-      { text: "Sparande", value: "-0 kr", wrapper: "@charlieWrapper" },
-      { text: "Övrigt", value: "-0 kr", wrapper: "@charlieWrapper" },
-      { text: "Lån", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Totalt", value: "-1000 kr", wrapper: "@charlieWrapper" },
-      // CHAPLIN
-      { text: "Inkomst", value: "+50000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Boende", value: "-500 kr", wrapper: "@chaplinWrapper" },
-      { text: "Mat", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Transport", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Kläder", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Sparande", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Övrigt", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Lån", value: "-500 kr", wrapper: "@chaplinWrapper" },
-      { text: "Totalt", value: "44000 kr", wrapper: "@chaplinWrapper" },
-    ].forEach(({ text, value, wrapper }) =>
-      cy
-        .get(wrapper)
-        .get("div")
-        .contains(text)
-        .parent()
-        .get("div")
-        .contains(value)
-    );
-  });
-
-  it("should logout", () => {
-    cy.findByRole("img", {
-      name: /logout/i,
-    }).click();
-  });
-
-  it("should login with different user", () => {
-    cy.visit("http://localhost:3000");
-    login("test2@example.com", "test123");
-    cy.findByText(/välkommen charlie/i);
-  });
-
-  it("should select previously created period", () => {
-    cy.findAllByRole("listitem").first().click();
-  });
-
-  it("should add multiple transactions at once", () => {
-    cy.findByRole("button", { name: /\+/i }).click();
-    cy.get("div").contains("Lägg till många").click();
-
-    const input = [
-      { amount: "9500", name: "Lön", category: "Inkomst", shared: false },
-      { amount: "500", name: "Swish Mat", category: "Inkomst", shared: false },
-      { amount: "-500", name: "Hyra", category: "Boende", shared: true },
-      { amount: "-500", name: "Coop", category: "Mat", shared: false },
-      { amount: "-500", name: "Bensin", category: "Transport", shared: false },
-      { amount: "-500", name: "Tröja", category: "Kläder", shared: false },
-      { amount: "-500", name: "Pension", category: "Sparande", shared: false },
-      { amount: "-500", name: "Netflix", category: "Övrigt", shared: false },
-      { amount: "-500", name: "Hus", category: "Lån", shared: true },
-    ];
+    const input = data
+      .find(({ member }) => member === "Chaplin")
+      ?.categories.flatMap((category) =>
+        category.transactions.map((t) => ({
+          ...t,
+          category: category.name,
+          amount: t.amount.replace("-", "").replace("+", "").replace("kr", ""),
+        }))
+      );
 
     const monthNumber = new Date().getMonth() + 1;
     const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
@@ -162,61 +56,92 @@ describe("Manage budget", () => {
     }).click();
   });
 
-  it("should have correct summarized overview values", () => {
-    [
-      { text: "Kvar", value: "49500" },
-      { text: "Inkomster", value: "60000" },
-      { text: "Utgifter", value: "10500" },
-    ].forEach(({ text, value }) =>
-      cy.get("div").contains(text).parent().get("div").contains(value)
-    );
+  it("should logout", () => {
+    cy.findByRole("img", {
+      name: /profile/i,
+    }).click({ force: true });
+    cy.findByText(/logga ut/i).click();
   });
 
-  it("should have correct summarized detailed values", () => {
-    cy.get("span").contains("Tillsammans").parent().as("togheterWrapper");
-    cy.get("span").contains("Charlie").parent().as("charlieWrapper");
-    cy.get("span").contains("Chaplin").parent().as("chaplinWrapper");
+  it("should login with different user", () => {
+    cy.visit("http://localhost:3000");
+    login("test2@example.com", "test123");
+    cy.findByText(/välkommen charlie/i);
+  });
 
-    [
-      // TOGHETER
-      { text: "Inkomst", value: "+60000 kr", wrapper: "@togheterWrapper" },
-      { text: "Boende", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Mat", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Transport", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Kläder", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Sparande", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Övrigt", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Lån", value: "-1500 kr", wrapper: "@togheterWrapper" },
-      { text: "Totalt", value: "49500 kr", wrapper: "@togheterWrapper" },
-      // CHARLIE
-      { text: "Inkomst", value: "+10000 kr", wrapper: "@charlieWrapper" },
-      { text: "Boende", value: "-1000 kr", wrapper: "@charlieWrapper" },
-      { text: "Mat", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Transport", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Kläder", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Sparande", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Övrigt", value: "-500 kr", wrapper: "@charlieWrapper" },
-      { text: "Lån", value: "-1000 kr", wrapper: "@charlieWrapper" },
-      { text: "Totalt", value: "5500 kr", wrapper: "@charlieWrapper" },
-      // CHAPLIN
-      { text: "Inkomst", value: "+50000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Boende", value: "-500 kr", wrapper: "@chaplinWrapper" },
-      { text: "Mat", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Transport", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Kläder", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Sparande", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Övrigt", value: "-1000 kr", wrapper: "@chaplinWrapper" },
-      { text: "Lån", value: "-500 kr", wrapper: "@chaplinWrapper" },
-      { text: "Totalt", value: "44000 kr", wrapper: "@chaplinWrapper" },
-    ].forEach(({ text, value, wrapper }) =>
-      cy
-        .get(wrapper)
-        .get("div")
-        .contains(text)
+  it("should select previously created period", () => {
+    cy.findAllByRole("listitem").first().click();
+  });
+
+  it("should add multiple transactions at once for Charlie", () => {
+    cy.findByText(/lägg till/i).click();
+
+    const input = data
+      .find(({ member }) => member === "Charlie")
+      ?.categories.flatMap((category) =>
+        category.transactions.map((t) => ({
+          ...t,
+          category: category.name,
+          amount: t.amount.replace("-", "").replace("+", "").replace("kr", ""),
+        }))
+      );
+
+    const monthNumber = new Date().getMonth() + 1;
+    const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
+
+    const text = input.reduce((acc, curr) => {
+      return `${acc}\n2022-${month}-10\t \t${curr.name}\t \t${curr.amount}`;
+    }, "");
+
+    cy.findByRole("textbox").type(text, { delay: 0 });
+
+    input.forEach(({ name, category }) => {
+      cy.findAllByRole("cell")
+        .contains(name)
         .parent()
-        .get("div")
-        .contains(value)
-    );
+        .find("select")
+        .select(category);
+    });
+
+    cy.findByRole("button", {
+      name: /lägg till/i,
+    }).click();
+  });
+
+  it("should have correct calculated values", () => {
+    data.forEach(({ member, categories, summary }) => {
+      cy.findByRole("img", {
+        name: /profile/i,
+      }).click({ force: true });
+      cy.findByRole("alert").findByText(member).click();
+
+      summary.forEach(({ text, value }) =>
+        cy.get("div").contains(text).parent().get("div").contains(value)
+      );
+
+      categories.forEach((category) => {
+        cy.findByTitle(`Summary for ${category.name}`).as(category.name);
+        cy.get(`@${category.name}`).contains(category.name);
+
+        if (category.percentage)
+          cy.get(`@${category.name}`).contains(category.percentage);
+
+        cy.get(`@${category.name}`).click();
+
+        if (category.summary)
+          cy.get(`@${category.name}`).contains(category.summary);
+
+        cy.findByRole("heading", {
+          name: `Transaktioner ${member} för ${category.name.toLowerCase()}`,
+        });
+
+        category.transactions.forEach((transaction) => {
+          cy.findByRole("listitem", {
+            name: `${member} ${transaction.amount} till ${transaction.name} för ${category.name}`,
+          });
+        });
+      });
+    });
   });
 
   it("should clean up budget periods", () => {
@@ -249,3 +174,215 @@ function cleanUp() {
 
   cy.get("p").contains(/Inga skapade budgetperioder./i);
 }
+
+const data = [
+  {
+    member: "Chaplin",
+    summary: [
+      { text: "Saldo", value: "43000" },
+      { text: "Inkomster", value: "50000" },
+      { text: "Utgifter", value: "7000" },
+    ],
+    categories: [
+      {
+        name: "Inkomster",
+        summary: undefined,
+        percentage: undefined,
+        transactions: [
+          {
+            name: "Lön",
+            amount: "+50000kr",
+          },
+        ],
+      },
+      {
+        name: "Boende",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Hyra",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Mat",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Coop",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Transport",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Bensin",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Kläder",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Tröja",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Sparande",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Pension",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Övrigt",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Netflix",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Lån",
+        summary: "1000kr",
+        percentage: "14%",
+        transactions: [
+          {
+            name: "Hus",
+            amount: "-1000kr",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    member: "Charlie",
+    summary: [
+      { text: "Saldo", value: "3500" },
+      { text: "Inkomster", value: "10000" },
+      { text: "Utgifter", value: "6500" },
+    ],
+    categories: [
+      {
+        name: "Inkomster",
+        summary: undefined, // TODO 10000
+        percentage: undefined,
+        transactions: [
+          {
+            name: "Lön",
+            amount: "+9500kr",
+          },
+          {
+            name: "Swish Mat",
+            amount: "+500kr",
+          },
+        ],
+      },
+      {
+        name: "Boende",
+        summary: "1000kr",
+        percentage: "15%",
+        transactions: [
+          {
+            name: "Hyra",
+            amount: "-1000kr",
+          },
+        ],
+      },
+      {
+        name: "Mat",
+        summary: "500kr",
+        percentage: "8%",
+        transactions: [
+          {
+            name: "Coop",
+            amount: "-500kr",
+          },
+        ],
+      },
+      {
+        name: "Transport",
+        summary: "500kr",
+        percentage: "8%",
+        transactions: [
+          {
+            name: "Bensin",
+            amount: "-500kr",
+          },
+        ],
+      },
+      {
+        name: "Kläder",
+        summary: "500kr",
+        percentage: "8%",
+        transactions: [
+          {
+            name: "Tröja",
+            amount: "-500kr",
+          },
+        ],
+      },
+      {
+        name: "Sparande",
+        summary: "500kr",
+        percentage: "8%",
+        transactions: [
+          {
+            name: "Pension",
+            amount: "-500kr",
+          },
+        ],
+      },
+      {
+        name: "Övrigt",
+        summary: "500kr",
+        percentage: "8%",
+        transactions: [
+          {
+            name: "Netflix",
+            amount: "-500kr",
+          },
+        ],
+      },
+      {
+        name: "Lån",
+        summary: "3000kr",
+        percentage: "46%",
+        transactions: [
+          {
+            name: "Hus",
+            amount: "-3000kr",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    member: "tillsammans",
+    summary: [
+      { text: "Saldo", value: "46500" },
+      { text: "Inkomster", value: "60000" },
+      { text: "Utgifter", value: "13500" },
+    ],
+    categories: [],
+  },
+];
