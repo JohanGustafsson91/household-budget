@@ -23,37 +23,7 @@ describe("Manage budget", () => {
 
   it("should add transactions for Chaplin", () => {
     cy.findByText(/lägg till/i).click();
-
-    const input = data
-      .find(({ member }) => member === "Chaplin")
-      ?.categories.flatMap((category) =>
-        category.transactions.map((t) => ({
-          ...t,
-          category: category.name,
-          amount: t.amount.replace("-", "").replace("+", "").replace("kr", ""),
-        }))
-      );
-
-    const monthNumber = new Date().getMonth() + 1;
-    const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
-
-    const text = input.reduce((acc, curr) => {
-      return `${acc}\n2022-${month}-10\t \t${curr.name}\t \t${curr.amount}`;
-    }, "");
-
-    cy.findByRole("textbox").type(text, { delay: 0 });
-
-    input.forEach(({ name, category }) => {
-      cy.findAllByRole("cell")
-        .contains(name)
-        .parent()
-        .find("select")
-        .select(category);
-    });
-
-    cy.findByRole("button", {
-      name: /lägg till/i,
-    }).click();
+    addTransactions("Chaplin");
   });
 
   it("should logout", () => {
@@ -75,37 +45,7 @@ describe("Manage budget", () => {
 
   it("should add multiple transactions at once for Charlie", () => {
     cy.findByText(/lägg till/i).click();
-
-    const input = data
-      .find(({ member }) => member === "Charlie")
-      ?.categories.flatMap((category) =>
-        category.transactions.map((t) => ({
-          ...t,
-          category: category.name,
-          amount: t.amount.replace("-", "").replace("+", "").replace("kr", ""),
-        }))
-      );
-
-    const monthNumber = new Date().getMonth() + 1;
-    const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
-
-    const text = input.reduce((acc, curr) => {
-      return `${acc}\n2022-${month}-10\t \t${curr.name}\t \t${curr.amount}`;
-    }, "");
-
-    cy.findByRole("textbox").type(text, { delay: 0 });
-
-    input.forEach(({ name, category }) => {
-      cy.findAllByRole("cell")
-        .contains(name)
-        .parent()
-        .find("select")
-        .select(category);
-    });
-
-    cy.findByRole("button", {
-      name: /lägg till/i,
-    }).click();
+    addTransactions("Charlie");
   });
 
   it("should have correct calculated values", () => {
@@ -173,6 +113,41 @@ function cleanUp() {
     });
 
   cy.get("p").contains(/Inga skapade budgetperioder./i);
+}
+
+function addTransactions(member: string) {
+  const input = data
+    .find(({ member: m }) => member === m)
+    ?.categories.flatMap((category) =>
+      category.transactions.map((t) => ({
+        ...t,
+        category: category.name,
+        amount: t.amount.replace("-", "").replace("+", "").replace("kr", ""),
+      }))
+    );
+
+  const monthNumber = new Date().getMonth() + 1;
+  const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
+
+  const text = input?.reduce((acc, curr, i) => {
+    return i % 2 === 0
+      ? `${acc}\n2022-${month}-10\t \t${curr.name}\t \t${curr.amount}`
+      : `${acc}\n2022-${month}-10, ${curr.name}, ${curr.amount}`;
+  }, "");
+
+  cy.findByRole("textbox").type(text, { delay: 0 });
+
+  input?.forEach(({ name, category }) => {
+    cy.findAllByRole("cell")
+      .contains(name)
+      .parent()
+      .find("select")
+      .select(category);
+  });
+
+  cy.findByRole("button", {
+    name: /lägg till/i,
+  }).click();
 }
 
 const data = [

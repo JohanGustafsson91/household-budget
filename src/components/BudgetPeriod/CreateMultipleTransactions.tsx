@@ -29,7 +29,7 @@ export function CreateMultipleTransactions({ period, onUpdated }: Props) {
           .split("\n")
           .map(function parseLine(line) {
             const [amount, label, date] = line
-              .split("\t")
+              .split(/\t|, /gm)
               .map((t) => t.trim())
               .filter(Boolean)
               .reverse();

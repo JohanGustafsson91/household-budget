@@ -148,14 +148,7 @@ export const BudgetPeriod = () => {
           </PopupMenuSection>
         )}
       >
-        <ModeButton
-          onClick={() =>
-            setView((prev) => {
-              console.log("click", prev);
-              return "create";
-            })
-          }
-        >
+        <ModeButton onClick={() => setView((prev) => "create")}>
           {
             {
               update: "Stäng",
