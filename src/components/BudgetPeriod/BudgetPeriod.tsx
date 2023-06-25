@@ -18,9 +18,9 @@ import { displayDate } from "utils";
 import * as Diagram from "./Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";
 import { Transaction } from "./types";
-import { CreateMultipleTransactions } from "./CreateMultipleTransactions";
 import { UpdateTransaction } from "./UpdateTransaction";
 import { categories, Category } from "shared/categories";
+import { CreateNew } from "./CreateNew";
 
 // TODO wip with colors
 
@@ -163,7 +163,7 @@ export const BudgetPeriod = () => {
         {
           create: (
             <View ref={viewRef}>
-              <CreateMultipleTransactions
+              <CreateNew
                 period={period}
                 onUpdated={() => setView("overview")}
               />
