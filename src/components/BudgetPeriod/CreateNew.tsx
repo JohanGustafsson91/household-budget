@@ -165,6 +165,7 @@ export const CreateNew = ({ period, onUpdated }: Props) => {
                     <td key={list + i}>
                       {text && i > 0 ? (
                         <button
+                          title={`${text} tillbaka`}
                           onClick={() =>
                             updateTableSettings({
                               fromIndex: i,
@@ -178,6 +179,7 @@ export const CreateNew = ({ period, onUpdated }: Props) => {
                       <span>{text}</span>
                       {text && i + 1 < parsedPastedText[0].length ? (
                         <button
+                          title={`${text} nästa`}
                           onClick={() =>
                             updateTableSettings({
                               fromIndex: i,
