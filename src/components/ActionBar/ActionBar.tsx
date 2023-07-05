@@ -9,12 +9,14 @@ import backIcon from "./back.icon.svg";
 interface ActionBarProps {
   title?: string;
   renderMenu?: ({ closeMenu }: { closeMenu: () => void }) => JSX.Element;
+  backNavigationEnabled?: boolean;
 }
 
 export const ActionBar = ({
   title,
   renderMenu,
   children,
+  backNavigationEnabled = true,
 }: PropsWithChildren<ActionBarProps>) => {
   const { pathname } = useLocation();
   const popupMenuRef = useRef<HTMLDivElement | null>(null);
@@ -25,7 +27,7 @@ export const ActionBar = ({
   return (
     <>
       <Container>
-        {pathname !== "/" ? (
+        {backNavigationEnabled && pathname !== "/" ? (
           <MenuItem>
             <Link style={{ lineHeight: 0 }} to="/">
               <Icon src={backIcon} alt="back" />

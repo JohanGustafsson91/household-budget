@@ -8,11 +8,6 @@ import {
 import { COLLECTION, db } from "utils";
 import { getAuth } from "./auth";
 
-/**
- * TODO:
- * Add this in auth and rename to session
- */
-
 export const getVisitor = (
   id: string | undefined,
   callbackOnSnapshot: (value: Visitor) => void,

@@ -267,7 +267,7 @@ const data = [
     categories: [
       {
         name: "Inkomster",
-        summary: undefined, // TODO 10000
+        summary: undefined,
         percentage: undefined,
         transactions: [
           {

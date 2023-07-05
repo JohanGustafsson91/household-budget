@@ -20,9 +20,7 @@ import { useOnClickOutside } from "shared/useClickOutside";
 import { Transaction } from "./types";
 import { UpdateTransaction } from "./UpdateTransaction";
 import { categories, Category } from "shared/categories";
-import { CreateNew } from "./CreateNew";
-
-// TODO wip with colors
+import { CreateTransactions } from "./CreateTransactions";
 
 export const BudgetPeriod = () => {
   const { id: periodId } = useParams();
@@ -129,6 +127,7 @@ export const BudgetPeriod = () => {
         title={`${displayDate(period.fromDate)} - ${displayDate(
           period.toDate
         )}`}
+        backNavigationEnabled={view === "overview"}
         renderMenu={({ closeMenu }) => (
           <PopupMenuSection role="alert">
             <PopupMenuTitle>Välj vy</PopupMenuTitle>
@@ -148,22 +147,25 @@ export const BudgetPeriod = () => {
           </PopupMenuSection>
         )}
       >
-        <ModeButton onClick={() => setView((prev) => "create")}>
-          {
-            {
-              update: "Stäng",
-              create: "Stäng",
-              overview: "Lägg till",
-            }[view]
-          }
-        </ModeButton>
+        {view === "overview" ? (
+          <ModeButton
+            onClick={() =>
+              setView((prev) => {
+                console.log({ prev });
+                return "create";
+              })
+            }
+          >
+            Lägg till
+          </ModeButton>
+        ) : null}
       </ActionBar>
 
       {
         {
           create: (
             <View ref={viewRef}>
-              <CreateNew
+              <CreateTransactions
                 period={period}
                 onUpdated={() => setView("overview")}
               />

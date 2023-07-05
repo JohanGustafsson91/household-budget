@@ -17,7 +17,7 @@ interface Props {
   onUpdated?: Function;
 }
 
-export const CreateNew = ({ period, onUpdated }: Props) => {
+export const CreateTransactions = ({ period, onUpdated }: Props) => {
   const [activeStep, setActiveStep] = useState<Step>("paste");
   const [pastedText, setPastedText] = useState("");
   const [parsedPastedText, setParsedPastedText] = useState<string[][]>([]);

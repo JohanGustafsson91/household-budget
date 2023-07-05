@@ -7,9 +7,6 @@ export const breakpoint = (index: 0 | 1 | 2) =>
 
 export const fontSize = (index: SizeArg) => (FONT_SIZES[index] ?? index) + "px";
 
-export const space__deprecated = (index: SizeArg) =>
-  (SPACES?.[index] ?? index) + "px";
-
 type SizeArg = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 const shortenedCssKeyMap: Record<keyof Props, Array<string>> = {
@@ -27,6 +24,10 @@ const shortenedCssKeyMap: Record<keyof Props, Array<string>> = {
   pl: ["padding-left"],
   py: ["padding-top", "padding-bottom"],
   px: ["padding-left", "padding-right"],
+  t: ["top"],
+  r: ["right"],
+  l: ["left"],
+  b: ["bottom"],
 };
 
 export function space(values: Props) {
@@ -60,32 +61,8 @@ interface Props {
   pl?: SpaceValue;
   py?: SpaceValue;
   px?: SpaceValue;
+  t?: SpaceValue;
+  r?: SpaceValue;
+  l?: SpaceValue;
+  b?: SpaceValue;
 }
-
-// const shortenedColorMap = {
-//   color: ["color"],
-//   bg: ["background-color"],
-// };
-
-// const colorsMap: Record<Color, string> = {
-//   primary: "black",
-// };
-
-// export const colors = (values: ColorProps) => {
-//   return Object.keys(values).reduce((acc, key) => {
-//     const cssKeys = shortenedColorMap[key as keyof typeof shortenedColorMap];
-//     const value = values[key as keyof typeof shortenedColorMap];
-//     const cssKeyValue = cssKeys.reduce(
-//       (a, c) => `${a}${c}: ${colorsMap[value as keyof typeof colorsMap]};\n`,
-//       ""
-//     );
-//     return `${acc}${cssKeyValue}`;
-//   }, "");
-// };
-
-// type Color = "primary";
-
-// interface ColorProps {
-//   color?: Color;
-//   bg?: Color;
-// }

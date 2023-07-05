@@ -10,7 +10,7 @@ import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils";
 import { ActionBar } from "components/ActionBar";
-import { fontSize, space__deprecated } from "theme";
+import { fontSize, space } from "theme";
 
 export const Overview = () => {
   const navigate = useNavigate();
@@ -122,20 +122,18 @@ const Text = styled.span`
 `;
 
 const Card = styled.div<{ height?: string }>`
-  padding: ${space__deprecated(3)};
-  margin-bottom: ${space__deprecated(3)};
+  ${space({ p: 3, mb: 3 })};
   min-height: ${(props) => props.height ?? "auto"};
   height: ${(props) => props.height ?? "auto"};
   background-color: var(--color-background-card);
-  border-radius: ${space__deprecated(2)};
+  border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
   cursor: ${(props) => (props.onClick ? "pointer" : "default")};
 `;
 
 const ActionButton = styled.button`
   position: fixed;
-  bottom: ${space__deprecated(3)};
-  right: ${space__deprecated(3)};
+  ${space({ b: 3, r: 3 })};
   border-radius: 50%;
   height: ${fontSize(6)};
   width: ${fontSize(6)};
