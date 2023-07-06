@@ -19,14 +19,14 @@ export function useAsync<Data>(initialState?: State<Data>) {
   const dispatch = useSafeDispatch(unsafeDispatch);
 
   const run = useCallback(
-    (promise: Promise<any>) => {
+    (promise: Promise<WARNING_ANY>) => {
       dispatch({ type: "pending" });
 
       return promise.then(
         (data: Data) => {
           dispatch({ type: "resolved", data });
         },
-        (error: any) => {
+        (error: Error) => {
           dispatch({ type: "rejected", error: error.message });
         }
       );
@@ -165,5 +165,8 @@ type WithStateFunctions<Data, T> = {
   setData: (data: Data) => void;
   setError: (error: string) => void;
   setIdle: () => void;
-  run: (promise: Promise<any>) => Promise<void>;
+  run: (promise: Promise<WARNING_ANY>) => Promise<void>;
 } & T;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type WARNING_ANY = any;

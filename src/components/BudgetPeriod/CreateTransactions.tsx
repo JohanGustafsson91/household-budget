@@ -14,7 +14,7 @@ import { NewTransaction, Transaction } from "./types";
 
 interface Props {
   period: BudgetPeriod;
-  onUpdated?: Function;
+  onUpdated?: () => unknown;
 }
 
 export const CreateTransactions = ({ period, onUpdated }: Props) => {

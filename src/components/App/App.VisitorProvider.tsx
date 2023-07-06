@@ -10,12 +10,11 @@ import {
   createContext,
   PropsWithChildren,
   useCallback,
-  useContext,
   useEffect,
 } from "react";
 import { useAsync } from "shared/useAsync";
 
-export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
+export const VisitorProvider = ({ children }: PropsWithChildren<object>) => {
   const [auth, authIsLoading] = useAuth();
   const { status, data, setData, setError } = useAsync<Visitor>();
 
@@ -49,21 +48,11 @@ export const VisitorProvider = ({ children }: PropsWithChildren<{}>) => {
   );
 };
 
-const VisitorContext = createContext<ProviderProps | undefined>(undefined);
+export const VisitorContext = createContext<ProviderProps | undefined>(
+  undefined
+);
 
-export function useVisitor(): ProviderProps {
-  const ctx = useContext(VisitorContext);
-
-  if (!ctx) {
-    throw new Error(
-      "[useVisitor]: You must wrap your component with <VisitorProvider />."
-    );
-  }
-
-  return ctx;
-}
-
-type ProviderProps = Visitor & {
+export type ProviderProps = Visitor & {
   getFriendById: (friendId: string) => Friend | undefined;
 };
 

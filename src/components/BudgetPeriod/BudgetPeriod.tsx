@@ -6,7 +6,7 @@ import {
   PopupMenuSection,
   PopupMenuTitle,
 } from "components/ActionBar";
-import { useVisitor } from "components/App/App.VisitorProvider";
+import { useVisitor } from "components/App/App.useVisitor";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAsync } from "shared/useAsync";
@@ -95,6 +95,7 @@ export const BudgetPeriod = () => {
   }, {} as Record<Category["type"], Transaction[]>);
 
   const income = summarize(categorizedTransactions["INCOME"] || []);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { INCOME, ...rest } = categorizedTransactions;
   const expenses = summarize(Object.values(rest).flat());
   const left = income - expenses;

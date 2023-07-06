@@ -1,5 +1,5 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-import { useVisitor } from "components/App/App.VisitorProvider";
+import { useVisitor } from "components/App/App.useVisitor";
 import { Button } from "components/Button";
 import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
