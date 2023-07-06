@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && npm run lint:exports",
     "preview": "vite preview",
-    "deploy:dev": "env-cmd -f .env.development.local npm run build && firebase deploy -P development",
-    "deploy:prod": "env-cmd -f .env.production.local npm run build && firebase deploy -P production",
+    "deploy:dev": "npm run lint && env-cmd -f .env.development.local npm run build && firebase deploy -P development",
+    "deploy:prod": "npm run lint && env-cmd -f .env.production.local npm run build && firebase deploy -P production",
     "typecheck": "tsc",
     "cypress": "cypress open",
     "cypress:run": "cypress run",

@@ -30,27 +30,6 @@ const report = Object.keys(resultUnusedExports).reduce((acc, currFileName) => {
     return acc;
   }
 
-  //   const isNextJSPage = isSomeStringFromListIncludedInString(
-  //     NEXT_PAGES,
-  //     currFileName
-  //   );
-
-  //   if (isNextJSPage) {
-  //     const filteredExports = resultUnusedExports[currFileName].filter(
-  //       ({ exportName }) => !IGNORE_EXPORTS_IN_NEXT_PAGES.includes(exportName)
-  //     );
-
-  //     return filteredExports.length > 0
-  //       ? [
-  //           ...acc,
-  //           {
-  //             fileName: currFileName,
-  //             unusedExports: filteredExports,
-  //           },
-  //         ]
-  //       : acc;
-  //   }
-
   return [
     ...acc,
     {
