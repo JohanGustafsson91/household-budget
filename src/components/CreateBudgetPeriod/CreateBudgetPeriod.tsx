@@ -1,14 +1,15 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Checkbox, DatePicker, FormField, Label } from "components/Form";
-import { Button } from "components/Button";
+import { Checkbox, FormField, Label } from "components/Form/Form";
+import { Button } from "components/Button/Button";
 import { postBudgetPeriod } from "api/budget-period";
-import { useVisitor } from "components/App/App.useVisitor";
 import { useAsync } from "shared/useAsync";
 import { BudgetPeriod } from "shared";
-import { ActionBar } from "components/ActionBar";
+import { ActionBar } from "components/ActionBar/ActionBar";
+import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
+import { DatePicker } from "components/Form/Form.DatePicker";
 
-export const CreateBudgetPeriod = () => {
+export default function CreateBudgetPeriod() {
   const visitor = useVisitor();
   const navigate = useNavigate();
   const state = useAsync<BudgetPeriod>();
@@ -114,6 +115,6 @@ export const CreateBudgetPeriod = () => {
       </form>
     </>
   );
-};
+}
 
 type Form = Parameters<typeof postBudgetPeriod>[0];

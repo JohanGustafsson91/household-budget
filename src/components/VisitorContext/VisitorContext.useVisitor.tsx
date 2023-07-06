@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { ProviderProps, VisitorContext } from "./App.VisitorProvider";
+import { VisitorContext } from "./VisitorContext";
+import { ProviderProps } from "./VisitorContext.Provider";
 
 export function useVisitor(): ProviderProps {
   const ctx = useContext(VisitorContext);

@@ -5,8 +5,7 @@ import {
   PopupMenuItem,
   PopupMenuSection,
   PopupMenuTitle,
-} from "components/ActionBar";
-import { useVisitor } from "components/App/App.useVisitor";
+} from "components/ActionBar/ActionBar";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAsync } from "shared/useAsync";
@@ -15,14 +14,15 @@ import { fontSize, space } from "theme";
 import { BudgetPeriod as PeriodType } from "shared";
 import { displayDate } from "utils";
 
-import * as Diagram from "./Diagram";
+import * as Diagram from "./BudgetPeriod.Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";
-import { Transaction } from "./types";
-import { UpdateTransaction } from "./UpdateTransaction";
+import { Transaction } from "./BudgetPeriod.Transaction";
+import { UpdateTransaction } from "./BudgetPeriod.UpdateTransaction";
 import { categories, Category } from "shared/categories";
-import { CreateTransactions } from "./CreateTransactions";
+import { CreateTransactions } from "./BudgetPeriod.CreateTransactions";
+import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 
-export const BudgetPeriod = () => {
+export default function BudgetPeriod() {
   const { id: periodId } = useParams();
   const { getFriendById: getUserById } = useVisitor();
   const { data: period, status: periodStatus, run } = useAsync<PeriodType>();
@@ -299,7 +299,7 @@ export const BudgetPeriod = () => {
       }
     </>
   );
-};
+}
 
 const categoriesForBoard = categories.filter(({ type }) => type !== "INCOME");
 

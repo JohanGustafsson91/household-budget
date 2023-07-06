@@ -1,11 +1,11 @@
 import { login } from "api/auth";
-import { FormField, Input } from "components/Form";
-import { Button } from "components/Button";
+import { FormField, Input } from "components/Form/Form";
+import { Button } from "components/Button/Button";
 import React, { useState } from "react";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 
-export const Login = () => {
+export default function Login() {
   const [form, setForm] = useState({ email: "", password: "", error: "" });
   const { run, status } = useAsync<undefined>();
 
@@ -59,7 +59,7 @@ export const Login = () => {
       </Form>
     </Wrapper>
   );
-};
+}
 
 const Header = styled.h1``;
 

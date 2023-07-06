@@ -1,7 +1,7 @@
 import { postTransaction } from "api/transaction";
-import { Button } from "components/Button";
-import { CardTitle } from "components/Card";
-import { FormField, Select, Textarea } from "components/Form";
+import { Button } from "components/Button/Button";
+import { CardTitle } from "components/Card/Card";
+import { FormField, Select, Textarea } from "components/Form/Form";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared";
@@ -10,7 +10,7 @@ import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";
 import { space } from "theme";
-import { NewTransaction, Transaction } from "./types";
+import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
 
 interface Props {
   period: BudgetPeriod;

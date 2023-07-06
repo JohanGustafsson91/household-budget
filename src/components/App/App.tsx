@@ -1,6 +1,4 @@
-import { Login } from "components/Login";
-import { Overview } from "components/Overview";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import {
   BrowserRouter as Router,
@@ -8,12 +6,19 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
-import { VisitorProvider, VisitorType } from "./App.VisitorProvider";
 import styled from "styled-components";
 import { space } from "theme";
-import { CreateBudgetPeriod } from "components/CreateBudgetPeriod";
-import { BudgetPeriod } from "components/BudgetPeriod";
-import { useVisitor } from "./App.useVisitor";
+const VisitorProvider = lazy(
+  () => import("components/VisitorContext/VisitorContext.Provider")
+);
+const Overview = lazy(() => import("components/Overview/Overview"));
+const Login = lazy(() => import("components/Login/Login"));
+const BudgetPeriod = lazy(() => import("components/BudgetPeriod/BudgetPeriod"));
+const CreateBudgetPeriod = lazy(
+  () => import("components/CreateBudgetPeriod/CreateBudgetPeriod")
+);
+import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
+import { AnonymousVisitor, RegisteredVisitor } from "api/visitor";
 
 export const App = () => (
   <ErrorBoundary
@@ -27,51 +32,65 @@ export const App = () => (
       </PageWrapper>
     )}
   >
-    <VisitorProvider>
-      <Router>
-        <Routes>
-          {[
-            {
-              path: routes.login,
-              element: (
-                <Page
-                  visitorTypes={["anonymous"]}
-                  navigateToPageIfNotAllowed={routes.main}
-                >
-                  <Login />
-                </Page>
-              ),
-            },
-            {
-              path: routes.main,
-              element: (
-                <RegisteredVisitorPage>
-                  <Overview />
-                </RegisteredVisitorPage>
-              ),
-            },
-            {
-              path: routes.createPeriod,
-              element: (
-                <RegisteredVisitorPage>
-                  <CreateBudgetPeriod />
-                </RegisteredVisitorPage>
-              ),
-            },
-            {
-              path: routes.period,
-              element: (
-                <RegisteredVisitorPage>
-                  <BudgetPeriod />
-                </RegisteredVisitorPage>
-              ),
-            },
-          ].map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
-          ))}
-        </Routes>
-      </Router>
-    </VisitorProvider>
+    <Suspense fallback={<div />}>
+      <VisitorProvider>
+        <Router>
+          <Routes>
+            {[
+              {
+                path: routes.login,
+                element: (
+                  <Page
+                    visitorTypes={["anonymous"]}
+                    navigateToPageIfNotAllowed={routes.main}
+                  >
+                    <Suspense fallback={<div />}>
+                      <Login />
+                    </Suspense>
+                  </Page>
+                ),
+              },
+              {
+                path: routes.main,
+                element: (
+                  <RegisteredVisitorPage>
+                    <Suspense fallback={<div />}>
+                      <Overview />
+                    </Suspense>
+                  </RegisteredVisitorPage>
+                ),
+              },
+              {
+                path: routes.createPeriod,
+                element: (
+                  <RegisteredVisitorPage>
+                    <Suspense fallback={<div />}>
+                      <CreateBudgetPeriod />
+                    </Suspense>
+                  </RegisteredVisitorPage>
+                ),
+              },
+              {
+                path: routes.period,
+                element: (
+                  <RegisteredVisitorPage>
+                    <Suspense fallback={<div />}>
+                      <BudgetPeriod />
+                    </Suspense>
+                  </RegisteredVisitorPage>
+                ),
+              },
+            ].map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={route.element}
+              />
+            ))}
+          </Routes>
+        </Router>
+      </VisitorProvider>
+    </Suspense>
   </ErrorBoundary>
 );
 
@@ -134,3 +153,5 @@ const PageContent = styled.div`
 `;
 
 type ValueOf<T> = T[keyof T];
+
+type VisitorType = AnonymousVisitor["type"] | RegisteredVisitor["type"];

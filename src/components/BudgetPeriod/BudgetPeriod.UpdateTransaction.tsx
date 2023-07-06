@@ -2,18 +2,18 @@ import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { BudgetPeriod } from "shared";
 import {
   FormField,
-  DatePicker,
   Input,
   Label,
   Select,
   Checkbox,
-} from "components/Form";
-import { Button } from "components/Button";
+} from "components/Form/Form";
+import { Button } from "components/Button/Button";
 import { putTransaction, deleteTransaction } from "api/transaction";
-import { CardTitle } from "components/Card";
+import { CardTitle } from "components/Card/Card";
 import { useAsync } from "shared/useAsync";
-import { Transaction } from "./types";
+import { Transaction } from "./BudgetPeriod.Transaction";
 import { categories } from "shared/categories";
+import { DatePicker } from "components/Form/Form.DatePicker";
 
 export const UpdateTransaction = ({
   period,

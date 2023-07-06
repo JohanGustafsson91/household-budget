@@ -1,4 +1,7 @@
-import { NewTransaction, Transaction } from "components/BudgetPeriod/types";
+import {
+  NewTransaction,
+  Transaction,
+} from "components/BudgetPeriod/BudgetPeriod.Transaction";
 import {
   collection,
   onSnapshot,

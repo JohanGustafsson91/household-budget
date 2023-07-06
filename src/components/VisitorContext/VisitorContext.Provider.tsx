@@ -1,20 +1,12 @@
 import { useAuth } from "api/auth";
-import {
-  AnonymousVisitor,
-  Friend,
-  getVisitor,
-  RegisteredVisitor,
-  Visitor,
-} from "api/visitor";
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-} from "react";
+import { Friend, Visitor, getVisitor } from "api/visitor";
+import { PropsWithChildren, useEffect, useCallback } from "react";
 import { useAsync } from "shared/useAsync";
+import { VisitorContext } from "./VisitorContext";
 
-export const VisitorProvider = ({ children }: PropsWithChildren<object>) => {
+export default function VisitorProvider({
+  children,
+}: PropsWithChildren<object>) {
   const [auth, authIsLoading] = useAuth();
   const { status, data, setData, setError } = useAsync<Visitor>();
 
@@ -46,14 +38,8 @@ export const VisitorProvider = ({ children }: PropsWithChildren<object>) => {
       {status === "resolved" ? children : null}
     </VisitorContext.Provider>
   );
-};
-
-export const VisitorContext = createContext<ProviderProps | undefined>(
-  undefined
-);
+}
 
 export type ProviderProps = Visitor & {
   getFriendById: (friendId: string) => Friend | undefined;
 };
-
-export type VisitorType = AnonymousVisitor["type"] | RegisteredVisitor["type"];

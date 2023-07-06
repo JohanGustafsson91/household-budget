@@ -1,7 +1,6 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-import { useVisitor } from "components/App/App.useVisitor";
-import { Button } from "components/Button";
-import { Loading } from "components/Loading";
+import { Button } from "components/Button/Button";
+import { Loading } from "components/Loading/Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,10 +8,11 @@ import { BudgetPeriod } from "shared";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils";
-import { ActionBar } from "components/ActionBar";
+import { ActionBar } from "components/ActionBar/ActionBar";
 import { fontSize, space } from "theme";
+import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 
-export const Overview = () => {
+export default function Overview() {
   const navigate = useNavigate();
   const visitor = useVisitor();
   const {
@@ -98,7 +98,7 @@ export const Overview = () => {
       <ActionButton onClick={navigateTo("/period/add")}>+</ActionButton>
     </>
   );
-};
+}
 
 const Container = styled.div`
   overflow-y: auto;
