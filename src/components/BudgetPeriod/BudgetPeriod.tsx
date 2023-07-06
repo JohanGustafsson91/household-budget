@@ -149,14 +149,7 @@ export const BudgetPeriod = () => {
         )}
       >
         {view === "overview" ? (
-          <ModeButton
-            onClick={() =>
-              setView((prev) => {
-                console.log({ prev });
-                return "create";
-              })
-            }
-          >
+          <ModeButton onClick={() => setView(() => "create")}>
             Lägg till
           </ModeButton>
         ) : null}
