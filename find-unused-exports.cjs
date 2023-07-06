@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires, no-undef
 const findUnusedExports = require("ts-unused-exports").default;
 
 // const NEXT_PAGES = ['src/pages/', 'src/store/site.ts']
@@ -61,6 +62,7 @@ const report = Object.keys(resultUnusedExports).reduce((acc, currFileName) => {
 
 if (report.length === 0) {
   console.log(consoleColors.success, "All is fine! 😍");
+  // eslint-disable-next-line no-undef
   return process.exit(0);
 } else {
   console.info(consoleColors.warning, "I found some unused exports 😥\n");
@@ -77,6 +79,7 @@ if (report.length === 0) {
     });
     console.log("\n");
   });
+  // eslint-disable-next-line no-undef
   return process.exit(1);
 }
 
