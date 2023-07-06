@@ -161,7 +161,7 @@ export const UpdateTransaction = ({
 interface Props {
   period: BudgetPeriod;
   transaction: Transaction;
-  onUpdated?: Function;
+  onUpdated?: () => unknown;
 }
 
 interface Form extends Omit<Transaction, "date" | "author" | "key"> {

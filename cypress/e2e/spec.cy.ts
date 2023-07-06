@@ -4,7 +4,7 @@ beforeEach(() => {
 
 describe("Manage budget", () => {
   it("should login user", () => {
-    cy.visit("http://localhost:3000");
+    cy.visit("http://localhost:5173");
     login("test@example.com", "test123");
     cy.findByText(/välkommen chaplin/i).should("be.visible");
   });
@@ -34,7 +34,7 @@ describe("Manage budget", () => {
   });
 
   it("should login with different user", () => {
-    cy.visit("http://localhost:3000");
+    cy.visit("http://localhost:5173");
     login("test2@example.com", "test123");
     cy.findByText(/välkommen charlie/i);
   });
@@ -135,9 +135,7 @@ function addTransactions(member: string) {
       : `${acc}\n2022-${month}-10, 2022-${month}-10, ${curr.name}, ${curr.amount}`;
   }, "");
 
-  console.log({ text });
-
-  cy.findByRole("textbox").type(text, { delay: 0 });
+  cy.findByRole("textbox").type(text ?? "", { delay: 0 });
 
   cy.findByRole("button", { name: /nästa/i }).click();
   cy.findByTitle(/kostnad nästa/i).click();

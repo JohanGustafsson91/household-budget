@@ -8,15 +8,12 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
-import {
-  useVisitor,
-  VisitorProvider,
-  VisitorType,
-} from "./App.VisitorProvider";
+import { VisitorProvider, VisitorType } from "./App.VisitorProvider";
 import styled from "styled-components";
 import { space } from "theme";
 import { CreateBudgetPeriod } from "components/CreateBudgetPeriod";
 import { BudgetPeriod } from "components/BudgetPeriod";
+import { useVisitor } from "./App.useVisitor";
 
 export const App = () => (
   <ErrorBoundary
@@ -110,7 +107,7 @@ const Page = ({
   return <>{children}</>;
 };
 
-const RegisteredVisitorPage = ({ children }: PropsWithChildren<{}>) => (
+const RegisteredVisitorPage = ({ children }: PropsWithChildren<object>) => (
   <Page visitorTypes={["registered"]}>
     <PageWrapper>
       <PageContent>{children}</PageContent>

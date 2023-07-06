@@ -1,70 +1,56 @@
 {
   "name": "household-budget",
-  "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": "18.12.0",
-    "npm": "8.19.2"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "deploy:dev": "env-cmd -f .env.development.local npm run build && firebase deploy -P development",
-    "deploy:prod": "env-cmd -f .env.production.local npm run build && firebase deploy -P production",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && npm run lint:exports",
+    "preview": "vite preview",
+    "deploy:dev": "npm run lint && env-cmd -f .env.development.local npm run build && firebase deploy -P development",
+    "deploy:prod": "npm run lint && env-cmd -f .env.production.local npm run build && firebase deploy -P production",
     "typecheck": "tsc",
     "cypress": "cypress open",
     "cypress:run": "cypress run",
-    "lint:exports": "node find-unused-exports.js",
+    "lint:exports": "node find-unused-exports.cjs",
     "postinstall": "patch-package"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "dependencies": {
     "firebase": "9.23.0",
-    "react": "18.2.0",
+    "react": "^18.2.0",
     "react-datepicker": "4.15.0",
-    "react-dom": "18.2.0",
+    "react-dom": "^18.2.0",
     "react-error-boundary": "4.0.10",
     "react-firebase-hooks": "5.1.1",
     "react-router-dom": "6.14.1",
-    "react-scripts": "5.0.1",
     "shortid": "2.2.16",
-    "styled-components": "5.3.9",
-    "typescript": "4.9.4"
+    "styled-components": "5.3.9"
   },
   "devDependencies": {
     "@testing-library/cypress": "9.0.0",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "14.4.3",
-    "@types/node": "18.15.11",
-    "@types/react": "18.2.14",
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.37",
     "@types/react-datepicker": "4.11.2",
-    "@types/react-dom": "18.2.6",
+    "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "5.3.3",
     "@types/shortid": "0.0.29",
     "@types/styled-components": "5.1.26",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "@vitejs/plugin-react-swc": "^3.0.0",
     "cypress": "12.9.0",
     "env-cmd": "10.1.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
     "patch-package": "6.5.1",
-    "ts-unused-exports": "9.0.5"
+    "ts-unused-exports": "9.0.5",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.9",
+    "vite-tsconfig-paths": "^4.2.0"
   }
 }
