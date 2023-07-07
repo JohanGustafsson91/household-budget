@@ -1,6 +1,6 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-import { Button } from "components/Button";
-import { Loading } from "components/Loading";
+import { Button } from "components/FormElements";
+import { Loading } from "./OverviewBudgetPeriods.Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ import { ActionBar } from "components/ActionBar/ActionBar";
 import { fontSize, space } from "shared/theme";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 
-export default function Overview() {
+export default function OverviewBudgetPeriods() {
   const navigate = useNavigate();
   const visitor = useVisitor();
   const {

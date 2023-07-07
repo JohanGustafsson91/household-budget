@@ -6,14 +6,14 @@ import {
   Label,
   Select,
   Checkbox,
-} from "components/Form/Form";
-import { Button } from "components/Button";
+  Button,
+} from "components/FormElements";
 import { putTransaction, deleteTransaction } from "api/transaction";
-import { CardTitle } from "components/Card";
+import { Title } from "./BudgetPeriod.Title";
 import { useAsync } from "shared/useAsync";
 import { Transaction } from "./BudgetPeriod.Transaction";
 import { categories } from "./BudgetPeriod.categories";
-import { DatePicker } from "components/Form/Form.DatePicker";
+import { DatePicker } from "components/DatePicker";
 
 export const UpdateTransaction = ({
   period,
@@ -79,7 +79,7 @@ export const UpdateTransaction = ({
 
   return (
     <div>
-      <CardTitle>Ändra</CardTitle>
+      <Title>Ändra</Title>
       <form onSubmit={handleUpdateTransaction}>
         <FormField>
           <Label>

@@ -1,7 +1,6 @@
 import { postTransaction } from "api/transaction";
-import { Button } from "components/Button";
-import { CardTitle } from "components/Card";
-import { FormField, Select, Textarea } from "components/Form/Form";
+import { Title } from "./BudgetPeriod.Title";
+import { FormField, Select, Textarea, Button } from "components/FormElements";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared/BudgetPeriod";
@@ -142,7 +141,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
       {{
         paste: () => (
           <div>
-            <CardTitle>Lägg till många</CardTitle>
+            <Title>Lägg till många</Title>
 
             <FormField>
               <Textarea
@@ -154,7 +153,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
         ),
         select: () => (
           <View>
-            <CardTitle>Välj fält</CardTitle>
+            <Title>Välj fält</Title>
 
             <table>
               <tr>
@@ -207,7 +206,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
         ),
         categories: () => (
           <View>
-            <CardTitle>Välj kategori</CardTitle>
+            <Title>Välj kategori</Title>
 
             <table>
               <thead>

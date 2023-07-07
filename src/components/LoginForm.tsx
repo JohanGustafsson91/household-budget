@@ -1,11 +1,10 @@
 import { login } from "api/auth";
-import { FormField, Input } from "components/Form/Form";
-import { Button } from "components/Button";
+import { FormField, Input, Button } from "components/FormElements";
 import React, { useState } from "react";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 
-export default function Login() {
+export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "", error: "" });
   const { run, status } = useAsync<undefined>();
 

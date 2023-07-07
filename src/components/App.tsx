@@ -11,12 +11,15 @@ import { space } from "shared/theme";
 const VisitorProvider = lazy(
   () => import("components/VisitorContext/VisitorContext.Provider")
 );
-const Overview = lazy(() => import("components/Overview"));
-const Login = lazy(() => import("components/Login"));
+const OverviewBudgetPeriods = lazy(
+  () => import("components/OverviewBudgetPeriods/OverviewBudgetPeriods")
+);
+const LoginForm = lazy(() => import("components/LoginForm"));
 const BudgetPeriod = lazy(() => import("components/BudgetPeriod/BudgetPeriod"));
 const CreateBudgetPeriod = lazy(() => import("components/CreateBudgetPeriod"));
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 import { AnonymousVisitor, RegisteredVisitor } from "api/visitor";
+import { Button } from "components/FormElements";
 
 export const App = () => (
   <ErrorBoundary
@@ -25,7 +28,7 @@ export const App = () => (
         <PageContent>
           <h1>Någonting gick fel...</h1>
           <pre>Felkod: {error.message}</pre>
-          <button onClick={resetErrorBoundary}>Försök igen</button>
+          <Button onClick={resetErrorBoundary}>Försök igen</Button>
         </PageContent>
       </PageWrapper>
     )}
@@ -43,7 +46,7 @@ export const App = () => (
                     navigateToPageIfNotAllowed={routes.main}
                   >
                     <Suspense fallback={<div />}>
-                      <Login />
+                      <LoginForm />
                     </Suspense>
                   </Page>
                 ),
@@ -53,7 +56,7 @@ export const App = () => (
                 element: (
                   <RegisteredVisitorPage>
                     <Suspense fallback={<div />}>
-                      <Overview />
+                      <OverviewBudgetPeriods />
                     </Suspense>
                   </RegisteredVisitorPage>
                 ),
