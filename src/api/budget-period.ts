@@ -9,7 +9,7 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import { BudgetPeriod } from "shared";
+import { BudgetPeriod } from "shared/BudgetPeriod";
 import shortid from "shortid";
 import { auth, COLLECTION, db, getDocument } from "utils";
 import { getAuth } from "./auth";

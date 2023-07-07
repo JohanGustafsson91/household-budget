@@ -11,12 +11,10 @@ import { space } from "theme";
 const VisitorProvider = lazy(
   () => import("components/VisitorContext/VisitorContext.Provider")
 );
-const Overview = lazy(() => import("components/Overview/Overview"));
-const Login = lazy(() => import("components/Login/Login"));
+const Overview = lazy(() => import("components/Overview"));
+const Login = lazy(() => import("components/Login"));
 const BudgetPeriod = lazy(() => import("components/BudgetPeriod/BudgetPeriod"));
-const CreateBudgetPeriod = lazy(
-  () => import("components/CreateBudgetPeriod/CreateBudgetPeriod")
-);
+const CreateBudgetPeriod = lazy(() => import("components/CreateBudgetPeriod"));
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 import { AnonymousVisitor, RegisteredVisitor } from "api/visitor";
 

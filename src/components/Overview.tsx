@@ -1,10 +1,10 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-import { Button } from "components/Button/Button";
-import { Loading } from "components/Loading/Loading";
+import { Button } from "components/Button";
+import { Loading } from "components/Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BudgetPeriod } from "shared";
+import { BudgetPeriod } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils";

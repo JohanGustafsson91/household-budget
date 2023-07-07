@@ -1,6 +1,6 @@
 import { login } from "api/auth";
 import { FormField, Input } from "components/Form/Form";
-import { Button } from "components/Button/Button";
+import { Button } from "components/Button";
 import React, { useState } from "react";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";

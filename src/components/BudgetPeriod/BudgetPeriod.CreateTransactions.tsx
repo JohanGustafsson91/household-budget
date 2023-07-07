@@ -1,11 +1,11 @@
 import { postTransaction } from "api/transaction";
-import { Button } from "components/Button/Button";
-import { CardTitle } from "components/Card/Card";
+import { Button } from "components/Button";
+import { CardTitle } from "components/Card";
 import { FormField, Select, Textarea } from "components/Form/Form";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { BudgetPeriod } from "shared";
-import { categories } from "shared/categories";
+import { BudgetPeriod } from "shared/BudgetPeriod";
+import { categories } from "./BudgetPeriod.categories";
 import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";

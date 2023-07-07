@@ -11,14 +11,14 @@ import { useParams } from "react-router-dom";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
-import { BudgetPeriod as PeriodType } from "shared";
+import { BudgetPeriod as PeriodType } from "shared/BudgetPeriod";
 import { displayDate } from "utils";
 
 import * as Diagram from "./BudgetPeriod.Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";
 import { Transaction } from "./BudgetPeriod.Transaction";
 import { UpdateTransaction } from "./BudgetPeriod.UpdateTransaction";
-import { categories, Category } from "shared/categories";
+import { categories, Category } from "./BudgetPeriod.categories";
 import { CreateTransactions } from "./BudgetPeriod.CreateTransactions";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 
