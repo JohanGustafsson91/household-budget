@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
-import { displayDate } from "utils";
+import { displayDate } from "utils/date";
 import { ActionBar } from "components/ActionBar/ActionBar";
 import { fontSize, space } from "theme";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";

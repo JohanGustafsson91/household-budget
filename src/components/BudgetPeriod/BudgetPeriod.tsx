@@ -12,7 +12,7 @@ import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { fontSize, space } from "theme";
 import { BudgetPeriod as PeriodType } from "shared/BudgetPeriod";
-import { displayDate } from "utils";
+import { displayDate } from "utils/date";
 
 import * as Diagram from "./BudgetPeriod.Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";

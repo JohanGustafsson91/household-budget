@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import shortid from "shortid";
-import { auth, COLLECTION, db, getDocument } from "utils";
+import { auth, COLLECTION, db, getDocument } from "utils/firebase";
 import { getAuth } from "./auth";
 
 export const getBudgetPeriods = (
