@@ -9,7 +9,7 @@ import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils/date";
 import { ActionBar } from "components/ActionBar/ActionBar";
-import { fontSize, space } from "theme";
+import { fontSize, space } from "shared/theme";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 
 export default function Overview() {

@@ -9,7 +9,7 @@ import { categories } from "./BudgetPeriod.categories";
 import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";
-import { space } from "theme";
+import { space } from "shared/theme";
 import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
 
 interface Props {

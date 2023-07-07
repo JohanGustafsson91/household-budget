@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space } from "shared/theme";
 import { BudgetPeriod as PeriodType } from "shared/BudgetPeriod";
 import { displayDate } from "utils/date";
 

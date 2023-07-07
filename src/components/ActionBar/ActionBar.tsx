@@ -3,7 +3,7 @@ import { useState, useRef, PropsWithChildren } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useOnClickOutside } from "shared/useClickOutside";
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space } from "shared/theme";
 import backIcon from "./back.icon.svg";
 
 interface ActionBarProps {

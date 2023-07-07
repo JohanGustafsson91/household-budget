@@ -5,7 +5,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { COLLECTION, db } from "utils/firebase";
+import { COLLECTION, db } from "./firebase";
 import { getAuth } from "./auth";
 
 export const getVisitor = (

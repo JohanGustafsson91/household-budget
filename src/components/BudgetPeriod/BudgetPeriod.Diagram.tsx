@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { breakpoint, fontSize, space } from "theme";
+import { breakpoint, fontSize, space } from "shared/theme";
 
 export const DiagramContainer = styled.div`
   display: flex;

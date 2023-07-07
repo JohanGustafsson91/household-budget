@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { breakpoint, fontSize, space } from "theme";
+import { breakpoint, fontSize, space } from "shared/theme";
 
 export const FormField = styled.div`
   ${space({ mb: 2 })};

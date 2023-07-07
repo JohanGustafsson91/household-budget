@@ -13,7 +13,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { BudgetPeriod } from "shared/BudgetPeriod";
-import { COLLECTION, db } from "utils/firebase";
+import { COLLECTION, db } from "./firebase";
 
 export const getTransactionsForPeriod = (
   period: BudgetPeriod,

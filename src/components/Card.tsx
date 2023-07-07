@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { fontSize, space } from "theme";
+import { fontSize, space } from "shared/theme";
 
 export const CardTitle = styled.span`
   text-transform: uppercase;

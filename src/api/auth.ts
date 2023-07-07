@@ -1,6 +1,6 @@
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "utils/firebase";
+import { auth } from "./firebase";
 
 export const getAuth = () => auth;
 

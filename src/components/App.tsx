@@ -7,7 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import styled from "styled-components";
-import { space } from "theme";
+import { space } from "shared/theme";
 const VisitorProvider = lazy(
   () => import("components/VisitorContext/VisitorContext.Provider")
 );
