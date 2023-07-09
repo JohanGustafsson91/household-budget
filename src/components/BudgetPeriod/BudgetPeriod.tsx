@@ -24,7 +24,11 @@ import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor"
 
 export default function BudgetPeriod() {
   const { id: periodId } = useParams();
-  const { getFriendById: getUserById } = useVisitor();
+  const {
+    getFriendById: getUserById,
+    id: visitorId,
+    name: visitorName,
+  } = useVisitor();
   const { data: period, status: periodStatus, run } = useAsync<PeriodType>();
   const {
     data: transactions = [],
@@ -35,7 +39,11 @@ export default function BudgetPeriod() {
   const [displayForUser, setDisplayForUser] = useState<{
     id: string;
     name: string;
-  }>({ id: "both", name: "tillsammans" });
+  }>(
+    visitorId && visitorName
+      ? { id: visitorId, name: visitorName }
+      : displayAllTransactionsOption
+  );
 
   const [selectedCategory, setSelectedCategory] = useState<
     Category | undefined
@@ -43,11 +51,11 @@ export default function BudgetPeriod() {
   const [view, setView] = useState<"create" | "overview" | "update">(
     "overview"
   );
-  const [transaction, setTransaction] = useState<Transaction | undefined>(
-    undefined
-  );
-  const viewRef = useRef<HTMLDivElement | null>(null);
+  const [transactionToUpdate, setTransactionToUpdate] = useState<
+    Transaction | undefined
+  >(undefined);
 
+  const viewRef = useRef<HTMLDivElement | null>(null);
   useOnClickOutside(viewRef, () => setView("overview"));
 
   useEffect(
@@ -73,20 +81,20 @@ export default function BudgetPeriod() {
   );
 
   useEffect(() => {
-    if (transaction) {
+    if (transactionToUpdate) {
       setView("update");
     }
-  }, [transaction]);
+  }, [transactionToUpdate]);
 
   if (!period) {
     return null;
   }
 
-  const transactionsPerVisitor = transactions.filter(
+  const transactionsToDisplay = transactions.filter(
     ({ author }) => displayForUser.id === "both" || displayForUser.id === author
   );
 
-  const categorizedTransactions = transactionsPerVisitor.reduce((acc, curr) => {
+  const categorizedTransactions = transactionsToDisplay.reduce((acc, curr) => {
     const previous = acc[curr.category] || [];
     return {
       ...acc,
@@ -102,7 +110,7 @@ export default function BudgetPeriod() {
 
   const filteredTransactions = selectedCategory
     ? categorizedTransactions?.[selectedCategory.type] ?? []
-    : transactionsPerVisitor;
+    : transactionsToDisplay;
 
   function handleShowCategory(category: Category) {
     return () =>
@@ -116,10 +124,7 @@ export default function BudgetPeriod() {
       id,
       name: getUserById(id)?.name ?? "",
     })),
-    {
-      id: "both",
-      name: "Tillsammans",
-    },
+    displayAllTransactionsOption,
   ];
 
   return (
@@ -167,10 +172,10 @@ export default function BudgetPeriod() {
           ),
           update: (
             <View ref={viewRef}>
-              {transaction ? (
+              {transactionToUpdate ? (
                 <UpdateTransaction
                   period={period}
-                  transaction={transaction}
+                  transaction={transactionToUpdate}
                   onUpdated={() => setView("overview")}
                 />
               ) : null}
@@ -272,7 +277,7 @@ export default function BudgetPeriod() {
                   return (
                     <ListItem
                       key={transaction.id}
-                      onClick={() => setTransaction(transaction)}
+                      onClick={() => setTransactionToUpdate(transaction)}
                       title={`${userName} ${formattedMoney} till ${transaction.label} för ${categoryName}`}
                     >
                       <ListItemValue minWidth="80px">
@@ -302,6 +307,8 @@ export default function BudgetPeriod() {
 }
 
 const categoriesForBoard = categories.filter(({ type }) => type !== "INCOME");
+
+const displayAllTransactionsOption = { id: "both", name: "Tillsammans" };
 
 function summarize(list: Array<{ amount: number }>) {
   return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
