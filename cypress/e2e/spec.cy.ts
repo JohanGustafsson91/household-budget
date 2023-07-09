@@ -358,7 +358,7 @@ const data = [
     ],
   },
   {
-    member: "tillsammans",
+    member: "Tillsammans",
     summary: [
       { text: "Saldo", value: "46500" },
       { text: "Inkomster", value: "60000" },

@@ -6,12 +6,6 @@ import styled from "styled-components";
 import { fontSize, space } from "shared/theme";
 import backIcon from "./back.icon.svg";
 
-interface ActionBarProps {
-  title?: string;
-  renderMenu?: ({ closeMenu }: { closeMenu: () => void }) => JSX.Element;
-  backNavigationEnabled?: boolean;
-}
-
 export const ActionBar = ({
   title,
   renderMenu,
@@ -19,9 +13,9 @@ export const ActionBar = ({
   backNavigationEnabled = true,
 }: PropsWithChildren<ActionBarProps>) => {
   const { pathname } = useLocation();
-  const popupMenuRef = useRef<HTMLDivElement | null>(null);
   const [menu, setMenu] = useState<"open" | "closed">("closed");
 
+  const popupMenuRef = useRef<HTMLDivElement | null>(null);
   useOnClickOutside(popupMenuRef, () => setMenu("closed"));
 
   return (
@@ -34,10 +28,13 @@ export const ActionBar = ({
             </Link>
           </MenuItem>
         ) : null}
+
         <MenuItem flex={1}>
           <span>{title ?? ""}</span>
         </MenuItem>
+
         <MenuItem>{children}</MenuItem>
+
         <Avatar onClick={() => setMenu("open")}>
           <img
             src="https://st3.depositphotos.com/9998432/13335/v/600/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg"
@@ -45,6 +42,7 @@ export const ActionBar = ({
           />
         </Avatar>
       </Container>
+
       {menu === "open" ? (
         <PopupMenu>
           <PopupMenuContent ref={popupMenuRef}>
@@ -81,7 +79,7 @@ const Avatar = styled.div`
   border-radius: 50%;
   border: 1px solid #e4e4e4;
   overflow: hidden;
-
+  cursor: pointer;
   img {
     height: 100%;
     width: 100%;
@@ -123,5 +121,10 @@ export const PopupMenuItem = styled.div<{ active?: boolean }>`
   ${space({ p: 2 })};
   font-size: ${fontSize(4)};
   font-weight: ${(props) => (props.active ? "bold" : "normal")};
-  text-transform: capitalize;
 `;
+
+interface ActionBarProps {
+  title?: string;
+  renderMenu?: ({ closeMenu }: { closeMenu: () => void }) => JSX.Element;
+  backNavigationEnabled?: boolean;
+}

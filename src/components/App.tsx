@@ -39,11 +39,11 @@ export const App = () => (
           <Routes>
             {[
               {
-                path: routes.login,
+                path: ROUTES.LOGIN,
                 element: (
                   <Page
                     visitorTypes={["anonymous"]}
-                    navigateToPageIfNotAllowed={routes.main}
+                    navigateToPageIfNotAllowed={ROUTES.OVERVIEW_BUDGET_PERIODS}
                   >
                     <Suspense fallback={<div />}>
                       <LoginForm />
@@ -52,7 +52,7 @@ export const App = () => (
                 ),
               },
               {
-                path: routes.main,
+                path: ROUTES.OVERVIEW_BUDGET_PERIODS,
                 element: (
                   <RegisteredVisitorPage>
                     <Suspense fallback={<div />}>
@@ -62,7 +62,7 @@ export const App = () => (
                 ),
               },
               {
-                path: routes.createPeriod,
+                path: ROUTES.CREATE_BUDGET_PERIOD,
                 element: (
                   <RegisteredVisitorPage>
                     <Suspense fallback={<div />}>
@@ -72,7 +72,7 @@ export const App = () => (
                 ),
               },
               {
-                path: routes.period,
+                path: ROUTES.BUDGET_PERIOD,
                 element: (
                   <RegisteredVisitorPage>
                     <Suspense fallback={<div />}>
@@ -95,20 +95,13 @@ export const App = () => (
   </ErrorBoundary>
 );
 
-const routes = Object.freeze({
-  login: "/login",
-  main: "/",
-  createPeriod: "/period/add",
-  period: "/period/:id",
-});
-
 const Page = ({
   visitorTypes,
-  navigateToPageIfNotAllowed = routes.login,
+  navigateToPageIfNotAllowed = ROUTES.LOGIN,
   children,
 }: PropsWithChildren<{
   visitorTypes: VisitorType[];
-  navigateToPageIfNotAllowed?: ValueOf<typeof routes>;
+  navigateToPageIfNotAllowed?: ValueOf<typeof ROUTES>;
 }>) => {
   const { type } = useVisitor();
   const navigate = useNavigate();
@@ -134,6 +127,13 @@ const RegisteredVisitorPage = ({ children }: PropsWithChildren<object>) => (
     </PageWrapper>
   </Page>
 );
+
+const ROUTES = Object.freeze({
+  LOGIN: "/login",
+  OVERVIEW_BUDGET_PERIODS: "/",
+  CREATE_BUDGET_PERIOD: "/period/add",
+  BUDGET_PERIOD: "/period/:id",
+});
 
 const PageWrapper = styled.div`
   display: flex;

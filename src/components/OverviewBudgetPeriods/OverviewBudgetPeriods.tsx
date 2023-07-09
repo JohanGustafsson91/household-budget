@@ -16,7 +16,7 @@ export default function OverviewBudgetPeriods() {
   const navigate = useNavigate();
   const visitor = useVisitor();
   const {
-    status,
+    status: statusBudgetPeriods,
     data: budgetPeriods,
     setData: setBudgetPeriods,
     setError: setBudgetPeriodsError,
@@ -51,7 +51,7 @@ export default function OverviewBudgetPeriods() {
               budgetPeriods.map((period) => {
                 const memberWith = period.members
                   .filter((userId) => userId !== getAuth().currentUser?.uid)
-                  .map((u) => visitor.getFriendById(u)?.name ?? "")
+                  .map((uid) => visitor.getFriendById(uid)?.name ?? "")
                   .join(", ");
 
                 return (
@@ -73,7 +73,7 @@ export default function OverviewBudgetPeriods() {
                         </div>
                       </div>
                       <Button
-                        onClick={function handleDeleteBugdetPeriod(e) {
+                        onClick={function handleDeleteBudgetPeriod(e) {
                           e.stopPropagation();
 
                           return window.confirm(
@@ -92,7 +92,7 @@ export default function OverviewBudgetPeriods() {
             ) : (
               <p>Inga skapade budgetperioder.</p>
             ),
-          }[status]
+          }[statusBudgetPeriods]
         }
       </Container>
       <ActionButton onClick={navigateTo("/period/add")}>+</ActionButton>

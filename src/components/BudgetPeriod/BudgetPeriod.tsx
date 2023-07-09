@@ -118,7 +118,7 @@ export default function BudgetPeriod() {
     })),
     {
       id: "both",
-      name: "tillsammans",
+      name: "Tillsammans",
     },
   ];
 
