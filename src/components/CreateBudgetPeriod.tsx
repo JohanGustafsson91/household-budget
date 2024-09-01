@@ -7,6 +7,7 @@ import { BudgetPeriod } from "shared/BudgetPeriod";
 import { ActionBar } from "components/ActionBar/ActionBar";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 import { DatePicker } from "components/DatePicker";
+import styled from "styled-components";
 
 export default function CreateBudgetPeriod() {
   const visitor = useVisitor();
@@ -55,14 +56,14 @@ export default function CreateBudgetPeriod() {
     <>
       <ActionBar title="Skapa budgetperiod" />
 
-      <form onSubmit={createBudgetPeriod}>
+      <Form onSubmit={createBudgetPeriod}>
         <FormField>
           <Label>
             Från {form.fromDate?.toLocaleDateString()} <div />
           </Label>
           <DatePicker
             locale="sv"
-            maxDate={form.toDate}
+            maxDate={form.toDate ?? undefined}
             name="fromDate"
             selected={form.fromDate}
             onChange={handleUpdateDateInForm("fromDate")}
@@ -76,7 +77,7 @@ export default function CreateBudgetPeriod() {
           <DatePicker
             locale="sv"
             name="toDate"
-            minDate={form.fromDate}
+            minDate={form.fromDate ?? undefined}
             selected={form.toDate}
             onChange={handleUpdateDateInForm("toDate")}
             inline
@@ -111,9 +112,13 @@ export default function CreateBudgetPeriod() {
             Skapa
           </Button>
         </FormField>
-      </form>
+      </Form>
     </>
   );
 }
 
 type Form = Parameters<typeof postBudgetPeriod>[0];
+
+const Form = styled.form`
+  overflow: auto;
+`;
