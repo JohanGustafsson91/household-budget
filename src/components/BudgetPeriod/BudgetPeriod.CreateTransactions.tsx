@@ -130,10 +130,10 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
   );
 
   function goToNextStep() {
-    nextStep && setActiveStep(() => nextStep);
+    if (nextStep) setActiveStep(() => nextStep);
   }
   function goToPreviousStep() {
-    previousStep && setActiveStep(() => previousStep);
+    if (previousStep) setActiveStep(() => previousStep);
   }
 
   return (
