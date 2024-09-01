@@ -70,7 +70,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
           .split("\n")
           .map(function parseLine(line) {
             return line
-              .split(/\t|, /gm)
+              .split(/\t|# /gm)
               .map((t) => t.trim())
               .filter(Boolean);
           })
@@ -148,6 +148,58 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                 value={pastedText}
                 onChange={(e) => setPastedText(e.target.value)}
               />
+              <div>
+                <button
+                  onClick={function formatPastedText() {
+                    const rows = pastedText.trim().split("\n");
+
+                    const formattedRows = rows.reduce(
+                      (acc, row) => {
+                        const trimmedRow = row.trim();
+
+                        const isDate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedRow);
+                        if (isDate) {
+                          return {
+                            ...acc,
+                            currentDate: trimmedRow,
+                          };
+                        }
+
+                        const isAmount = /^-?\d+(,\d{2})?$/.test(
+                          trimmedRow.replace(" ", "")
+                        );
+                        if (isAmount && acc.currentText) {
+                          return {
+                            ...acc,
+                            transactions: `${acc.transactions}\n${acc.currentDate}# ${acc.currentText}# ${trimmedRow}`,
+                            currentText: "",
+                          };
+                        }
+
+                        return {
+                          ...acc,
+                          currentText: trimmedRow,
+                        };
+                      },
+                      {
+                        currentDate: "",
+                        currentText: "",
+                        currentAmount: "",
+                        transactions: "",
+                      } as {
+                        currentDate: string;
+                        currentText: string;
+                        currentAmount: string;
+                        transactions: string;
+                      }
+                    );
+
+                    setPastedText(() => formattedRows.transactions);
+                  }}
+                >
+                  Formatera
+                </button>
+              </div>
             </FormField>
           </div>
         ),

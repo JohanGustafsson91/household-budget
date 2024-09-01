@@ -131,16 +131,14 @@ function addTransactions(member: string) {
 
   const text = input?.reduce((acc, curr, i) => {
     return i % 2 === 0
-      ? `${acc}\n2022-${month}-10\t \t2022-${month}-10\t \t${curr.name}\t \t${curr.amount}`
-      : `${acc}\n2022-${month}-10, 2022-${month}-10, ${curr.name}, ${curr.amount}`;
+      ? `${acc}\n2022-${month}-10\n2022-${month}-10\n${curr.name}\n${curr.amount}\nSALDO`
+      : `${acc}\n2022-${month}-10\n${curr.name}\n${curr.amount}\nSALDO`;
   }, "");
 
   cy.findByRole("textbox").type(text ?? "", { delay: 0 });
 
+  cy.findByRole("button", { name: /formatera/i }).click();
   cy.findByRole("button", { name: /nästa/i }).click();
-  cy.findByTitle(/kostnad nästa/i).click();
-  cy.findByTitle(/namn nästa/i).click();
-  cy.findByTitle(/datum nästa/i).click();
   cy.findByRole("button", { name: /nästa/i }).click();
 
   input?.forEach(({ name, category }) => {
