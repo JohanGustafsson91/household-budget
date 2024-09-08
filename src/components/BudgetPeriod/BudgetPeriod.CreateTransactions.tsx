@@ -2,7 +2,7 @@ import { postTransaction } from "api/transaction";
 import { Title } from "./BudgetPeriod.Title";
 import { FormField, Select, Textarea, Button } from "components/FormElements";
 import { getAuth } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { categories } from "./BudgetPeriod.categories";
 import { useAsync } from "shared/useAsync";
@@ -12,15 +12,21 @@ import { space } from "shared/theme";
 import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
 
 interface Props {
+  allTransactions: Transaction[];
   period: BudgetPeriod;
   onUpdated?: () => unknown;
 }
 
-export const CreateTransactions = ({ period, onUpdated }: Props) => {
+export const CreateTransactions = ({
+  period,
+  onUpdated,
+  allTransactions,
+}: Props) => {
   const [activeStep, setActiveStep] = useState<Step>("paste");
   const [pastedText, setPastedText] = useState("");
   const [parsedPastedText, setParsedPastedText] = useState<string[][]>([]);
   const [transactions, setTransactions] = useState<NewTransaction[]>([]);
+  const refAllTransations = useRef(allTransactions);
   const { run, status } = useAsync<undefined>();
 
   const [tableSettings, setTableSettings] = useState<typeof tableSettingsItems>(
@@ -103,12 +109,20 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
             item[tableSettings.findIndex((i) => i?.type === "amount")],
           ];
 
+          const previousTransaction = refAllTransations.current.find(
+            (t) => t.label.toLowerCase() === label
+          );
+
+          const category = previousTransaction?.category
+            ? previousTransaction.category
+            : amount?.startsWith("-")
+            ? "OTHER"
+            : ("INCOME" as Transaction["category"]);
+
           return date !== null && !Number.isNaN(Number.parseFloat(amount))
             ? {
                 label,
-                category: amount?.startsWith("-")
-                  ? "OTHER"
-                  : ("INCOME" as Transaction["category"]),
+                category,
                 date: new Date(date),
                 amount: Number.parseFloat(
                   amount?.replace(",", ".").replace("-", "").replace(" ", "")

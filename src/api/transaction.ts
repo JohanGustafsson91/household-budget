@@ -11,6 +11,7 @@ import {
   doc,
   setDoc,
   addDoc,
+  getDocs,
 } from "firebase/firestore";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { COLLECTION, db } from "./firebase";
@@ -44,6 +45,34 @@ export const getTransactionsForPeriod = (
     },
     (e) => callbackOnError(e.message)
   );
+
+export const getAllTransactions = (
+  author: string,
+  callbackOnSnapshot: (value: Transaction[]) => void,
+  callbackOnError: (error: string) => void
+) => {
+  const transactionsRef = collection(db, "transactions");
+  const q = query(transactionsRef, where("author", "==", author));
+
+  getDocs(q)
+    .then((querySnapshot) => {
+      const transactions = querySnapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          const docId = doc.id;
+
+          return {
+            ...data,
+            id: docId,
+            date: data.date.toDate(),
+          };
+        })
+        .sort((a, b) => b.date - a.date);
+
+      callbackOnSnapshot(transactions as Transaction[]);
+    })
+    .catch((e) => callbackOnError(e.message));
+};
 
 export const postTransaction = (transaction: NewTransaction) =>
   addDoc(collection(db, COLLECTION["transactions"]), {
