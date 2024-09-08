@@ -110,7 +110,9 @@ export const CreateTransactions = ({
           ];
 
           const previousTransaction = refAllTransations.current.find(
-            (t) => t.label.toLowerCase() === label
+            (prevTransaction) =>
+              prevTransaction.label.trim().toLowerCase() ===
+              label?.trim()?.toLowerCase()
           );
 
           const category = previousTransaction?.category
