@@ -1,5 +1,5 @@
 import { getBudgetPeriodById } from "api/budget-period";
-import { getAllTransactions, getTransactionsForPeriod } from "api/transaction";
+import { getTransactionsForPeriod } from "api/transaction";
 import {
   ActionBar,
   PopupMenuItem,
@@ -34,11 +34,6 @@ export default function BudgetPeriod() {
     data: transactions = [],
     setData: setTransactions,
     setError: setTransactionsError,
-  } = useAsync<Transaction[]>();
-  const {
-    data: allTransactions = [],
-    setData: setAllTransactions,
-    setError: setAllTransactionsError,
   } = useAsync<Transaction[]>();
 
   const [displayForUser, setDisplayForUser] = useState<{
@@ -84,15 +79,6 @@ export default function BudgetPeriod() {
     },
     [period, periodStatus, setTransactions, setTransactionsError]
   );
-
-  useEffect(() => {
-    if (visitorId)
-      getAllTransactions(
-        visitorId,
-        setAllTransactions,
-        setAllTransactionsError
-      );
-  }, [visitorId, setAllTransactions, setAllTransactionsError]);
 
   useEffect(() => {
     if (transactionToUpdate) {
@@ -179,7 +165,6 @@ export default function BudgetPeriod() {
           create: (
             <View ref={viewRef}>
               <CreateTransactions
-                allTransactions={allTransactions}
                 period={period}
                 onUpdated={() => setView("overview")}
               />
