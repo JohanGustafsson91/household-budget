@@ -65,7 +65,7 @@ export default function OverviewBudgetPeriods() {
                     <Content>
                       <div>
                         <Text>
-                          Från {displayDate(period.fromDate)} -{" "}
+                          Från {displayDate(period.fromDate)} till{" "}
                           {displayDate(period.toDate)}
                         </Text>
                         <div>
