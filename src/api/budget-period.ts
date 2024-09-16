@@ -28,11 +28,9 @@ export const getBudgetPeriods = (
     function onSnapshot(querySnapshot) {
       const periods = querySnapshot.docs
         .map((doc) => toBudgetPeriod({ id: doc.id, ...doc.data() }))
-        .sort(
-          (a, b) => b.toDate.getMilliseconds() - a.toDate.getMilliseconds()
-        );
+        .sort((a, b) => b.toDate.getTime() - a.toDate.getTime());
 
-      callbackOnSnapshot(periods as BudgetPeriod[]);
+      callbackOnSnapshot(periods);
     },
     (e) => callbackOnError(e.message)
   );
