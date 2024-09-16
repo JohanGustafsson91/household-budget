@@ -4,7 +4,7 @@ import { FormField, Select, Textarea, Button } from "components/FormElements";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared/BudgetPeriod";
-import { categories } from "./BudgetPeriod.categories";
+import { categories } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
 import shortid from "shortid";
 import styled from "styled-components";

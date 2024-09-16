@@ -3,9 +3,11 @@ import {
   collection,
   deleteDoc,
   doc,
+  DocumentData,
   getDocs,
   onSnapshot,
   query,
+  setDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
@@ -25,19 +27,10 @@ export const getBudgetPeriods = (
     ),
     function onSnapshot(querySnapshot) {
       const periods = querySnapshot.docs
-        .map((doc) => {
-          const data = doc.data();
-
-          return {
-            ...data,
-            id: doc.id,
-            fromDate: data.fromDate.toDate(),
-            toDate: data.toDate.toDate(),
-            createdAt: data.createdAt.toDate(),
-            lastUpdated: data.lastUpdated.toDate(),
-          };
-        })
-        .sort((a, b) => b.toDate - a.toDate);
+        .map((doc) => toBudgetPeriod({ id: doc.id, ...doc.data() }))
+        .sort(
+          (a, b) => b.toDate.getMilliseconds() - a.toDate.getMilliseconds()
+        );
 
       callbackOnSnapshot(periods as BudgetPeriod[]);
     },
@@ -45,17 +38,31 @@ export const getBudgetPeriods = (
   );
 
 export const getBudgetPeriodById = (id: string) =>
-  getDocument(COLLECTION["budgetPeriods"], id).then(
-    (data) =>
-      ({
-        ...data,
-        id,
-        fromDate: data.fromDate.toDate(),
-        toDate: data.toDate.toDate(),
-        createdAt: data.createdAt.toDate(),
-        lastUpdated: data.lastUpdated.toDate(),
-      } as BudgetPeriod)
+  getDocument(COLLECTION["budgetPeriods"], id).then((data) =>
+    toBudgetPeriod({ id, ...data })
   );
+
+const toBudgetPeriod = (data: DocumentData): BudgetPeriod => ({
+  id: data.id,
+  fromDate: data.fromDate.toDate(),
+  toDate: data.toDate.toDate(),
+  createdAt: data.createdAt.toDate(),
+  lastUpdated: data.lastUpdated.toDate(),
+  author: data.author,
+  members: data.members,
+  totalIncome: data.totalIncome ?? 0,
+  totalExpenses: data.totalExpenses ?? 0,
+  categoryExpenseTotals: data.categoryExpenseTotals ?? {
+    INCOME: 0,
+    CLOTHES: 0,
+    FOOD: 0,
+    LIVING: 0,
+    LOAN: 0,
+    OTHER: 0,
+    SAVINGS: 0,
+    TRANSPORT: 0,
+  },
+});
 
 export const postBudgetPeriod = (data: Form) =>
   addDoc(collection(db, COLLECTION["budgetPeriods"]), {
@@ -81,6 +88,19 @@ export const deleteBudgetPeriod = (periodId: string) =>
       return batch.commit();
     }),
   ]);
+
+export const putBudgetPeriod = ({
+  id,
+  data,
+}: {
+  id: string;
+  data: Partial<BudgetPeriod>;
+}) =>
+  setDoc(
+    doc(db, COLLECTION["budgetPeriods"], id),
+    { ...data },
+    { merge: true }
+  );
 
 interface Form {
   fromDate: BudgetPeriod["fromDate"] | null;

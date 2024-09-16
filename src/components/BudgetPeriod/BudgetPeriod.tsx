@@ -1,4 +1,4 @@
-import { getBudgetPeriodById } from "api/budget-period";
+import { getBudgetPeriodById, putBudgetPeriod } from "api/budget-period";
 import { getTransactionsForPeriod } from "api/transaction";
 import {
   ActionBar,
@@ -18,9 +18,10 @@ import * as Diagram from "./BudgetPeriod.Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";
 import { Transaction } from "./BudgetPeriod.Transaction";
 import { UpdateTransaction } from "./BudgetPeriod.UpdateTransaction";
-import { categories, Category } from "./BudgetPeriod.categories";
+import { categories, Category } from "shared/BudgetPeriod";
 import { CreateTransactions } from "./BudgetPeriod.CreateTransactions";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
+import { displayMoney } from "shared/displayMoney";
 
 export default function BudgetPeriod() {
   const { id: periodId } = useParams();
@@ -32,6 +33,7 @@ export default function BudgetPeriod() {
   const { data: period, status: periodStatus, run } = useAsync<PeriodType>();
   const {
     data: transactions = [],
+    status: transactionStatus,
     setData: setTransactions,
     setError: setTransactionsError,
   } = useAsync<Transaction[]>();
@@ -86,27 +88,73 @@ export default function BudgetPeriod() {
     }
   }, [transactionToUpdate]);
 
-  if (!period) {
-    return null;
-  }
-
   const transactionsToDisplay = transactions.filter(
     ({ author }) => displayForUser.id === "both" || displayForUser.id === author
   );
 
-  const categorizedTransactions = transactionsToDisplay.reduce((acc, curr) => {
-    const previous = acc[curr.category] || [];
-    return {
-      ...acc,
-      [curr.category]: [...previous, curr],
-    };
-  }, {} as Record<Category["type"], Transaction[]>);
+  const { categorizedTransactions, totalIncome, totalExpenses, totalLeft } =
+    getSummarizedValues(transactionsToDisplay);
 
-  const income = summarize(categorizedTransactions["INCOME"] || []);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { INCOME, ...rest } = categorizedTransactions;
-  const expenses = summarize(Object.values(rest).flat());
-  const left = income - expenses;
+  const updatePeriodTotalsOnUnmount = useRef<() => void>();
+
+  useEffect(() => {
+    updatePeriodTotalsOnUnmount.current = () => {
+      if (!period?.id || transactionStatus !== "resolved") {
+        return;
+      }
+
+      const { categorizedTransactions, totalIncome, totalExpenses } =
+        getSummarizedValues(transactions);
+
+      const summarizedTotalsForCategories = Object.keys(
+        period.categoryExpenseTotals
+      ).reduce(
+        (acc, key) => ({
+          ...acc,
+          [key]: summarize(
+            categorizedTransactions[key as unknown as Category["type"]] ?? []
+          ),
+        }),
+        {} as PeriodType["categoryExpenseTotals"]
+      );
+
+      const shouldUpdate = Object.keys(period.categoryExpenseTotals).some(
+        (key) =>
+          period.categoryExpenseTotals[key as unknown as Category["type"]] !==
+          summarizedTotalsForCategories[key as unknown as Category["type"]]
+      );
+
+      if (!shouldUpdate) {
+        return;
+      }
+
+      const data = {
+        categoryExpenseTotals: summarizedTotalsForCategories,
+        totalIncome,
+        totalExpenses,
+      };
+
+      putBudgetPeriod({
+        id: period.id,
+        data,
+      });
+    };
+  }, [
+    period?.categoryExpenseTotals,
+    period?.id,
+    transactionStatus,
+    transactions,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      updatePeriodTotalsOnUnmount?.current?.();
+    };
+  }, []);
+
+  if (!period) {
+    return null;
+  }
 
   const filteredTransactions = selectedCategory
     ? categorizedTransactions?.[selectedCategory.type] ?? []
@@ -195,15 +243,15 @@ export default function BudgetPeriod() {
                     })}
                   >
                     <Title>Inkomster</Title>
-                    <Money>{displayMoney(income)}</Money>
+                    <Money>{displayMoney(totalIncome)}</Money>
                   </OverviewItem>
                   <OverviewItem>
                     <Title>Utgifter</Title>
-                    <Money>{displayMoney(expenses)}</Money>
+                    <Money>{displayMoney(totalExpenses)}</Money>
                   </OverviewItem>
                   <OverviewItem>
                     <Title>Saldo</Title>
-                    <Money>{displayMoney(left)}</Money>
+                    <Money>{displayMoney(totalLeft)}</Money>
                   </OverviewItem>
                 </Overview>
 
@@ -213,7 +261,7 @@ export default function BudgetPeriod() {
                       categorizedTransactions?.[category.type] ?? []
                     );
                     let expensesInPercentage = Number(
-                      (expensesForCategory / (income - left)) * 100
+                      (expensesForCategory / (totalIncome - totalLeft)) * 100
                     );
                     expensesInPercentage = isNaN(expensesInPercentage)
                       ? 0
@@ -314,8 +362,27 @@ function summarize(list: Array<{ amount: number }>) {
   return list.reduce((acc, curr) => Number(acc) + Number(curr.amount), 0);
 }
 
-function displayMoney(value: number) {
-  return Math.floor(value);
+function getSummarizedValues(transactions: Transaction[]) {
+  const categorizedTransactions = transactions.reduce((acc, curr) => {
+    const previous = acc[curr.category] || [];
+    return {
+      ...acc,
+      [curr.category]: [...previous, curr],
+    };
+  }, {} as Record<Category["type"], Transaction[]>);
+
+  const totalIncome = summarize(categorizedTransactions["INCOME"] || []);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { INCOME, ...rest } = categorizedTransactions;
+  const totalExpenses = summarize(Object.values(rest).flat());
+  const totalLeft = totalIncome - totalExpenses;
+
+  return {
+    totalIncome,
+    totalExpenses,
+    totalLeft,
+    categorizedTransactions,
+  };
 }
 
 const OverviewContainer = styled.div`

@@ -11,6 +11,8 @@ import { displayDate } from "utils/date";
 import { ActionBar } from "components/ActionBar/ActionBar";
 import { fontSize, space } from "shared/theme";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
+import { categories } from "shared/BudgetPeriod";
+import { displayMoney } from "shared/displayMoney";
 
 export default function OverviewBudgetPeriods() {
   const navigate = useNavigate();
@@ -86,6 +88,40 @@ export default function OverviewBudgetPeriods() {
                         Ta bort
                       </Button>
                     </Content>
+                    <CardRow>
+                      <div>
+                        <Label>Inkomster</Label>
+                        <div>{displayMoney(period.totalIncome)} kr</div>
+                      </div>
+                      <div>
+                        <Label>Utgifter</Label>
+                        <div>{displayMoney(period.totalExpenses)} kr</div>
+                      </div>
+                      <div>
+                        <Label>Saldo</Label>
+                        <div>
+                          {displayMoney(
+                            period.totalIncome - period.totalExpenses
+                          )}{" "}
+                          kr
+                        </div>
+                      </div>
+                    </CardRow>
+                    <CardRow>
+                      {categories.map((category) =>
+                        category.type !== "INCOME" ? (
+                          <div key={category.type}>
+                            <Label>{category.text}</Label>
+                            <div>
+                              {displayMoney(
+                                period.categoryExpenseTotals[category.type]
+                              )}{" "}
+                              kr
+                            </div>
+                          </div>
+                        ) : null
+                      )}
+                    </CardRow>
                   </Card>
                 );
               })
@@ -144,5 +180,17 @@ const ActionButton = styled.button`
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   font-size: ${fontSize(4)};
+  font-weight: bold;
+`;
+
+const CardRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  ${space({ mt: 3 })};
+`;
+
+const Label = styled.div`
+  min-width: 80px;
   font-weight: bold;
 `;

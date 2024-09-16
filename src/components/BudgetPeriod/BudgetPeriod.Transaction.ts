@@ -1,4 +1,4 @@
-import { Category } from "./BudgetPeriod.categories";
+import { Category } from "shared/BudgetPeriod";
 
 export interface Transaction {
   label: string;

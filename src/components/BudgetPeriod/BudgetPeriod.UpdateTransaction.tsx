@@ -12,7 +12,7 @@ import { putTransaction, deleteTransaction } from "api/transaction";
 import { Title } from "./BudgetPeriod.Title";
 import { useAsync } from "shared/useAsync";
 import { Transaction } from "./BudgetPeriod.Transaction";
-import { categories } from "./BudgetPeriod.categories";
+import { categories } from "shared/BudgetPeriod";
 import { DatePicker } from "components/DatePicker";
 
 export const UpdateTransaction = ({
