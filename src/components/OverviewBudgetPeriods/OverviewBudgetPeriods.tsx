@@ -2,7 +2,7 @@ import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
 import { Button } from "components/FormElements";
 import { Loading } from "./OverviewBudgetPeriods.Loading";
 import { getAuth } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
@@ -23,12 +23,13 @@ export default function OverviewBudgetPeriods() {
     setData: setBudgetPeriods,
     setError: setBudgetPeriodsError,
   } = useAsync<BudgetPeriod[]>();
+  const [filter, setFilter] = useState<Date | undefined>(dateStartOfYear);
 
   useEffect(
     function subscribeToBudgetPeriods() {
-      return getBudgetPeriods(setBudgetPeriods, setBudgetPeriodsError);
+      return getBudgetPeriods(setBudgetPeriods, setBudgetPeriodsError, filter);
     },
-    [setBudgetPeriods, setBudgetPeriodsError]
+    [setBudgetPeriods, setBudgetPeriodsError, filter]
   );
 
   function navigateTo(url: string) {
@@ -38,6 +39,27 @@ export default function OverviewBudgetPeriods() {
   return (
     <>
       <ActionBar title={`Välkommen ${visitor.name}`} />
+
+      <FilterText>
+        Visa från{" "}
+        <a
+          onClick={() => setFilter(dateStartOfYear)}
+          style={{
+            textDecoration: filter !== undefined ? "underline" : "none",
+          }}
+        >
+          det här året
+        </a>{" "}
+        /{" "}
+        <a
+          onClick={() => setFilter(undefined)}
+          style={{
+            textDecoration: filter === undefined ? "underline" : "none",
+          }}
+        >
+          föralltid
+        </a>
+      </FilterText>
 
       <Container>
         {
@@ -136,6 +158,8 @@ export default function OverviewBudgetPeriods() {
   );
 }
 
+const dateStartOfYear = new Date(new Date().getFullYear(), 0, 1);
+
 const Container = styled.div`
   overflow-y: auto;
 `;
@@ -193,4 +217,13 @@ const CardRow = styled.div`
 const Label = styled.div`
   min-width: 80px;
   font-weight: bold;
+`;
+
+const FilterText = styled.div`
+  ${space({ mb: 3 })};
+
+  a {
+    cursor: pointer;
+    font-weight: bold;
+  }
 `;

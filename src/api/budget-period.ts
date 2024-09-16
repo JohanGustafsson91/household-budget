@@ -18,12 +18,18 @@ import { getAuth } from "./auth";
 
 export const getBudgetPeriods = (
   callbackOnSnapshot: (value: BudgetPeriod[]) => void,
-  callbackOnError: (error: string) => void
-) =>
+  callbackOnError: (error: string) => void,
+  fromDate?: Date
+) => {
+  const filter = fromDate
+    ? [where("fromDate", ">=", fromDate ? new Date(fromDate.getTime()) : -1)]
+    : [];
+
   onSnapshot(
     query(
       collection(db, COLLECTION["budgetPeriods"]),
-      where("members", "array-contains", auth.currentUser?.uid ?? "")
+      where("members", "array-contains", auth.currentUser?.uid ?? ""),
+      ...filter
     ),
     function onSnapshot(querySnapshot) {
       const periods = querySnapshot.docs
@@ -34,6 +40,7 @@ export const getBudgetPeriods = (
     },
     (e) => callbackOnError(e.message)
   );
+};
 
 export const getBudgetPeriodById = (id: string) =>
   getDocument(COLLECTION["budgetPeriods"], id).then((data) =>
