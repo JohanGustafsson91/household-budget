@@ -158,7 +158,7 @@ const Text = styled.span`
 `;
 
 const Card = styled.div<{ height?: string }>`
-  ${space({ p: 3, mb: 3 })};
+  ${space({ p: 3, m: 1, mb: 3 })};
   min-height: ${(props) => props.height ?? "auto"};
   height: ${(props) => props.height ?? "auto"};
   background-color: var(--color-background-card);
