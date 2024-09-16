@@ -46,6 +46,8 @@ export default function BudgetPeriod() {
       ? { id: visitorId, name: visitorName }
       : displayAllTransactionsOption
   );
+  const [showTypeOfTransactions, setShowTypeOfTransactions] =
+    useState<ShowType>("all");
 
   const [selectedCategory, setSelectedCategory] = useState<
     Category | undefined
@@ -88,9 +90,18 @@ export default function BudgetPeriod() {
     }
   }, [transactionToUpdate]);
 
-  const transactionsToDisplay = transactions.filter(
-    ({ author }) => displayForUser.id === "both" || displayForUser.id === author
-  );
+  const transactionsToDisplay = transactions
+    .filter(
+      ({ author }) =>
+        displayForUser.id === "both" || displayForUser.id === author
+    )
+    .filter((transaction) => {
+      return {
+        all: () => transaction,
+        required: () => !transaction.optional,
+        optional: () => transaction.optional,
+      }[showTypeOfTransactions]();
+    });
 
   const { categorizedTransactions, totalIncome, totalExpenses, totalLeft } =
     getSummarizedValues(transactionsToDisplay);
@@ -307,12 +318,33 @@ export default function BudgetPeriod() {
               </OverviewContainer>
 
               <List>
-                <h3>
-                  Transaktioner {displayForUser.name}{" "}
-                  {selectedCategory
-                    ? `för ${selectedCategory.text.toLowerCase()}`
-                    : ""}
-                </h3>
+                <ItemHeader>
+                  <h3>
+                    Transaktioner {displayForUser.name}{" "}
+                    {selectedCategory
+                      ? `för ${selectedCategory.text.toLowerCase()}`
+                      : ""}
+                  </h3>
+                  <select
+                    value={showTypeOfTransactions}
+                    onChange={(e) =>
+                      setShowTypeOfTransactions(e.target.value as ShowType)
+                    }
+                  >
+                    {["all", "required", "optional"].map((item) => (
+                      <option key={item} value={item}>
+                        {
+                          {
+                            all: "Alla",
+                            required: "Nödvändiga",
+                            optional: "Onödiga",
+                          }[item]
+                        }
+                      </option>
+                    ))}
+                  </select>
+                </ItemHeader>
+
                 {filteredTransactions.map((transaction) => {
                   const userName = getUserById(transaction.author)?.name;
                   const categoryName = categories.find(
@@ -384,6 +416,8 @@ function getSummarizedValues(transactions: Transaction[]) {
     categorizedTransactions,
   };
 }
+
+type ShowType = "all" | "required" | "optional";
 
 const OverviewContainer = styled.div`
   display: flex;
@@ -468,4 +502,13 @@ const View = styled.div`
 const ModeButton = styled.div`
   width: 50px;
   cursor: pointer;
+`;
+
+const ItemHeader = styled.div`
+  display: flex;
+  align-items: center;
+
+  :first-child {
+    flex: 1;
+  }
 `;

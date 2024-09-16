@@ -36,6 +36,7 @@ export const getTransactionsForPeriod = (
             ...data,
             id: docId,
             date: data.date.toDate(),
+            optional: Boolean(data.optional),
           };
         })
         .sort((a, b) => b.date - a.date);

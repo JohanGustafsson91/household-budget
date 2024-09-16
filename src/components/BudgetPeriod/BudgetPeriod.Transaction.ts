@@ -9,6 +9,7 @@ export interface Transaction {
   date: Date;
   key: string;
   shared: boolean;
+  optional: boolean;
 }
 
 export interface NewTransaction {
@@ -22,4 +23,5 @@ export interface NewTransaction {
   periodId: string;
   id: string;
   shared: boolean;
+  optional: boolean;
 }

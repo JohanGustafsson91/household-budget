@@ -119,6 +119,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                 periodId: period.id,
                 id: shortid(),
                 shared: false,
+                optional: false,
               }
             : undefined;
         })
@@ -266,6 +267,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                   <th>Namn</th>
                   <th>Belopp</th>
                   <th>Kategori</th>
+                  <th>Nödvändig</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,6 +299,24 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                           </option>
                         ))}
                       </Select>
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={!transaction.optional}
+                        onChange={(e) =>
+                          setTransactions((prev) =>
+                            prev.map((previousTransaction) =>
+                              previousTransaction.id === transaction.id
+                                ? {
+                                    ...previousTransaction,
+                                    optional: !e.target.checked,
+                                  }
+                                : previousTransaction
+                            )
+                          )
+                        }
+                      />
                     </td>
                   </tr>
                 ))}

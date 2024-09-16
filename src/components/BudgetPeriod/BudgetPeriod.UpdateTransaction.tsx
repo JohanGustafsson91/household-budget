@@ -29,6 +29,7 @@ export const UpdateTransaction = ({
     amount: transaction.amount,
     date: transaction.date,
     shared: transaction.shared,
+    optional: transaction.optional,
   }));
 
   const focusRef = useRef<HTMLInputElement | null>(null);
@@ -138,6 +139,25 @@ export const UpdateTransaction = ({
               type="checkbox"
               checked={form.shared}
               onChange={updateForm}
+            />
+          </Label>
+        </FormField>
+        <FormField>
+          <Label>
+            Nödvändig?
+            <Checkbox
+              name="optional"
+              type="checkbox"
+              checked={form.optional === false}
+              onChange={() =>
+                updateForm({
+                  target: {
+                    name: "optional",
+                    type: "checkbox",
+                    checked: !form.optional,
+                  },
+                } as ChangeEvent<HTMLInputElement | HTMLSelectElement>)
+              }
             />
           </Label>
         </FormField>
