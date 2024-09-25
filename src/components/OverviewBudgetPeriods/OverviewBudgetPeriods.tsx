@@ -4,7 +4,7 @@ import { Loading } from "./OverviewBudgetPeriods.Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BudgetPeriod } from "shared/BudgetPeriod";
+import { BudgetPeriod, Category } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils/date";
@@ -13,6 +13,16 @@ import { fontSize, space } from "shared/theme";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 import { categories } from "shared/BudgetPeriod";
 import { displayMoney } from "shared/displayMoney";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function OverviewBudgetPeriods() {
   const navigate = useNavigate();
@@ -36,29 +46,38 @@ export default function OverviewBudgetPeriods() {
     return () => navigate(url);
   }
 
+  const linechartData = budgetPeriods
+    ?.map((entry) => ({
+      Datum: new Date(entry.fromDate).toLocaleDateString(),
+      Kläder: displayMoney(entry.categoryExpenseTotals.CLOTHES),
+      Mat: displayMoney(entry.categoryExpenseTotals.FOOD),
+      Boende: displayMoney(entry.categoryExpenseTotals.LIVING),
+      Transport: displayMoney(entry.categoryExpenseTotals.TRANSPORT),
+      Övrigt: displayMoney(entry.categoryExpenseTotals.OTHER),
+      Sparande: displayMoney(entry.categoryExpenseTotals.SAVINGS),
+      Lån: displayMoney(entry.categoryExpenseTotals.LOAN),
+    }))
+    .reverse();
+
+  const averages = averageCategoryExpenses(budgetPeriods ?? []);
+
   return (
     <>
       <ActionBar title={`Välkommen ${visitor.name}`} />
 
       <FilterText>
-        Visa från{" "}
-        <a
-          onClick={() => setFilter(dateStartOfYear)}
-          style={{
-            textDecoration: filter !== undefined ? "underline" : "none",
+        <select
+          onChange={(e) => {
+            setFilter(new Date(e.target.value));
           }}
+          value={filter?.toString()}
         >
-          det här året
-        </a>{" "}
-        /{" "}
-        <a
-          onClick={() => setFilter(undefined)}
-          style={{
-            textDecoration: filter === undefined ? "underline" : "none",
-          }}
-        >
-          föralltid
-        </a>
+          {filterSelections.map((item) => (
+            <option key={item.label} value={item.value.toString()}>
+              {item.label}
+            </option>
+          ))}
+        </select>
       </FilterText>
 
       <Container>
@@ -72,81 +91,133 @@ export default function OverviewBudgetPeriods() {
             ),
             rejected: <p>Kunde inte hämta budgetperioder...</p>,
             resolved: budgetPeriods?.length ? (
-              budgetPeriods.map((period) => {
-                const memberWith = period.members
-                  .filter((userId) => userId !== getAuth().currentUser?.uid)
-                  .map((uid) => visitor.getFriendById(uid)?.name ?? "")
-                  .join(", ");
+              <div>
+                <ContainerAverage>
+                  <h2>Genomsnitt</h2>
+                  <CategoryList>
+                    {Object.values(categories).map((value) => {
+                      const average = averages[value.type];
+                      return (
+                        <CategoryItem key={value.type}>
+                          <CategoryName>{value.text}</CategoryName>
+                          <AverageValue>
+                            {displayMoney(average)} kr
+                          </AverageValue>
+                        </CategoryItem>
+                      );
+                    })}
+                  </CategoryList>
+                </ContainerAverage>
 
-                return (
-                  <Card
-                    key={period.id}
-                    onClick={navigateTo(`/period/${period.id}`)}
-                    role="listitem"
+                <h2>Utgifter över tid</h2>
+                <ResponsiveContainer width="100%" height={500}>
+                  <LineChart
+                    data={linechartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
-                    <Content>
-                      <div>
-                        <Text>
-                          Från {displayDate(period.fromDate)} till{" "}
-                          {displayDate(period.toDate)}
-                        </Text>
-                        <div>
-                          {memberWith.length
-                            ? `Tillsammans med ${memberWith}`
-                            : ""}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={function handleDeleteBudgetPeriod(e) {
-                          e.stopPropagation();
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="Datum" />
+                    <YAxis interval={0} tickCount={15} />
+                    <Tooltip />
+                    <Legend />
+                    {[
+                      { dataKey: "Kläder", stroke: "#8884d8" },
+                      { dataKey: "Mat", stroke: "#82ca9d" },
+                      { dataKey: "Boende", stroke: "#ffc658" },
+                      { dataKey: "Transport", stroke: "#ff7300" },
+                      { dataKey: "Övrigt", stroke: "#387908" },
+                      { dataKey: "Sparande", stroke: "#8884d8" },
+                      { dataKey: "Lån", stroke: "#888410" },
+                    ].map((line, index) => (
+                      <Line
+                        key={index}
+                        type="monotone"
+                        dataKey={line.dataKey}
+                        stroke={line.stroke}
+                        strokeLinecap="butt"
+                        strokeWidth={2}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
 
-                          return window.confirm(
-                            "Är du säker på att du vill ta bort budgetperioden?"
-                          )
-                            ? deleteBudgetPeriod(period.id)
-                            : undefined;
-                        }}
-                      >
-                        Ta bort
-                      </Button>
-                    </Content>
-                    <CardRow>
-                      <div>
-                        <Label>Inkomster</Label>
-                        <div>{displayMoney(period.totalIncome)} kr</div>
-                      </div>
-                      <div>
-                        <Label>Utgifter</Label>
-                        <div>{displayMoney(period.totalExpenses)} kr</div>
-                      </div>
-                      <div>
-                        <Label>Saldo</Label>
+                <h2>Perioder</h2>
+                {budgetPeriods.map((period) => {
+                  const memberWith = period.members
+                    .filter((userId) => userId !== getAuth().currentUser?.uid)
+                    .map((uid) => visitor.getFriendById(uid)?.name ?? "")
+                    .join(", ");
+
+                  return (
+                    <Card
+                      key={period.id}
+                      onClick={navigateTo(`/period/${period.id}`)}
+                      role="listitem"
+                    >
+                      <Content>
                         <div>
-                          {displayMoney(
-                            period.totalIncome - period.totalExpenses
-                          )}{" "}
-                          kr
-                        </div>
-                      </div>
-                    </CardRow>
-                    <CardRow>
-                      {categories.map((category) =>
-                        category.type !== "INCOME" ? (
-                          <div key={category.type}>
-                            <Label>{category.text}</Label>
-                            <div>
-                              {displayMoney(
-                                period.categoryExpenseTotals[category.type]
-                              )}{" "}
-                              kr
-                            </div>
+                          <Text>
+                            Från {displayDate(period.fromDate)} till{" "}
+                            {displayDate(period.toDate)}
+                          </Text>
+                          <div>
+                            {memberWith.length
+                              ? `Tillsammans med ${memberWith}`
+                              : ""}
                           </div>
-                        ) : null
-                      )}
-                    </CardRow>
-                  </Card>
-                );
-              })
+                        </div>
+                        <Button
+                          onClick={function handleDeleteBudgetPeriod(e) {
+                            e.stopPropagation();
+
+                            return window.confirm(
+                              "Är du säker på att du vill ta bort budgetperioden?"
+                            )
+                              ? deleteBudgetPeriod(period.id)
+                              : undefined;
+                          }}
+                        >
+                          Ta bort
+                        </Button>
+                      </Content>
+                      <CardRow>
+                        <div>
+                          <Label>Inkomster</Label>
+                          <div>{displayMoney(period.totalIncome)} kr</div>
+                        </div>
+                        <div>
+                          <Label>Utgifter</Label>
+                          <div>{displayMoney(period.totalExpenses)} kr</div>
+                        </div>
+                        <div>
+                          <Label>Saldo</Label>
+                          <div>
+                            {displayMoney(
+                              period.totalIncome - period.totalExpenses
+                            )}{" "}
+                            kr
+                          </div>
+                        </div>
+                      </CardRow>
+                      <CardRow>
+                        {categories.map((category) =>
+                          category.type !== "INCOME" ? (
+                            <div key={category.type}>
+                              <Label>{category.text}</Label>
+                              <div>
+                                {displayMoney(
+                                  period.categoryExpenseTotals[category.type]
+                                )}{" "}
+                                kr
+                              </div>
+                            </div>
+                          ) : null
+                        )}
+                      </CardRow>
+                    </Card>
+                  );
+                })}
+              </div>
             ) : (
               <p>Inga skapade budgetperioder.</p>
             ),
@@ -158,7 +229,44 @@ export default function OverviewBudgetPeriods() {
   );
 }
 
-const dateStartOfYear = new Date(new Date().getFullYear(), 0, 1);
+const today = new Date();
+
+const dateStartOfYear = new Date(today.getFullYear(), 0, 1);
+
+const filterSelections = [
+  {
+    label: "Det här året",
+    value: dateStartOfYear,
+  },
+  ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((number) => ({
+    label: `Senaste ${number + 1} månaderna`,
+    value: new Date(new Date().setMonth(today.getMonth() - number)),
+  })),
+  {
+    label: "Sen start",
+    value: -1,
+  },
+];
+
+const averageCategoryExpenses = (expenses: BudgetPeriod[]) => {
+  const totals = expenses.reduce((acc, curr) => {
+    for (const category in curr.categoryExpenseTotals) {
+      if (!acc[category]) {
+        acc[category] = { total: 0, count: 0 };
+      }
+      acc[category].total +=
+        curr.categoryExpenseTotals[category as Category["type"]];
+      acc[category].count += 1;
+    }
+    return acc;
+  }, {} as Record<string, { total: number; count: number }>);
+
+  const averages: Record<string, number> = {};
+  for (const category in totals) {
+    averages[category] = totals[category].total / totals[category].count;
+  }
+  return averages;
+};
 
 const Container = styled.div`
   overflow-y: auto;
@@ -226,4 +334,35 @@ const FilterText = styled.div`
     cursor: pointer;
     font-weight: bold;
   }
+`;
+
+const ContainerAverage = styled.div`
+  ${space({ p: 3, mb: 4 })};
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+`;
+
+const CategoryList = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+`;
+
+const CategoryItem = styled.div`
+  ${space({ p: 3 })};
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+`;
+
+const CategoryName = styled.span`
+  font-weight: bold;
+  color: #333;
+`;
+
+const AverageValue = styled.span`
+  color: #555;
+  float: right;
 `;

@@ -40,7 +40,8 @@ describe("Manage budget", () => {
   });
 
   it("should select previously created period", () => {
-    cy.findAllByRole("listitem").first().click();
+    cy.scrollTo("bottom", { ensureScrollable: false });
+    cy.findAllByRole("listitem").last().click();
   });
 
   it("should add multiple transactions at once for Charlie", () => {
