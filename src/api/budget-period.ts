@@ -19,10 +19,10 @@ import { getAuth } from "./auth";
 export const getBudgetPeriods = (
   callbackOnSnapshot: (value: BudgetPeriod[]) => void,
   callbackOnError: (error: string) => void,
-  fromDate?: Date
+  toDate?: Date
 ) => {
-  const filter = fromDate
-    ? [where("fromDate", ">=", fromDate ? new Date(fromDate.getTime()) : -1)]
+  const filter = toDate
+    ? [where("toDate", ">=", toDate ? new Date(toDate.getTime()) : -1)]
     : [];
 
   onSnapshot(
@@ -38,7 +38,10 @@ export const getBudgetPeriods = (
 
       callbackOnSnapshot(periods);
     },
-    (e) => callbackOnError(e.message)
+    (e) => {
+      console.log(e);
+      callbackOnError(e.message);
+    }
   );
 };
 
