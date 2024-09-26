@@ -33,11 +33,18 @@ export default function OverviewBudgetPeriods() {
     setData: setBudgetPeriods,
     setError: setBudgetPeriodsError,
   } = useAsync<BudgetPeriod[]>();
-  const [filter, setFilter] = useState<Date | undefined>(dateStartOfYear);
+  const [filter, setFilter] = useState<Filter>({
+    date: filterSelections[2].date as Date,
+    excludeLatestPeriodInAverage: true,
+  });
 
   useEffect(
     function subscribeToBudgetPeriods() {
-      return getBudgetPeriods(setBudgetPeriods, setBudgetPeriodsError, filter);
+      return getBudgetPeriods(
+        setBudgetPeriods,
+        setBudgetPeriodsError,
+        filter.date
+      );
     },
     [setBudgetPeriods, setBudgetPeriodsError, filter]
   );
@@ -59,7 +66,10 @@ export default function OverviewBudgetPeriods() {
     }))
     .reverse();
 
-  const averages = averageCategoryExpenses(budgetPeriods ?? []);
+  const [, ...restOfPeriods] = budgetPeriods ?? [];
+  const averages = averageCategoryExpenses(
+    filter.excludeLatestPeriodInAverage ? restOfPeriods : budgetPeriods ?? []
+  );
 
   return (
     <>
@@ -68,28 +78,37 @@ export default function OverviewBudgetPeriods() {
       <FilterText>
         <select
           onChange={(e) => {
-            setFilter(new Date(e.target.value));
+            setFilter((prev) => ({ ...prev, date: new Date(e.target.value) }));
           }}
-          value={filter?.toString()}
+          value={filter.date?.toString()}
         >
           {filterSelections.map((item) => (
-            <option key={item.label} value={item.value.toString()}>
+            <option key={item.label} value={item.date.toString()}>
               {item.label}
             </option>
           ))}
         </select>
+        <input
+          type="checkbox"
+          checked={filter.excludeLatestPeriodInAverage}
+          onChange={() =>
+            setFilter((prev) => ({
+              ...prev,
+              excludeLatestPeriodInAverage: !prev.excludeLatestPeriodInAverage,
+            }))
+          }
+        />{" "}
+        Exkludera nuvarande period
       </FilterText>
 
       <Container>
         {
           {
-            idle: null,
             pending: (
               <Loading fullPage={false}>
                 <p>Hämtar budgetperioder...</p>
               </Loading>
             ),
-            rejected: <p>Kunde inte hämta budgetperioder...</p>,
             resolved: budgetPeriods?.length ? (
               <div>
                 <ContainerAverage>
@@ -221,6 +240,8 @@ export default function OverviewBudgetPeriods() {
             ) : (
               <p>Inga skapade budgetperioder.</p>
             ),
+            rejected: <p>Kunde inte hämta budgetperioder...</p>,
+            idle: null,
           }[statusBudgetPeriods]
         }
       </Container>
@@ -236,15 +257,15 @@ const dateStartOfYear = new Date(today.getFullYear(), 0, 1);
 const filterSelections = [
   {
     label: "Det här året",
-    value: dateStartOfYear,
+    date: dateStartOfYear,
   },
   ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((number) => ({
     label: `Senaste ${number + 1} månaderna`,
-    value: new Date(new Date().setMonth(today.getMonth() - number)),
+    date: new Date(new Date().setMonth(today.getMonth() - number)),
   })),
   {
     label: "Sen start",
-    value: -1,
+    date: -1,
   },
 ];
 
@@ -267,6 +288,11 @@ const averageCategoryExpenses = (expenses: BudgetPeriod[]) => {
   }
   return averages;
 };
+
+interface Filter {
+  date: Date | undefined;
+  excludeLatestPeriodInAverage: boolean;
+}
 
 const Container = styled.div`
   overflow-y: auto;
@@ -330,9 +356,8 @@ const Label = styled.div`
 const FilterText = styled.div`
   ${space({ mb: 3 })};
 
-  a {
-    cursor: pointer;
-    font-weight: bold;
+  select {
+    ${space({ mr: 2 })};
   }
 `;
 
