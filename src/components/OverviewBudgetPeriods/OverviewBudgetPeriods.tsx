@@ -161,31 +161,29 @@ export default function OverviewBudgetPeriods() {
                 </ResponsiveContainer>
 
                 <h2>Perioder</h2>
-                {budgetPeriods.map((period) => {
-                  const memberWith = period.members
-                    .filter((userId) => userId !== getAuth().currentUser?.uid)
-                    .map((uid) => visitor.getFriendById(uid)?.name ?? "")
-                    .join(", ");
+                <CardContainer>
+                  {budgetPeriods.map((period) => {
+                    const memberWith = period.members
+                      .filter((userId) => userId !== getAuth().currentUser?.uid)
+                      .map((uid) => visitor.getFriendById(uid)?.name ?? "")
+                      .join(", ");
 
-                  return (
-                    <Card
-                      key={period.id}
-                      onClick={navigateTo(`/period/${period.id}`)}
-                      role="listitem"
-                    >
-                      <Content>
-                        <div>
-                          <Text>
-                            Från {displayDate(period.fromDate)} till{" "}
-                            {displayDate(period.toDate)}
-                          </Text>
-                          <div>
-                            {memberWith.length
-                              ? `Tillsammans med ${memberWith}`
-                              : ""}
-                          </div>
-                        </div>
-                        <Button
+                    return (
+                      <PeriodCardContainer
+                        key={period.id}
+                        onClick={navigateTo(`/period/${period.id}`)}
+                        role="listitem"
+                      >
+                        <PeriodCardHeader>
+                          Från {displayDate(period.fromDate)} till{" "}
+                          {displayDate(period.toDate)}
+                        </PeriodCardHeader>
+                        <PeriodCardSubHeader>
+                          {memberWith.length
+                            ? `Tillsammans med ${memberWith}`
+                            : ""}
+                        </PeriodCardSubHeader>
+                        <PeriodCardRemoveButton
                           onClick={function handleDeleteBudgetPeriod(e) {
                             e.stopPropagation();
 
@@ -197,45 +195,55 @@ export default function OverviewBudgetPeriods() {
                           }}
                         >
                           Ta bort
-                        </Button>
-                      </Content>
-                      <CardRow>
-                        <div>
-                          <Label>Inkomster</Label>
-                          <div>{displayMoney(period.totalIncome)} kr</div>
-                        </div>
-                        <div>
-                          <Label>Utgifter</Label>
-                          <div>{displayMoney(period.totalExpenses)} kr</div>
-                        </div>
-                        <div>
-                          <Label>Saldo</Label>
-                          <div>
+                        </PeriodCardRemoveButton>
+
+                        <PeriodCardFinancialSummary>
+                          <PeriodCardCategory>Inkomster</PeriodCardCategory>
+                          <PeriodCardAmount>
+                            {displayMoney(period.totalIncome)} kr
+                          </PeriodCardAmount>
+                        </PeriodCardFinancialSummary>
+                        <PeriodCardFinancialSummary>
+                          <PeriodCardCategory>Utgifter</PeriodCardCategory>
+                          <PeriodCardAmount>
+                            {displayMoney(period.totalExpenses)} kr
+                          </PeriodCardAmount>
+                        </PeriodCardFinancialSummary>
+                        <PeriodCardFinancialSummary>
+                          <PeriodCardCategory>Saldo</PeriodCardCategory>
+                          <PeriodCardAmount>
+                            {" "}
                             {displayMoney(
                               period.totalIncome - period.totalExpenses
                             )}{" "}
                             kr
-                          </div>
-                        </div>
-                      </CardRow>
-                      <CardRow>
-                        {categories.map((category) =>
-                          category.type !== "INCOME" ? (
-                            <div key={category.type}>
-                              <Label>{category.text}</Label>
-                              <div>
-                                {displayMoney(
-                                  period.categoryExpenseTotals[category.type]
-                                )}{" "}
-                                kr
-                              </div>
-                            </div>
-                          ) : null
-                        )}
-                      </CardRow>
-                    </Card>
-                  );
-                })}
+                          </PeriodCardAmount>
+                        </PeriodCardFinancialSummary>
+
+                        <PeriodCardFinancialDetails>
+                          <PeriodCardSummaryTitle>
+                            Kategorier
+                          </PeriodCardSummaryTitle>
+                          {categories.map((category) =>
+                            category.type !== "INCOME" ? (
+                              <PeriodCardFinancialSummary key={category.type}>
+                                <PeriodCardCategory>
+                                  {category.text}
+                                </PeriodCardCategory>
+                                <PeriodCardAmount>
+                                  {displayMoney(
+                                    period.categoryExpenseTotals[category.type]
+                                  )}{" "}
+                                  kr
+                                </PeriodCardAmount>
+                              </PeriodCardFinancialSummary>
+                            ) : null
+                          )}
+                        </PeriodCardFinancialDetails>
+                      </PeriodCardContainer>
+                    );
+                  })}
+                </CardContainer>
               </div>
             ) : (
               <p>Inga skapade budgetperioder.</p>
@@ -298,33 +306,6 @@ const Container = styled.div`
   overflow-y: auto;
 `;
 
-const Content = styled.div`
-  display: flex;
-  align-items: center;
-
-  div {
-    flex: 1;
-  }
-
-  ${Button} {
-    float: right;
-  }
-`;
-
-const Text = styled.span`
-  font-weight: bold;
-`;
-
-const Card = styled.div<{ height?: string }>`
-  ${space({ p: 3, m: 1, mb: 3 })};
-  min-height: ${(props) => props.height ?? "auto"};
-  height: ${(props) => props.height ?? "auto"};
-  background-color: var(--color-background-card);
-  border-radius: 8px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-  cursor: ${(props) => (props.onClick ? "pointer" : "default")};
-`;
-
 const ActionButton = styled.button`
   position: fixed;
   ${space({ b: 3, r: 3 })};
@@ -338,18 +319,6 @@ const ActionButton = styled.button`
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   font-size: ${fontSize(4)};
-  font-weight: bold;
-`;
-
-const CardRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  ${space({ mt: 3 })};
-`;
-
-const Label = styled.div`
-  min-width: 80px;
   font-weight: bold;
 `;
 
@@ -372,7 +341,7 @@ const CategoryList = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 20px;
+  ${space({ mt: 4 })};
 `;
 
 const CategoryItem = styled.div`
@@ -390,4 +359,72 @@ const CategoryName = styled.span`
 const AverageValue = styled.span`
   color: #555;
   float: right;
+`;
+
+const CardContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+`;
+
+const PeriodCardContainer = styled.div`
+  ${space({ p: 4, mb: 3 })};
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+`;
+
+const PeriodCardHeader = styled.h2`
+  text-align: center;
+  color: #343a40;
+  ${space({ mb: 3 })};
+`;
+
+const PeriodCardSubHeader = styled.h3`
+  color: #495057;
+  text-align: center;
+  ${space({ mt: 3 })};
+`;
+
+const PeriodCardRemoveButton = styled.button`
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin: 10px 0;
+  display: block;
+  width: 100%;
+
+  &:hover {
+    background-color: #c82333;
+  }
+`;
+
+const PeriodCardFinancialSummary = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #dee2e6;
+`;
+
+const PeriodCardCategory = styled.span`
+  font-weight: bold;
+  color: #343a40;
+`;
+
+const PeriodCardAmount = styled.span`
+  color: #6c757d;
+`;
+
+const PeriodCardFinancialDetails = styled.div`
+  margin-top: 20px;
+`;
+
+const PeriodCardSummaryTitle = styled.h4`
+  text-align: center;
+  color: #495057;
+  margin-bottom: 10px;
 `;
