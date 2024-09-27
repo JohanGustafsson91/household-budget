@@ -1,5 +1,4 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
-import { Button } from "components/FormElements";
 import { Loading } from "./OverviewBudgetPeriods.Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -13,16 +12,7 @@ import { fontSize, space } from "shared/theme";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 import { categories } from "shared/BudgetPeriod";
 import { displayMoney } from "shared/displayMoney";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+import { LineChart } from "./OverviewBudgetPeriods.LineChart";
 
 export default function OverviewBudgetPeriods() {
   const navigate = useNavigate();
@@ -52,19 +42,6 @@ export default function OverviewBudgetPeriods() {
   function navigateTo(url: string) {
     return () => navigate(url);
   }
-
-  const linechartData = budgetPeriods
-    ?.map((entry) => ({
-      Datum: new Date(entry.fromDate).toLocaleDateString(),
-      Kläder: displayMoney(entry.categoryExpenseTotals.CLOTHES),
-      Mat: displayMoney(entry.categoryExpenseTotals.FOOD),
-      Boende: displayMoney(entry.categoryExpenseTotals.LIVING),
-      Transport: displayMoney(entry.categoryExpenseTotals.TRANSPORT),
-      Övrigt: displayMoney(entry.categoryExpenseTotals.OTHER),
-      Sparande: displayMoney(entry.categoryExpenseTotals.SAVINGS),
-      Lån: displayMoney(entry.categoryExpenseTotals.LOAN),
-    }))
-    .reverse();
 
   const [, ...restOfPeriods] = budgetPeriods ?? [];
   const averages = averageCategoryExpenses(
@@ -129,36 +106,7 @@ export default function OverviewBudgetPeriods() {
                 </ContainerAverage>
 
                 <h2>Utgifter över tid</h2>
-                <ResponsiveContainer width="100%" height={500}>
-                  <LineChart
-                    data={linechartData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="Datum" />
-                    <YAxis interval={0} tickCount={15} />
-                    <Tooltip />
-                    <Legend />
-                    {[
-                      { dataKey: "Kläder", stroke: "#8884d8" },
-                      { dataKey: "Mat", stroke: "#82ca9d" },
-                      { dataKey: "Boende", stroke: "#ffc658" },
-                      { dataKey: "Transport", stroke: "#ff7300" },
-                      { dataKey: "Övrigt", stroke: "#387908" },
-                      { dataKey: "Sparande", stroke: "#8884d8" },
-                      { dataKey: "Lån", stroke: "#888410" },
-                    ].map((line, index) => (
-                      <Line
-                        key={index}
-                        type="monotone"
-                        dataKey={line.dataKey}
-                        stroke={line.stroke}
-                        strokeLinecap="butt"
-                        strokeWidth={2}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
+                <LineChart budgetPeriods={budgetPeriods} />
 
                 <h2>Perioder</h2>
                 <CardContainer>
@@ -373,6 +321,7 @@ const PeriodCardContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 600px;
+  cursor: pointer;
 `;
 
 const PeriodCardHeader = styled.h2`
