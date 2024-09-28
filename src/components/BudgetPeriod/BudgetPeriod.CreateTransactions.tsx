@@ -10,6 +10,7 @@ import shortid from "shortid";
 import styled from "styled-components";
 import { space } from "shared/theme";
 import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
+import previouslyStoredTransactions from "api/transactions-database-dump.json";
 
 interface Props {
   period: BudgetPeriod;
@@ -103,12 +104,21 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
             item[tableSettings.findIndex((i) => i?.type === "amount")],
           ];
 
+          const previousTransaction = previouslyStoredTransactions.find(
+            (prevTransaction) =>
+              prevTransaction.label.trim().toLowerCase() ===
+              label?.trim()?.toLowerCase()
+          );
+          const category = previousTransaction?.category
+            ? previousTransaction.category
+            : amount?.startsWith("-")
+            ? "OTHER"
+            : ("INCOME" as Transaction["category"]);
+
           return date !== null && !Number.isNaN(Number.parseFloat(amount))
             ? {
                 label,
-                category: amount?.startsWith("-")
-                  ? "OTHER"
-                  : ("INCOME" as Transaction["category"]),
+                category,
                 date: new Date(date),
                 amount: Number.parseFloat(
                   amount?.replace(",", ".").replace("-", "").replace(" ", "")
