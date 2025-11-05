@@ -1,13 +1,13 @@
 # Household Budget Development Guidelines
 
 ## Build & Test Commands
-- Build: `npm run build` (dev) or `npm run build:production` (prod)
-- Dev server: `npm run dev` 
-- Lint: `npm run lint` (includes type checking and unused exports)
+- Build: `pnpm build` (dev) or `pnpm build:production` (prod)
+- Dev server: `pnpm dev` 
+- Lint: `pnpm lint` (includes type checking and unused exports)
 - Tests: 
-  - Open Cypress: `npm run cypress`
-  - Run Cypress tests: `npm run cypress:run`
-  - Run single test: `npm run cypress:run --spec "cypress/e2e/your-test.cy.ts"`
+  - Open Cypress: `pnpm cypress`
+  - Run Cypress tests: `pnpm cypress:run`
+  - Run single test: `pnpm cypress:run --spec "cypress/e2e/your-test.cy.ts"`
 
 ## Code Style Guidelines
 - TypeScript with strict mode enabled
