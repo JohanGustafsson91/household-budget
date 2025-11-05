@@ -12,7 +12,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { BudgetPeriod } from "shared/BudgetPeriod";
-import shortid from "shortid";
+import { nanoid } from "nanoid";
 import { auth, COLLECTION, db, getDocument } from "./firebase";
 import { getAuth } from "./auth";
 
@@ -79,7 +79,7 @@ export const postBudgetPeriod = (data: Form) =>
     author: getAuth()?.currentUser?.uid,
     createdAt: new Date(),
     lastUpdated: new Date(),
-    key: shortid(),
+    key: nanoid(),
   });
 
 export const deleteBudgetPeriod = (periodId: string) =>

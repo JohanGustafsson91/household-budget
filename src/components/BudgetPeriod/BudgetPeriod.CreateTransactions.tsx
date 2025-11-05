@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { categories } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
-import shortid from "shortid";
+import { nanoid } from "nanoid";
 import styled from "styled-components";
 import { space } from "shared/theme";
 import { NewTransaction, Transaction } from "./BudgetPeriod.Transaction";
@@ -122,7 +122,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                 createdAt: new Date(),
                 lastUpdated: new Date(),
                 periodId: period.id,
-                id: shortid(),
+                id: nanoid(),
                 shared: false,
                 optional: false,
               }
