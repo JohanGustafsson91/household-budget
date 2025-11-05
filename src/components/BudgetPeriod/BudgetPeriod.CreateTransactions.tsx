@@ -104,16 +104,11 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
             item[tableSettings.findIndex((i) => i?.type === "amount")],
           ];
 
-          const previousTransaction = previouslyStoredTransactions.find(
-            (prevTransaction) =>
-              prevTransaction.label.trim().toLowerCase() ===
-              label?.trim()?.toLowerCase()
-          );
-          const category = previousTransaction?.category
-            ? previousTransaction.category
-            : amount?.startsWith("-")
-            ? "OTHER"
-            : ("INCOME" as Transaction["category"]);
+          const category = !amount?.startsWith("-")
+            ? "INCOME"
+            : (previouslyStoredTransactions.find(prev => 
+                prev.label.trim().toLowerCase() === label?.trim()?.toLowerCase()
+              )?.category ?? "OTHER") as Transaction["category"];
 
           return date !== null && !Number.isNaN(Number.parseFloat(amount))
             ? {
