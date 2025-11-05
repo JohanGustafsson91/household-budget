@@ -4,7 +4,7 @@ beforeEach(() => {
 
 describe("Manage budget", () => {
   it("should login user", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit("/");
     login("test@example.com", "test123");
     cy.findByText(/välkommen chaplin/i).should("be.visible");
   });
@@ -34,7 +34,7 @@ describe("Manage budget", () => {
   });
 
   it("should login with different user", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit("/");
     login("test2@example.com", "test123");
     cy.findByText(/välkommen charlie/i);
   });
