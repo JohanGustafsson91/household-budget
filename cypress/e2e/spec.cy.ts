@@ -16,7 +16,7 @@ describe("Manage budget", () => {
   it("should create a new budget period", () => {
     cy.findByRole("button", { name: /\+/i }).click();
     cy.get(".react-datepicker").first().find("div").contains(1).last().click();
-    cy.get(".react-datepicker").last().find("div").contains(25).last().click();
+    cy.get(".react-datepicker").last().find("div").contains(24).last().click();
     cy.findByRole("checkbox", { name: /tillsammans med\?/i }).click();
     cy.findByRole("button", { name: /Skapa/i }).click();
   });
@@ -57,7 +57,7 @@ describe("Manage budget", () => {
       cy.findByRole("alert").findByText(member).click();
 
       summary.forEach(({ text, value }) =>
-        cy.get("div").contains(text).parent().get("div").contains(value)
+        cy.get("div").contains(text).parent().get("div").contains(value),
       );
 
       categories.forEach((category) => {
@@ -124,7 +124,7 @@ function addTransactions(member: string) {
         ...t,
         category: category.name,
         amount: t.amount.replace("-", "").replace("+", "").replace("kr", ""),
-      }))
+      })),
     );
 
   const monthNumber = new Date().getMonth() + 1;
