@@ -16,7 +16,7 @@ import { displayDate } from "utils/date";
 
 import * as Diagram from "./BudgetPeriod.Diagram";
 import { useOnClickOutside } from "shared/useClickOutside";
-import { Transaction } from "./BudgetPeriod.Transaction";
+import type { Transaction } from "./BudgetPeriod.Transaction";
 import { UpdateTransaction } from "./BudgetPeriod.UpdateTransaction";
 import { categories, Category } from "shared/BudgetPeriod";
 import { CreateTransactions } from "./BudgetPeriod.CreateTransactions";
@@ -72,7 +72,7 @@ export default function BudgetPeriod() {
       selectedCategory: undefined,
       transactionToUpdate: undefined,
       view: "overview",
-    }
+    },
   );
 
   const viewRef = useRef<HTMLDivElement | null>(null);
@@ -84,7 +84,7 @@ export default function BudgetPeriod() {
         run(getBudgetPeriodById(periodId));
       }
     },
-    [periodId, periodStatus, run]
+    [periodId, periodStatus, run],
   );
 
   useEffect(
@@ -93,11 +93,11 @@ export default function BudgetPeriod() {
         return getTransactionsForPeriod(
           period,
           setTransactions,
-          setTransactionsError
+          setTransactionsError,
         );
       }
     },
-    [period, periodStatus, setTransactions, setTransactionsError]
+    [period, periodStatus, setTransactions, setTransactionsError],
   );
 
   useEffect(() => {
@@ -134,21 +134,21 @@ export default function BudgetPeriod() {
         getSummarizedValues(transactions);
 
       const summarizedTotalsForCategories = Object.keys(
-        period.categoryExpenseTotals
+        period.categoryExpenseTotals,
       ).reduce(
         (acc, key) => ({
           ...acc,
           [key]: summarize(
-            categorizedTransactions[key as unknown as Category["type"]] ?? []
+            categorizedTransactions[key as unknown as Category["type"]] ?? [],
           ),
         }),
-        {} as PeriodType["categoryExpenseTotals"]
+        {} as PeriodType["categoryExpenseTotals"],
       );
 
       const shouldUpdate = Object.keys(period.categoryExpenseTotals).some(
         (key) =>
           period.categoryExpenseTotals[key as unknown as Category["type"]] !==
-          summarizedTotalsForCategories[key as unknown as Category["type"]]
+          summarizedTotalsForCategories[key as unknown as Category["type"]],
       );
 
       if (!shouldUpdate) {
@@ -184,7 +184,7 @@ export default function BudgetPeriod() {
   }
 
   const filteredTransactions = selectedCategory
-    ? categorizedTransactions?.[selectedCategory.type] ?? []
+    ? (categorizedTransactions?.[selectedCategory.type] ?? [])
     : transactionsToDisplay;
 
   function handleShowCategory(category: Category) {
@@ -207,7 +207,7 @@ export default function BudgetPeriod() {
     <>
       <ActionBar
         title={`${displayDate(period.fromDate)} - ${displayDate(
-          period.toDate
+          period.toDate,
         )}`}
         backNavigationEnabled={view === "overview"}
         renderMenu={({ closeMenu }) => (
@@ -286,10 +286,10 @@ export default function BudgetPeriod() {
                 <Diagram.DiagramContainer>
                   {categoriesForBoard.map((category, i) => {
                     const expensesForCategory = summarize(
-                      categorizedTransactions?.[category.type] ?? []
+                      categorizedTransactions?.[category.type] ?? [],
                     );
                     let expensesInPercentage = Number(
-                      (expensesForCategory / (totalIncome - totalLeft)) * 100
+                      (expensesForCategory / (totalIncome - totalLeft)) * 100,
                     );
                     expensesInPercentage = isNaN(expensesInPercentage)
                       ? 0
@@ -322,8 +322,8 @@ export default function BudgetPeriod() {
                             i === 0
                               ? "left"
                               : i + 1 === categoriesForBoard.length
-                              ? "right"
-                              : "none"
+                                ? "right"
+                                : "none"
                           }
                         >
                           {displayMoney(expensesForCategory)}kr
@@ -367,7 +367,7 @@ export default function BudgetPeriod() {
                 {filteredTransactions.map((transaction) => {
                   const userName = getUserById(transaction.author)?.name;
                   const categoryName = categories.find(
-                    (c) => c.type === transaction.category
+                    (c) => c.type === transaction.category,
                   )?.text;
                   const formattedMoney = `${
                     transaction.category === "INCOME" ? "+" : "-"
@@ -416,15 +416,18 @@ function summarize(list: Array<{ amount: number }>) {
 }
 
 function getSummarizedValues(transactions: Transaction[]) {
-  const categorizedTransactions = transactions.reduce((acc, curr) => {
-    const previous = acc[curr.category] || [];
-    return {
-      ...acc,
-      [curr.category]: [...previous, curr],
-    };
-  }, {} as Record<Category["type"], Transaction[]>);
+  const categorizedTransactions = transactions.reduce(
+    (acc, curr) => {
+      const previous = acc[curr.category] || [];
+      return {
+        ...acc,
+        [curr.category]: [...previous, curr],
+      };
+    },
+    {} as Record<Category["type"], Transaction[]>,
+  );
 
-  const totalIncome = summarize(categorizedTransactions["INCOME"] || []);
+  const totalIncome = summarize(categorizedTransactions.INCOME || []);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { INCOME, ...rest } = categorizedTransactions;
   const totalExpenses = summarize(Object.values(rest).flat());
