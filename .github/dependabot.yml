@@ -33,3 +33,4 @@ updates:
           - "minor"
           - "patch"
 
+# Triggering Dependabot to recreate PRs with updated workflow
