@@ -119,6 +119,34 @@ export default function BudgetPeriod() {
     return authorMatch && typeMatch;
   });
 
+  const findDuplicateTransactions = (transactions: Transaction[]) => {
+    const duplicates = new Set<string>();
+
+    transactions.forEach((transaction, index) => {
+      const matchingTransactions = transactions.filter(
+        (other, otherIndex) =>
+          index !== otherIndex &&
+          transaction.amount === other.amount &&
+          (
+            // Check if one label contains the other (ignoring case and whitespace)
+            transaction.label.toLowerCase().trim().includes(other.label.toLowerCase().trim()) ||
+            other.label.toLowerCase().trim().includes(transaction.label.toLowerCase().trim())
+          ),
+      );
+
+      if (matchingTransactions.length > 0) {
+        duplicates.add(transaction.id);
+        matchingTransactions.forEach((match) => duplicates.add(match.id));
+      }
+    });
+
+    return duplicates;
+  };
+
+  const duplicateTransactionIds = findDuplicateTransactions(
+    transactionsToDisplay,
+  );
+
   const { categorizedTransactions, totalIncome, totalExpenses, totalLeft } =
     getSummarizedValues(transactionsToDisplay);
 
@@ -364,6 +392,16 @@ export default function BudgetPeriod() {
                   </select>
                 </ItemHeader>
 
+                {duplicateTransactionIds.size > 0 && (
+                  <DuplicateSummary>
+                    <DuplicateSummaryIcon>⚠️</DuplicateSummaryIcon>
+                    <DuplicateSummaryText>
+                      Hittade {duplicateTransactionIds.size} potentiella
+                      duplicerade transaktioner
+                    </DuplicateSummaryText>
+                  </DuplicateSummary>
+                )}
+
                 {filteredTransactions.map((transaction) => {
                   const userName = getUserById(transaction.author)?.name;
                   const categoryName = categories.find(
@@ -380,6 +418,7 @@ export default function BudgetPeriod() {
                         setState({ transactionToUpdate: transaction })
                       }
                       title={`${userName} ${formattedMoney} till ${transaction.label} för ${categoryName}`}
+                      isDuplicate={duplicateTransactionIds.has(transaction.id)}
                     >
                       <ListItemValue minWidth="80px">
                         {categoryName}
@@ -394,6 +433,11 @@ export default function BudgetPeriod() {
                         </TransactionInfo>
                       </ListItemValue>
                       <ListItemValue>{formattedMoney}</ListItemValue>
+                      {duplicateTransactionIds.has(transaction.id) && (
+                        <DuplicateIndicator title="Potentiell duplicerad transaktion">
+                          ⚠️
+                        </DuplicateIndicator>
+                      )}
                     </ListItem>
                   );
                 })}
@@ -479,11 +523,39 @@ const List = styled.ul`
   ${space({ m: 0, p: 0 })};
 `;
 
-const ListItem = styled.li`
+const ListItem = styled.li<{ isDuplicate?: boolean }>`
   display: flex;
   align-items: center;
   ${space({ mb: 3, py: 1 })};
   cursor: pointer;
+  border-radius: 8px;
+  padding: 12px;
+  border: 2px solid transparent;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+  overflow: visible;
+
+  ${(props) =>
+    props.isDuplicate
+      ? `
+    border-color: #ff6b6b;
+    background-color: #fff5f5;
+    box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.2);
+    
+    &:hover {
+      border-color: #ff5252;
+      background-color: #ffebeb;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    }
+  `
+      : `
+    &:hover {
+      background-color: #e9ecef;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  `}
 `;
 
 const ListItemValue = styled.div<{ flex?: number; minWidth?: string }>`
@@ -526,6 +598,54 @@ const View = styled.div`
 const ModeButton = styled.div`
   width: 50px;
   cursor: pointer;
+`;
+
+const DuplicateIndicator = styled.span`
+  background-color: #ff6b6b;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-left: 8px;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 6px rgba(255, 107, 107, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+    }
+  }
+`;
+
+const DuplicateSummary = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: #fff5f5;
+  border: 1px solid #ff6b6b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #d63031;
+`;
+
+const DuplicateSummaryIcon = styled.span`
+  font-size: 16px;
+  margin-right: 8px;
+`;
+
+const DuplicateSummaryText = styled.span`
+  font-size: ${fontSize(0)};
+  font-weight: 500;
 `;
 
 const ItemHeader = styled.div`
