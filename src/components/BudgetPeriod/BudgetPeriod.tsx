@@ -123,16 +123,32 @@ export default function BudgetPeriod() {
     const duplicates = new Set<string>();
 
     transactions.forEach((transaction, index) => {
-      const matchingTransactions = transactions.filter(
-        (other, otherIndex) =>
-          index !== otherIndex &&
-          transaction.amount === other.amount &&
-          (
-            // Check if one label contains the other (ignoring case and whitespace)
-            transaction.label.toLowerCase().trim().includes(other.label.toLowerCase().trim()) ||
-            other.label.toLowerCase().trim().includes(transaction.label.toLowerCase().trim())
-          ),
-      );
+      const matchingTransactions = transactions.filter((other, otherIndex) => {
+        if (index === otherIndex) return false;
+
+        if (transaction.amount !== other.amount) return false;
+
+        const labelsMatch =
+          transaction.label
+            .toLowerCase()
+            .trim()
+            .includes(other.label.toLowerCase().trim()) ||
+          other.label
+            .toLowerCase()
+            .trim()
+            .includes(transaction.label.toLowerCase().trim());
+
+        if (!labelsMatch) return false;
+
+        // Only flag as duplicate if transactions are on the same day or within 1 day
+        // This avoids flagging legitimate recurring expenses (like daily train tickets)
+        const daysDifference = Math.abs(
+          (transaction.date.getTime() - other.date.getTime()) /
+            (1000 * 60 * 60 * 24),
+        );
+
+        return daysDifference <= 1;
+      });
 
       if (matchingTransactions.length > 0) {
         duplicates.add(transaction.id);
