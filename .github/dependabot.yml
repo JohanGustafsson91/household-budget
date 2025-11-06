@@ -12,16 +12,11 @@ updates:
       interval: "daily" # Check for updates daily
       time: "09:00" # Run at 09:00 UTC
     open-pull-requests-limit: 10 # Limit open PRs to avoid overwhelming
-    reviewers:
-      - "dependabot[bot]" # Auto-assign dependabot for review
-    assignees:
-      - "dependabot[bot]" # Auto-assign dependabot
     commit-message:
       prefix: "deps"
       include: "scope"
     labels:
       - "dependencies"
-      - "dependabot"
     # Allow production dependencies only for automatic merging
     allow:
       - dependency-type: "production"
