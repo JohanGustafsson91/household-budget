@@ -267,11 +267,21 @@ const ActionButton = styled.button`
   border: 0;
   background-color: var(--color-background-action-bar);
   color: var(--color-text-action-bar);
-  box-shadow:
-    rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  box-shadow: var(--shadow-md);
   font-size: ${fontSize(4)};
   font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  
+  &:hover {
+    background-color: #0246B8;
+    box-shadow: var(--shadow-md);
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(1);
+  }
 `;
 
 const FilterText = styled.div`
@@ -344,15 +354,26 @@ const PeriodCardRemoveButton = styled.button`
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  ${space({ px: 3, py: 1 })};
+  font-size: ${fontSize(1)};
+  font-weight: 600;
   cursor: pointer;
-  margin: 10px 0;
+  ${space({ my: 2 })};
   display: block;
   width: 100%;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  font-family: inherit;
 
   &:hover {
     background-color: #c82333;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 `;
 

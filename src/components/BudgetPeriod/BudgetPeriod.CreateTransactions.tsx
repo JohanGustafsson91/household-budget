@@ -155,7 +155,8 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                 onChange={(e) => setPastedText(e.target.value)}
               />
               <div>
-                <button
+                <Button
+                  type="button"
                   onClick={function formatPastedText() {
                     const rows = pastedText.trim().split("\n");
 
@@ -204,7 +205,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                   }}
                 >
                   Formatera
-                </button>
+                </Button>
               </div>
             </FormField>
           </div>
@@ -221,7 +222,8 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                   return (
                     <td key={list + i}>
                       {text && i > 0 ? (
-                        <button
+                        <ArrowButton
+                          type="button"
                           title={`${text} tillbaka`}
                           onClick={() =>
                             updateTableSettings({
@@ -231,11 +233,12 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                           }
                         >
                           ←
-                        </button>
+                        </ArrowButton>
                       ) : null}
                       <span>{text}</span>
                       {text && i + 1 < parsedPastedText[0].length ? (
-                        <button
+                        <ArrowButton
+                          type="button"
                           title={`${text} nästa`}
                           onClick={() =>
                             updateTableSettings({
@@ -245,7 +248,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                           }
                         >
                           →
-                        </button>
+                        </ArrowButton>
                       ) : null}
                     </td>
                   );
@@ -420,3 +423,27 @@ const tableSettingsItems = [
   { type: "label", text: "Namn" },
   { type: "amount", text: "Kostnad" },
 ];
+
+const ArrowButton = styled.button`
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1;
+  margin: 0 4px;
+  
+  &:hover {
+    background-color: var(--color-background);
+    border-color: var(--color-background-action-bar);
+    color: var(--color-background-action-bar);
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+`;
