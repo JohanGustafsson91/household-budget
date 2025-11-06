@@ -26,6 +26,65 @@ describe("Manage budget", () => {
     addTransactions("Chaplin");
   });
 
+  it("should verify no duplicates exist for Chaplin's transactions", () => {
+    // After adding initial transactions, there should be no duplicates
+    cy.get("body").then(($body) => {
+      if ($body.text().includes("potentiella duplicerade transaktioner")) {
+        throw new Error("No duplicates should be detected yet");
+      }
+    });
+  });
+
+  it("should add a duplicate transaction and verify detection", () => {
+    // Add a duplicate transaction
+    cy.findByText(/lägg till/i).click();
+    
+    const monthNumber = new Date().getMonth() + 1;
+    const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
+    
+    // Add exact duplicate: same name and amount as an existing Coop transaction
+    cy.findByRole("textbox").type(
+      `2022-${month}-10\n2022-${month}-10\nCoop\n1000\nSALDO`,
+      { delay: 0 }
+    );
+
+    cy.findByRole("button", { name: /formatera/i }).click();
+    cy.findByRole("button", { name: /nästa/i }).click();
+    cy.findByRole("button", { name: /nästa/i }).click();
+
+    // Assign category
+    cy.findAllByRole("cell").contains("Coop").parent().find("select").select("Mat");
+
+    cy.findByRole("button", { name: /lägg till/i }).click();
+
+    // Verify duplicate detection warning appears
+    cy.findByText(/potentiella duplicerade transaktioner/i, { timeout: 10000 }).should("be.visible");
+  });
+
+  it("should remove the duplicate transaction", () => {
+    // Click on Mat category to see transactions
+    cy.findByTitle("Summary for Mat").click();
+
+    // Find and click on one of the Coop transactions (the duplicate)
+    cy.findAllByRole("listitem")
+      .filter('[title*="Coop"]')
+      .last()
+      .click();
+
+    // Click the "Ta bort" (delete) button
+    cy.findByRole("button", { name: /ta bort/i }).click();
+
+    // Wait for the deletion to complete
+    cy.wait(500);
+
+    // Verify the duplicate warning is no longer visible
+    cy.get("body").then(($body) => {
+      if ($body.text().includes("potentiella duplicerade transaktioner")) {
+        throw new Error("Duplicate warning should be gone after removing the duplicate");
+      }
+    });
+  });
+
   it("should logout", () => {
     cy.findByRole("img", {
       name: /profile/i,
