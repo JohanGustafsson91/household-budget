@@ -4,10 +4,6 @@ name: Deploy to Production
 on:
   push:
     branches: [master]
-  # Also trigger on closed pull requests that were merged
-  pull_request:
-    types: [closed]
-    branches: [master]
   # Allow manual trigger for emergency deployments
   workflow_dispatch:
 
@@ -20,8 +16,6 @@ jobs:
   deploy:
     name: Build and Deploy to Production
     runs-on: ubuntu-latest
-    # Skip deployment for Dependabot commits to avoid duplicate deployments
-    if: github.actor != 'dependabot[bot]'
 
     environment:
       name: production
