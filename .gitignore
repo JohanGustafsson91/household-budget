@@ -38,3 +38,9 @@ cypress/screenshots
 
 /.firebase
 testdata.txt
+
+# Firebase service account keys (sensitive credentials)
+*serviceAccount*.json
+serviceAccountKey.json
+firebase-adminsdk-*.json
+household-budget-prod-firebase-service-account.json
