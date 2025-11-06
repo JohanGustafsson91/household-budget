@@ -5,7 +5,36 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
+  # Enable version updates for npm packages
+  - package-ecosystem: "npm"
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "daily" # Check for updates daily
+      time: "09:00" # Run at 09:00 UTC
+    open-pull-requests-limit: 10 # Limit open PRs to avoid overwhelming
+    reviewers:
+      - "dependabot[bot]" # Auto-assign dependabot for review
+    assignees:
+      - "dependabot[bot]" # Auto-assign dependabot
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "dependabot"
+    # Allow production dependencies only for automatic merging
+    allow:
+      - dependency-type: "production"
+    # Group updates for better organization
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+

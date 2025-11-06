@@ -9,16 +9,16 @@ import {
 import styled from "styled-components";
 import { space } from "shared/theme";
 const VisitorProvider = lazy(
-  () => import("components/VisitorContext/VisitorContext.Provider")
+  () => import("components/VisitorContext/VisitorContext.Provider"),
 );
 const OverviewBudgetPeriods = lazy(
-  () => import("components/OverviewBudgetPeriods/OverviewBudgetPeriods")
+  () => import("components/OverviewBudgetPeriods/OverviewBudgetPeriods"),
 );
 const LoginForm = lazy(() => import("components/LoginForm"));
 const BudgetPeriod = lazy(() => import("components/BudgetPeriod/BudgetPeriod"));
 const CreateBudgetPeriod = lazy(() => import("components/CreateBudgetPeriod"));
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
-import { AnonymousVisitor, RegisteredVisitor } from "api/visitor";
+import type { AnonymousVisitor, RegisteredVisitor } from "api/visitor";
 import { Button } from "components/FormElements";
 
 export const App = () => (
@@ -114,7 +114,7 @@ const Page = ({
         return navigate(navigateToPageIfNotAllowed);
       }
     },
-    [navigate, navigateToPageIfNotAllowed, visitorAllowed]
+    [navigate, navigateToPageIfNotAllowed, visitorAllowed],
   );
 
   return <>{children}</>;

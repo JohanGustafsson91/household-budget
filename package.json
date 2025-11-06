@@ -13,7 +13,10 @@
     "deploy:prod": "pnpm lint && pnpm build:production && firebase deploy -P production",
     "typecheck": "tsc",
     "cypress": "cypress open",
+    "cypress:install": "cypress install",
     "cypress:run": "cypress run",
+    "cypress:dev": "CYPRESS_baseUrl=https://household-buget-dev.web.app cypress run",
+    "cypress:dev:open": "CYPRESS_baseUrl=https://household-buget-dev.web.app cypress open",
     "lint:exports": "node find-unused-exports.cjs",
     "postinstall": "patch-package"
   },

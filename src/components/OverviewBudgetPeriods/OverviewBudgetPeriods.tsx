@@ -3,7 +3,7 @@ import { Loading } from "./OverviewBudgetPeriods.Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BudgetPeriod, Category } from "shared/BudgetPeriod";
+import type { BudgetPeriod, Category } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils/date";
@@ -33,10 +33,10 @@ export default function OverviewBudgetPeriods() {
       return getBudgetPeriods(
         setBudgetPeriods,
         setBudgetPeriodsError,
-        filter.date
+        filter.date,
       );
     },
-    [setBudgetPeriods, setBudgetPeriodsError, filter]
+    [setBudgetPeriods, setBudgetPeriodsError, filter],
   );
 
   function navigateTo(url: string) {
@@ -45,7 +45,7 @@ export default function OverviewBudgetPeriods() {
 
   const [, ...restOfPeriods] = budgetPeriods ?? [];
   const averages = averageCategoryExpenses(
-    filter.excludeLatestPeriodInAverage ? restOfPeriods : budgetPeriods ?? []
+    filter.excludeLatestPeriodInAverage ? restOfPeriods : (budgetPeriods ?? []),
   );
 
   return (
@@ -136,7 +136,7 @@ export default function OverviewBudgetPeriods() {
                             e.stopPropagation();
 
                             return window.confirm(
-                              "Är du säker på att du vill ta bort budgetperioden?"
+                              "Är du säker på att du vill ta bort budgetperioden?",
                             )
                               ? deleteBudgetPeriod(period.id)
                               : undefined;
@@ -162,7 +162,7 @@ export default function OverviewBudgetPeriods() {
                           <PeriodCardAmount>
                             {" "}
                             {displayMoney(
-                              period.totalIncome - period.totalExpenses
+                              period.totalIncome - period.totalExpenses,
                             )}{" "}
                             kr
                           </PeriodCardAmount>
@@ -180,12 +180,12 @@ export default function OverviewBudgetPeriods() {
                                 </PeriodCardCategory>
                                 <PeriodCardAmount>
                                   {displayMoney(
-                                    period.categoryExpenseTotals[category.type]
+                                    period.categoryExpenseTotals[category.type],
                                   )}{" "}
                                   kr
                                 </PeriodCardAmount>
                               </PeriodCardFinancialSummary>
-                            ) : null
+                            ) : null,
                           )}
                         </PeriodCardFinancialDetails>
                       </PeriodCardContainer>
@@ -226,17 +226,20 @@ const filterSelections = [
 ];
 
 const averageCategoryExpenses = (expenses: BudgetPeriod[]) => {
-  const totals = expenses.reduce((acc, curr) => {
-    for (const category in curr.categoryExpenseTotals) {
-      if (!acc[category]) {
-        acc[category] = { total: 0, count: 0 };
+  const totals = expenses.reduce(
+    (acc, curr) => {
+      for (const category in curr.categoryExpenseTotals) {
+        if (!acc[category]) {
+          acc[category] = { total: 0, count: 0 };
+        }
+        acc[category].total +=
+          curr.categoryExpenseTotals[category as Category["type"]];
+        acc[category].count += 1;
       }
-      acc[category].total +=
-        curr.categoryExpenseTotals[category as Category["type"]];
-      acc[category].count += 1;
-    }
-    return acc;
-  }, {} as Record<string, { total: number; count: number }>);
+      return acc;
+    },
+    {} as Record<string, { total: number; count: number }>,
+  );
 
   const averages: Record<string, number> = {};
   for (const category in totals) {
@@ -264,7 +267,8 @@ const ActionButton = styled.button`
   border: 0;
   background-color: var(--color-background-action-bar);
   color: var(--color-text-action-bar);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   font-size: ${fontSize(4)};
   font-weight: bold;
