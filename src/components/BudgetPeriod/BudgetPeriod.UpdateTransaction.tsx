@@ -7,6 +7,7 @@ import {
   Select,
   Checkbox,
   Button,
+  DangerButton,
 } from "components/FormElements";
 import { putTransaction, deleteTransaction } from "api/transaction";
 import { Title } from "./BudgetPeriod.Title";
@@ -165,13 +166,13 @@ export const UpdateTransaction = ({
           <Button type="submit" disabled={!validForm || isPending}>
             Spara
           </Button>
-          <Button
+          <DangerButton
             type="button"
             onClick={() => runUpdateOrDelete(deleteTransaction(transaction.id))}
             disabled={isPending}
           >
             Ta bort
-          </Button>
+          </DangerButton>
         </FormField>
       </form>
     </div>
