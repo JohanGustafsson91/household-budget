@@ -163,7 +163,7 @@ export default function BudgetPeriod() {
     transactionsToDisplay,
   );
 
-  const { categorizedTransactions, totalIncome, totalExpenses, totalLeft } =
+  const { categorizedTransactions, totalIncome, totalExpenses, totalLeft, potentialSavings } =
     getSummarizedValues(transactionsToDisplay);
 
   const updatePeriodTotalsOnUnmount = useRef<() => void>();
@@ -315,16 +315,20 @@ export default function BudgetPeriod() {
                     })}
                   >
                     <Title>Inkomster</Title>
-                    <Money>{displayMoney(totalIncome)}</Money>
+                    <IncomeMoney>{displayMoney(totalIncome)}</IncomeMoney>
                   </OverviewItem>
                   <OverviewItem>
                     <Title>Utgifter</Title>
-                    <Money>{displayMoney(totalExpenses)}</Money>
+                    <ExpenseMoney>{displayMoney(totalExpenses)}</ExpenseMoney>
                   </OverviewItem>
                   <OverviewItem>
                     <Title>Saldo</Title>
                     <Money>{displayMoney(totalLeft)}</Money>
                   </OverviewItem>
+                  <SavingsOverviewItem>
+                    <Title>Möjlig besparing</Title>
+                    <SavingsMoney>{displayMoney(potentialSavings)}</SavingsMoney>
+                  </SavingsOverviewItem>
                 </Overview>
 
                 <Diagram.DiagramContainer>
@@ -495,11 +499,15 @@ function getSummarizedValues(transactions: Transaction[]) {
   const { INCOME, ...rest } = categorizedTransactions;
   const totalExpenses = summarize(Object.values(rest).flat());
   const totalLeft = totalIncome - totalExpenses;
+  
+  const optionalTransactions = transactions.filter(t => t.optional && t.category !== "INCOME");
+  const potentialSavings = summarize(optionalTransactions);
 
   return {
     totalIncome,
     totalExpenses,
     totalLeft,
+    potentialSavings,
     categorizedTransactions,
   };
 }
@@ -529,11 +537,17 @@ cursor: pointer;
   ${(props) =>
     props.active
       ? `
-    ${Money} {
+    ${IncomeMoney} {
       color: #C3A2ED;
     }
     `
       : ""}
+`;
+
+const SavingsOverviewItem = styled(OverviewItem)`
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const List = styled.ul`
@@ -624,6 +638,27 @@ const Title = styled.h1`
 
 const Money = styled.h2`
   color: #313131;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const IncomeMoney = styled.h2`
+  color: #4caf50;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const ExpenseMoney = styled.h2`
+  color: #f44336;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const SavingsMoney = styled.h2`
+  color: #7c9fff;
   font-size: ${fontSize(5)};
   ${space({ m: 0, mb: 2 })}
   font-weight: 500;

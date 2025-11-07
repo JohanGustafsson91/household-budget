@@ -111,6 +111,10 @@ describe("Manage budget", () => {
     // Wait for the transaction to be added
     cy.wait(500);
 
+    // Verify potential savings is displayed in the overview
+    cy.get("div").contains("Möjlig besparing").should("be.visible");
+    cy.get("div").contains("Möjlig besparing").parent().contains("45kr");
+
     // Click on Övrigt category to see the transaction
     cy.findByTitle("Summary for Övrigt").click();
 
