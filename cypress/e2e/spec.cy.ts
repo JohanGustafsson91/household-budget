@@ -133,6 +133,11 @@ describe("Manage budget", () => {
     cy.get("@optionalTransaction").find("p").first().should("have.css", "font-style", "italic");
     cy.get("@optionalTransaction").find("p").first().should("have.css", "color", "rgb(138, 146, 163)");
     cy.get("@optionalTransaction").find("p").first().should("have.css", "font-weight", "400");
+
+    // Clean up: delete the optional transaction to not affect other tests
+    cy.get("@optionalTransaction").click();
+    cy.findByRole("button", { name: /ta bort/i }).click();
+    cy.wait(500);
   });
 
   it("should logout", () => {
