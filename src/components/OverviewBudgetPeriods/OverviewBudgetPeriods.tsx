@@ -3,7 +3,7 @@ import { Loading } from "./OverviewBudgetPeriods.Loading";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { BudgetPeriod, Category } from "shared/BudgetPeriod";
+import type { BudgetPeriod } from "shared/BudgetPeriod";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
 import { displayDate } from "utils/date";
@@ -227,25 +227,27 @@ const filterSelections = [
 
 const averageCategoryExpenses = (expenses: BudgetPeriod[]) => {
   const totals = expenses.reduce(
-    (acc, curr) => {
-      for (const category in curr.categoryExpenseTotals) {
-        if (!acc[category]) {
-          acc[category] = { total: 0, count: 0 };
-        }
-        acc[category].total +=
-          curr.categoryExpenseTotals[category as Category["type"]];
-        acc[category].count += 1;
-      }
-      return acc;
-    },
+    (acc, curr) =>
+      Object.entries(curr.categoryExpenseTotals).reduce(
+        (innerAcc, [category, value]) => ({
+          ...innerAcc,
+          [category]: {
+            total: (innerAcc[category]?.total ?? 0) + value,
+            count: (innerAcc[category]?.count ?? 0) + 1,
+          },
+        }),
+        acc,
+      ),
     {} as Record<string, { total: number; count: number }>,
   );
 
-  const averages: Record<string, number> = {};
-  for (const category in totals) {
-    averages[category] = totals[category].total / totals[category].count;
-  }
-  return averages;
+  return Object.entries(totals).reduce(
+    (acc, [category, { total, count }]) => ({
+      ...acc,
+      [category]: total / count,
+    }),
+    {} as Record<string, number>,
+  );
 };
 
 interface Filter {
