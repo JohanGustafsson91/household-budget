@@ -435,6 +435,7 @@ export default function BudgetPeriod() {
                       }
                       title={`${userName} ${formattedMoney} till ${transaction.label} för ${categoryName}`}
                       isDuplicate={duplicateTransactionIds.has(transaction.id)}
+                      isOptional={transaction.optional}
                     >
                       <ListItemValue minWidth="80px">
                         {categoryName}
@@ -443,7 +444,9 @@ export default function BudgetPeriod() {
                         ) : null}
                       </ListItemValue>
                       <ListItemValue flex={1}>
-                        <TransactionName>{transaction.label}</TransactionName>
+                        <TransactionName isOptional={transaction.optional}>
+                          {transaction.label}
+                        </TransactionName>
                         <TransactionInfo>
                           {displayDate(transaction.date)}
                         </TransactionInfo>
@@ -539,7 +542,7 @@ const List = styled.ul`
   ${space({ m: 0, p: 0 })};
 `;
 
-const ListItem = styled.li<{ isDuplicate?: boolean }>`
+const ListItem = styled.li<{ isDuplicate?: boolean; isOptional?: boolean }>`
   display: flex;
   align-items: center;
   ${space({ mb: 3, py: 1 })};
@@ -565,7 +568,20 @@ const ListItem = styled.li<{ isDuplicate?: boolean }>`
       box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
     }
   `
-      : `
+      : props.isOptional
+        ? `
+    background-color: #fafbfc;
+    border-left: 3px solid #d4dbe6;
+    opacity: 0.6;
+    
+    &:hover {
+      background-color: #f5f7fa;
+      opacity: 0.75;
+      transform: translateY(-1px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+  `
+        : `
     &:hover {
       background-color: #e9ecef;
       transform: translateY(-1px);
@@ -580,11 +596,19 @@ const ListItemValue = styled.div<{ flex?: number; minWidth?: string }>`
   min-width: ${(props) => props.minWidth ?? "none"};
 `;
 
-const TransactionName = styled.p`
+const TransactionName = styled.p<{ isOptional?: boolean }>`
   font-size: ${fontSize(2)};
   ${space({ m: 0 })};
   font-weight: 700;
   color: var(--color-dark);
+  ${(props) =>
+    props.isOptional
+      ? `
+    font-style: italic;
+    font-weight: 400;
+    color: #8a92a3;
+  `
+      : ""}
 `;
 
 const TransactionInfo = styled.div`
