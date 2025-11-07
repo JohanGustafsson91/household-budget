@@ -44,3 +44,4 @@ testdata.txt
 serviceAccountKey.json
 firebase-adminsdk-*.json
 household-budget-prod-firebase-service-account.json
+household-buget-dev-firebase-adminsdk-dev.json

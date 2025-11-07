@@ -18,8 +18,7 @@
     "cypress:dev": "CYPRESS_baseUrl=https://household-buget-dev.web.app cypress run",
     "cypress:dev:open": "CYPRESS_baseUrl=https://household-buget-dev.web.app cypress open",
     "lint:exports": "node find-unused-exports.cjs",
-    "fetch-transactions": "node scripts/fetch-transactions.js",
-    "postinstall": "patch-package"
+    "fetch-transactions": "node scripts/fetch-transactions.js"
   },
   "dependencies": {
     "firebase": "12.5.0",
@@ -51,7 +50,6 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "firebase-admin": "^13.0.0",
-    "patch-package": "8.0.1",
     "ts-unused-exports": "10.1.0",
     "typescript": "5.9.3",
     "vite": "5.4.11",

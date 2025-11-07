@@ -64,12 +64,16 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      # Authenticate with Firebase using service account
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
 # Deploy to Firebase production (includes linting and build in the script)
       - name: Deploy to Firebase Production
         run: pnpm deploy:prod
         env:
-          # Firebase token should be stored in GitHub Secrets
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           # Firebase production environment variables (from production environment secrets)
           VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
           VITE_AUTH_DOMAIN: ${{ secrets.VITE_AUTH_DOMAIN }}
