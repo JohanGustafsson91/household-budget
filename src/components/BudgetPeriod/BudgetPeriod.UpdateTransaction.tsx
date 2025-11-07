@@ -149,15 +149,9 @@ export const UpdateTransaction = ({
             <Checkbox
               name="optional"
               type="checkbox"
-              checked={form.optional === false}
-              onChange={() =>
-                updateForm({
-                  target: {
-                    name: "optional",
-                    type: "checkbox",
-                    checked: !form.optional,
-                  },
-                } as ChangeEvent<HTMLInputElement | HTMLSelectElement>)
+              checked={!form.optional}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, optional: !e.target.checked }))
               }
             />
           </Label>
