@@ -85,6 +85,52 @@ describe("Manage budget", () => {
     });
   });
 
+  it("should add an optional transaction and verify visual styling", () => {
+    // Click to add a new transaction
+    cy.findByText(/lägg till/i).click();
+    
+    const monthNumber = new Date().getMonth() + 1;
+    const month = monthNumber <= 9 ? `0${monthNumber}` : `${monthNumber}`;
+    
+    // Add a coffee purchase (optional transaction)
+    cy.findByRole("textbox").type(
+      `2022-${month}-15\nKaffe på café\n45`,
+      { delay: 0 }
+    );
+
+    cy.findByRole("button", { name: /formatera/i }).click();
+    cy.findByRole("button", { name: /nästa/i }).click();
+    cy.findByRole("button", { name: /nästa/i }).click();
+
+    // Select category and mark as optional (uncheck "Nödvändig")
+    cy.findAllByRole("cell").contains("Kaffe på café").parent().find("select").select("Övrigt");
+    cy.findAllByRole("cell").contains("Kaffe på café").parent().find('input[type="checkbox"]').uncheck();
+
+    cy.findByRole("button", { name: /lägg till/i }).click();
+
+    // Wait for the transaction to be added
+    cy.wait(500);
+
+    // Click on Övrigt category to see the transaction
+    cy.findByTitle("Summary for Övrigt").click();
+
+    // Find the optional transaction item
+    cy.findByRole("listitem", {
+      name: /Kaffe på café/i,
+    }).as("optionalTransaction");
+
+    // Verify the optional transaction has the correct styling
+    cy.get("@optionalTransaction").should("have.css", "opacity", "0.6");
+    cy.get("@optionalTransaction").should("have.css", "background-color", "rgb(250, 251, 252)");
+    cy.get("@optionalTransaction").should("have.css", "border-left-width", "3px");
+    cy.get("@optionalTransaction").should("have.css", "border-left-color", "rgb(212, 219, 230)");
+
+    // Verify the transaction name is italic and has the right color
+    cy.get("@optionalTransaction").find("p").first().should("have.css", "font-style", "italic");
+    cy.get("@optionalTransaction").find("p").first().should("have.css", "color", "rgb(138, 146, 163)");
+    cy.get("@optionalTransaction").find("p").first().should("have.css", "font-weight", "400");
+  });
+
   it("should logout", () => {
     cy.findByRole("img", {
       name: /profile/i,
