@@ -163,7 +163,7 @@ export default function BudgetPeriod() {
     transactionsToDisplay,
   );
 
-  const { categorizedTransactions, totalIncome, totalExpenses, totalLeft } =
+  const { categorizedTransactions, totalIncome, totalExpenses, totalLeft, potentialSavings } =
     getSummarizedValues(transactionsToDisplay);
 
   const updatePeriodTotalsOnUnmount = useRef<() => void>();
@@ -315,16 +315,20 @@ export default function BudgetPeriod() {
                     })}
                   >
                     <Title>Inkomster</Title>
-                    <Money>{displayMoney(totalIncome)}</Money>
+                    <IncomeMoney>{displayMoney(totalIncome)}</IncomeMoney>
                   </OverviewItem>
                   <OverviewItem>
                     <Title>Utgifter</Title>
-                    <Money>{displayMoney(totalExpenses)}</Money>
+                    <ExpenseMoney>{displayMoney(totalExpenses)}</ExpenseMoney>
                   </OverviewItem>
                   <OverviewItem>
                     <Title>Saldo</Title>
                     <Money>{displayMoney(totalLeft)}</Money>
                   </OverviewItem>
+                  <SavingsOverviewItem>
+                    <Title>Möjlig besparing</Title>
+                    <SavingsMoney>{displayMoney(potentialSavings)}</SavingsMoney>
+                  </SavingsOverviewItem>
                 </Overview>
 
                 <Diagram.DiagramContainer>
@@ -435,6 +439,7 @@ export default function BudgetPeriod() {
                       }
                       title={`${userName} ${formattedMoney} till ${transaction.label} för ${categoryName}`}
                       isDuplicate={duplicateTransactionIds.has(transaction.id)}
+                      isOptional={transaction.optional}
                     >
                       <ListItemValue minWidth="80px">
                         {categoryName}
@@ -443,7 +448,9 @@ export default function BudgetPeriod() {
                         ) : null}
                       </ListItemValue>
                       <ListItemValue flex={1}>
-                        <TransactionName>{transaction.label}</TransactionName>
+                        <TransactionName isOptional={transaction.optional}>
+                          {transaction.label}
+                        </TransactionName>
                         <TransactionInfo>
                           {displayDate(transaction.date)}
                         </TransactionInfo>
@@ -492,11 +499,15 @@ function getSummarizedValues(transactions: Transaction[]) {
   const { INCOME, ...rest } = categorizedTransactions;
   const totalExpenses = summarize(Object.values(rest).flat());
   const totalLeft = totalIncome - totalExpenses;
+  
+  const optionalTransactions = transactions.filter(t => t.optional && t.category !== "INCOME");
+  const potentialSavings = summarize(optionalTransactions);
 
   return {
     totalIncome,
     totalExpenses,
     totalLeft,
+    potentialSavings,
     categorizedTransactions,
   };
 }
@@ -526,11 +537,17 @@ cursor: pointer;
   ${(props) =>
     props.active
       ? `
-    ${Money} {
+    ${IncomeMoney} {
       color: #C3A2ED;
     }
     `
       : ""}
+`;
+
+const SavingsOverviewItem = styled(OverviewItem)`
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const List = styled.ul`
@@ -539,7 +556,7 @@ const List = styled.ul`
   ${space({ m: 0, p: 0 })};
 `;
 
-const ListItem = styled.li<{ isDuplicate?: boolean }>`
+const ListItem = styled.li<{ isDuplicate?: boolean; isOptional?: boolean }>`
   display: flex;
   align-items: center;
   ${space({ mb: 3, py: 1 })};
@@ -565,7 +582,20 @@ const ListItem = styled.li<{ isDuplicate?: boolean }>`
       box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
     }
   `
-      : `
+      : props.isOptional
+        ? `
+    background-color: #fafbfc;
+    border-left: 3px solid #d4dbe6;
+    opacity: 0.6;
+    
+    &:hover {
+      background-color: #f5f7fa;
+      opacity: 0.75;
+      transform: translateY(-1px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+  `
+        : `
     &:hover {
       background-color: #e9ecef;
       transform: translateY(-1px);
@@ -580,11 +610,19 @@ const ListItemValue = styled.div<{ flex?: number; minWidth?: string }>`
   min-width: ${(props) => props.minWidth ?? "none"};
 `;
 
-const TransactionName = styled.p`
+const TransactionName = styled.p<{ isOptional?: boolean }>`
   font-size: ${fontSize(2)};
   ${space({ m: 0 })};
   font-weight: 700;
   color: var(--color-dark);
+  ${(props) =>
+    props.isOptional
+      ? `
+    font-style: italic;
+    font-weight: 400;
+    color: #8a92a3;
+  `
+      : ""}
 `;
 
 const TransactionInfo = styled.div`
@@ -600,6 +638,27 @@ const Title = styled.h1`
 
 const Money = styled.h2`
   color: #313131;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const IncomeMoney = styled.h2`
+  color: #4caf50;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const ExpenseMoney = styled.h2`
+  color: #f44336;
+  font-size: ${fontSize(5)};
+  ${space({ m: 0, mb: 2 })}
+  font-weight: 500;
+`;
+
+const SavingsMoney = styled.h2`
+  color: #7c9fff;
   font-size: ${fontSize(5)};
   ${space({ m: 0, mb: 2 })}
   font-weight: 500;
