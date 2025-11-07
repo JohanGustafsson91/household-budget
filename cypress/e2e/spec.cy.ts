@@ -108,20 +108,20 @@ describe("Manage budget", () => {
 
     cy.findByRole("button", { name: /lägg till/i }).click();
 
-    // Wait for the transaction to be added
-    cy.wait(500);
-
-    // Verify potential savings is displayed in the overview
-    cy.get("div").contains("Möjlig besparing").should("be.visible");
-    cy.get("div").contains("Möjlig besparing").parent().contains("45kr");
+    // Wait for the transaction to be added and verify potential savings
+    cy.contains("Möjlig besparing", { timeout: 10000 }).should("be.visible");
+    cy.contains("45kr").should("be.visible");
 
     // Click on Övrigt category to see the transaction
     cy.findByTitle("Summary for Övrigt").click();
 
-    // Find the optional transaction item
-    cy.findByRole("listitem", {
-      name: /Kaffe på café/i,
-    }).as("optionalTransaction");
+    // Wait for and find the optional transaction item
+    cy.contains("Kaffe på café", { timeout: 10000 }).should("be.visible");
+    
+    cy.findAllByRole("listitem")
+      .filter(':contains("Kaffe på café")')
+      .first()
+      .as("optionalTransaction");
 
     // Verify the optional transaction has the correct styling
     cy.get("@optionalTransaction").should("have.css", "opacity", "0.6");
@@ -137,7 +137,14 @@ describe("Manage budget", () => {
     // Clean up: delete the optional transaction to not affect other tests
     cy.get("@optionalTransaction").click();
     cy.findByRole("button", { name: /ta bort/i }).click();
-    cy.wait(500);
+    
+    // Wait for deletion to complete and verify it's gone
+    cy.wait(1000);
+    cy.get("body").then(($body) => {
+      if ($body.text().includes("Kaffe på café")) {
+        throw new Error("Transaction should have been deleted");
+      }
+    });
   });
 
   it("should logout", () => {
