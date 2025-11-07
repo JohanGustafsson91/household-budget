@@ -110,7 +110,7 @@ describe("Manage budget", () => {
 
     // Wait for the transaction to be added and verify potential savings
     cy.contains("Möjlig besparing", { timeout: 10000 }).should("be.visible");
-    cy.contains("45kr").should("be.visible");
+    cy.contains("Möjlig besparing").parent().should("contain", "45");
 
     // Click on Övrigt category to see the transaction
     cy.findByTitle("Summary for Övrigt").click();
