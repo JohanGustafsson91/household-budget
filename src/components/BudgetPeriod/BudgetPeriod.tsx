@@ -6,7 +6,7 @@ import {
   PopupMenuSection,
   PopupMenuTitle,
 } from "components/ActionBar/ActionBar";
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAsync } from "shared/useAsync";
 import styled from "styled-components";
@@ -23,17 +23,6 @@ import { CreateTransactions } from "./BudgetPeriod.CreateTransactions";
 import { useVisitor } from "components/VisitorContext/VisitorContext.useVisitor";
 import { displayMoney } from "shared/displayMoney";
 
-interface State {
-  displayForUser: {
-    id: string;
-    name: string;
-  };
-  showTypeOfTransactions: ShowType;
-  selectedCategory: Category | undefined;
-  transactionToUpdate: Transaction | undefined;
-  view: "create" | "overview" | "update";
-}
-
 export default function BudgetPeriod() {
   const { id: periodId } = useParams();
   const {
@@ -49,34 +38,28 @@ export default function BudgetPeriod() {
     setError: setTransactionsError,
   } = useAsync<Transaction[]>();
 
-  const [
-    {
-      displayForUser,
-      showTypeOfTransactions,
-      selectedCategory,
-      transactionToUpdate,
-      view,
-    },
-    setState,
-  ] = useReducer(
-    (state: State, updates: Partial<State>) => ({
-      ...state,
-      ...updates,
-    }),
-    {
-      displayForUser:
-        visitorId && visitorName
-          ? { id: visitorId, name: visitorName }
-          : displayAllTransactionsOption,
-      showTypeOfTransactions: "all",
-      selectedCategory: undefined,
-      transactionToUpdate: undefined,
-      view: "overview",
-    },
+  const [displayForUser, setDisplayForUser] = useState<{
+    id: string;
+    name: string;
+  }>(
+    visitorId && visitorName
+      ? { id: visitorId, name: visitorName }
+      : displayAllTransactionsOption,
+  );
+  const [showTypeOfTransactions, setShowTypeOfTransactions] =
+    useState<ShowType>("all");
+  const [selectedCategory, setSelectedCategory] = useState<
+    Category | undefined
+  >(undefined);
+  const [transactionToUpdate, setTransactionToUpdate] = useState<
+    Transaction | undefined
+  >(undefined);
+  const [view, setView] = useState<"create" | "overview" | "update">(
+    "overview",
   );
 
   const viewRef = useRef<HTMLDivElement | null>(null);
-  useOnClickOutside(viewRef, () => setState({ view: "overview" }));
+  useOnClickOutside(viewRef, () => setView("overview"));
 
   useEffect(
     function getPeriodById() {
@@ -102,7 +85,7 @@ export default function BudgetPeriod() {
 
   useEffect(() => {
     if (transactionToUpdate) {
-      setState({ view: "update" });
+      setView("update");
     }
   }, [transactionToUpdate]);
 
@@ -233,10 +216,9 @@ export default function BudgetPeriod() {
 
   function handleShowCategory(category: Category) {
     return () =>
-      setState({
-        selectedCategory:
-          selectedCategory?.type === category.type ? undefined : category,
-      });
+      setSelectedCategory(
+        selectedCategory?.type === category.type ? undefined : category,
+      );
   }
 
   const displayForUserOptions = [
@@ -263,7 +245,7 @@ export default function BudgetPeriod() {
                 key={id}
                 active={displayForUser.id === id}
                 onClick={() => {
-                  setState({ displayForUser: { id, name } });
+                  setDisplayForUser({ id, name });
                   closeMenu();
                 }}
               >
@@ -274,7 +256,7 @@ export default function BudgetPeriod() {
         )}
       >
         {view === "overview" ? (
-          <ModeButton onClick={() => setState({ view: "create" })}>
+          <ModeButton onClick={() => setView("create")}>
             Lägg till
           </ModeButton>
         ) : null}
@@ -286,7 +268,7 @@ export default function BudgetPeriod() {
             <View ref={viewRef}>
               <CreateTransactions
                 period={period}
-                onUpdated={() => setState({ view: "overview" })}
+                onUpdated={() => setView("overview")}
               />
             </View>
           ),
@@ -296,7 +278,7 @@ export default function BudgetPeriod() {
                 <UpdateTransaction
                   period={period}
                   transaction={transactionToUpdate}
-                  onUpdated={() => setState({ view: "overview" })}
+                  onUpdated={() => setView("overview")}
                 />
               ) : null}
             </View>
@@ -393,9 +375,7 @@ export default function BudgetPeriod() {
                   <select
                     value={showTypeOfTransactions}
                     onChange={(e) =>
-                      setState({
-                        showTypeOfTransactions: e.target.value as ShowType,
-                      })
+                      setShowTypeOfTransactions(e.target.value as ShowType)
                     }
                   >
                     {["all", "required", "optional"].map((item) => (
@@ -434,9 +414,7 @@ export default function BudgetPeriod() {
                   return (
                     <ListItem
                       key={transaction.id}
-                      onClick={() =>
-                        setState({ transactionToUpdate: transaction })
-                      }
+                      onClick={() => setTransactionToUpdate(transaction)}
                       title={`${userName} ${formattedMoney} till ${transaction.label} för ${categoryName}`}
                       isDuplicate={duplicateTransactionIds.has(transaction.id)}
                       isOptional={transaction.optional}
