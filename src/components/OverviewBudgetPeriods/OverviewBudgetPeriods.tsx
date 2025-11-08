@@ -1,6 +1,6 @@
 import { deleteBudgetPeriod, getBudgetPeriods } from "api/budget-period";
 import { Loading } from "./OverviewBudgetPeriods.Loading";
-import { getAuth } from "firebase/auth";
+import { auth } from "api/firebase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { BudgetPeriod } from "shared/BudgetPeriod";
@@ -112,7 +112,7 @@ export default function OverviewBudgetPeriods() {
                 <CardContainer>
                   {budgetPeriods.map((period) => {
                     const memberWith = period.members
-                      .filter((userId) => userId !== getAuth().currentUser?.uid)
+                      .filter((userId) => userId !== auth.currentUser?.uid)
                       .map((uid) => visitor.getFriendById(uid)?.name ?? "")
                       .join(", ");
 

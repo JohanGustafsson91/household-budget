@@ -5,15 +5,43 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { COLLECTION, db } from "./firebase";
-import { getAuth } from "./auth";
+import { auth, COLLECTION, db } from "./firebase";
+
+const chunkArray = <T>(array: T[], size: number): T[][] =>
+  array.length === 0
+    ? []
+    : [array.slice(0, size), ...chunkArray(array.slice(size), size)];
+
+const fetchFriendsInBatches = async (
+  friendIds: string[],
+): Promise<Friend[]> => {
+  const batches = chunkArray(friendIds, 10);
+
+  const batchQueries = batches.map((batch) =>
+    getDocs(
+      query(collection(db, COLLECTION["users"]), where("id", "in", batch)),
+    ),
+  );
+
+  const results = await Promise.all(batchQueries);
+
+  return results.flatMap((result) =>
+    result.docs.map((doc) => {
+      const { name, id, gender } = doc.data();
+      return { name, id, gender } as Friend;
+    }),
+  );
+};
+
+const visitorQuery = (id: string) =>
+  query(collection(db, COLLECTION["users"]), where("id", "==", id));
 
 export const getVisitor = (
   id: string | undefined,
   callbackOnSnapshot: (value: Visitor) => void,
-  callbackOnError: (error: string) => void
+  callbackOnError: (error: string) => void,
 ) => {
-  const currentVisitorId = getAuth().currentUser?.uid;
+  const currentVisitorId = auth.currentUser?.uid;
 
   if (currentVisitorId !== id) {
     return callbackOnError("Invalid id");
@@ -37,15 +65,8 @@ export const getVisitor = (
       const [doc] = querySnapshot.docs;
       const { id, name, gender, friends } = doc.data();
 
-      const friendsData: Friend[] = await Promise.all(
-        friends.map(async (friendId: string) => {
-          const doc = await getDocs(visitorQuery(friendId));
-          const [friendDoc] = doc.docs;
-          const { name, id, gender } = friendDoc.data();
-          const friend: Friend = { name, id, gender };
-          return friend;
-        })
-      );
+      const friendsData =
+        friends.length === 0 ? [] : await fetchFriendsInBatches(friends);
 
       callbackOnSnapshot({
         type: "registered",
@@ -57,12 +78,9 @@ export const getVisitor = (
         friends: friendsData,
       });
     },
-    (e) => callbackOnError(e.message)
+    (e) => callbackOnError(e.message),
   );
 };
-
-const visitorQuery = (id: string) =>
-  query(collection(db, COLLECTION["users"]), where("id", "==", id));
 
 export type Visitor = AnonymousVisitor | RegisteredVisitor;
 
