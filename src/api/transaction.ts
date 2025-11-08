@@ -11,9 +11,22 @@ import {
   doc,
   setDoc,
   addDoc,
+  DocumentData,
 } from "firebase/firestore";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { COLLECTION, db } from "./firebase";
+
+// Transform Firestore document to Transaction
+const toTransaction = (doc: { id: string; data: () => DocumentData }): Transaction => {
+  const data = doc.data();
+  
+  return {
+    ...data,
+    id: doc.id,
+    date: data.date.toDate(),
+    optional: Boolean(data.optional),
+  } as Transaction;
+};
 
 export const getTransactionsForPeriod = (
   period: BudgetPeriod,
@@ -28,20 +41,10 @@ export const getTransactionsForPeriod = (
     ),
     function onSnapshot(querySnapshot) {
       const transactions = querySnapshot.docs
-        .map((doc) => {
-          const data = doc.data();
-          const docId = doc.id;
+        .map(toTransaction)
+        .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-          return {
-            ...data,
-            id: docId,
-            date: data.date.toDate(),
-            optional: Boolean(data.optional),
-          };
-        })
-        .sort((a, b) => b.date - a.date);
-
-      callbackOnSnapshot(transactions as Transaction[]);
+      callbackOnSnapshot(transactions);
     },
     (e) => callbackOnError(e.message)
   );

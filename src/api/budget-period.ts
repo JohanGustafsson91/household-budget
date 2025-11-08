@@ -14,7 +14,6 @@ import {
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { nanoid } from "nanoid";
 import { auth, COLLECTION, db, getDocument } from "./firebase";
-import { getAuth } from "./auth";
 
 export const getBudgetPeriods = (
   callbackOnSnapshot: (value: BudgetPeriod[]) => void,
@@ -38,10 +37,7 @@ export const getBudgetPeriods = (
 
       callbackOnSnapshot(periods);
     },
-    (e) => {
-      console.log(e);
-      callbackOnError(e.message);
-    }
+    (e) => callbackOnError(e.message)
   );
 };
 
@@ -75,8 +71,8 @@ const toBudgetPeriod = (data: DocumentData): BudgetPeriod => ({
 export const postBudgetPeriod = (data: Form) =>
   addDoc(collection(db, COLLECTION["budgetPeriods"]), {
     ...data,
-    members: [...data.members, getAuth().currentUser?.uid],
-    author: getAuth()?.currentUser?.uid,
+    members: [...data.members, auth.currentUser?.uid],
+    author: auth.currentUser?.uid,
     createdAt: new Date(),
     lastUpdated: new Date(),
     key: nanoid(),

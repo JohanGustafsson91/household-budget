@@ -1,7 +1,7 @@
 import { postTransaction } from "api/transaction";
 import { Title } from "./BudgetPeriod.Title";
 import { FormField, Select, Textarea, Button } from "components/FormElements";
-import { getAuth } from "firebase/auth";
+import { auth } from "api/firebase";
 import { useEffect, useState } from "react";
 import { BudgetPeriod } from "shared/BudgetPeriod";
 import { categories } from "shared/BudgetPeriod";
@@ -118,7 +118,7 @@ export const CreateTransactions = ({ period, onUpdated }: Props) => {
                 amount: Number.parseFloat(
                   amount?.replace(",", ".").replace("-", "").replace(" ", "")
                 ),
-                author: getAuth()?.currentUser?.uid,
+                author: auth.currentUser?.uid,
                 createdAt: new Date(),
                 lastUpdated: new Date(),
                 periodId: period.id,
