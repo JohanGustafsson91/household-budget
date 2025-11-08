@@ -161,4 +161,4 @@ jobs:
     uses: JohanGustafsson91/github-reusable-actions/.github/workflows/auto-merge-dependabot.yml@main
     with:
       merge-method: squash
-      exclude: major
+      exclude: none  # Auto-merge all updates after tests pass
