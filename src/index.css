@@ -1,0 +1,57 @@
+:root {
+  --color-background: #FFF;
+  --color-dark: #313131;
+  --color-background-card: #FFFFFF;
+  --color-border: #EDEFF1;
+  --color-background-action-bar: #0338A5;
+  --color-text-action-bar: #FFFFFF;
+  --color-text: #687F9A;
+  --color-text-strong: #00072E;
+  --color-money-label: #4d82d7;
+  --color-form-element-background: #fff;
+  
+  /* Design tokens for consistent styling */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: 'Titillium Web', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background);
+  color: var(--color-dark);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Better heading styles */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text-strong);
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-background-action-bar);
+  outline-offset: 2px;
+}
+
