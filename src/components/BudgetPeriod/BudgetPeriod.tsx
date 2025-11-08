@@ -149,10 +149,8 @@ export default function BudgetPeriod() {
   const { categorizedTransactions, totalIncome, totalExpenses, totalLeft, potentialSavings } =
     getSummarizedValues(transactionsToDisplay);
 
-  const updatePeriodTotalsOnUnmount = useRef<() => void>();
-
   useEffect(() => {
-    updatePeriodTotalsOnUnmount.current = () => {
+    return () => {
       if (!period?.id || transactionStatus !== "resolved") {
         return;
       }
@@ -182,29 +180,16 @@ export default function BudgetPeriod() {
         return;
       }
 
-      const data = {
-        categoryExpenseTotals: summarizedTotalsForCategories,
-        totalIncome,
-        totalExpenses,
-      };
-
       putBudgetPeriod({
         id: period.id,
-        data,
+        data: {
+          categoryExpenseTotals: summarizedTotalsForCategories,
+          totalIncome,
+          totalExpenses,
+        },
       });
     };
-  }, [
-    period?.categoryExpenseTotals,
-    period?.id,
-    transactionStatus,
-    transactions,
-  ]);
-
-  useEffect(() => {
-    return () => {
-      updatePeriodTotalsOnUnmount?.current?.();
-    };
-  }, []);
+  }, [period, transactionStatus, transactions]);
 
   if (!period) {
     return null;
