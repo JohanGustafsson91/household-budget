@@ -13,7 +13,6 @@ permissions:
   pull-requests: write
   contents: write
   checks: write
-  workflows: write
 
 jobs:
   # Call the reusable validate workflow (lint, test, build)
