@@ -139,7 +139,9 @@ export const UpdateTransaction = ({
               name="shared"
               type="checkbox"
               checked={form.shared}
-              onChange={updateForm}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, shared: e.target.checked }))
+              }
             />
           </Label>
         </FormField>
@@ -149,15 +151,9 @@ export const UpdateTransaction = ({
             <Checkbox
               name="optional"
               type="checkbox"
-              checked={form.optional === false}
-              onChange={() =>
-                updateForm({
-                  target: {
-                    name: "optional",
-                    type: "checkbox",
-                    checked: !form.optional,
-                  },
-                } as ChangeEvent<HTMLInputElement | HTMLSelectElement>)
+              checked={!form.optional}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, optional: !e.target.checked }))
               }
             />
           </Label>

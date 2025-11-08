@@ -120,43 +120,22 @@ export default function BudgetPeriod() {
   });
 
   const findDuplicateTransactions = (transactions: Transaction[]) => {
-    const duplicates = new Set<string>();
+    const groups = new Map<string, Transaction[]>();
 
-    transactions.forEach((transaction, index) => {
-      const matchingTransactions = transactions.filter((other, otherIndex) => {
-        if (index === otherIndex) return false;
+    transactions.forEach((transaction) => {
+      const normalizedLabel = transaction.label.toLowerCase().trim();
+      const dateKey = transaction.date.toDateString();
+      const key = `${transaction.amount}-${normalizedLabel}-${dateKey}`;
 
-        if (transaction.amount !== other.amount) return false;
-
-        const labelsMatch =
-          transaction.label
-            .toLowerCase()
-            .trim()
-            .includes(other.label.toLowerCase().trim()) ||
-          other.label
-            .toLowerCase()
-            .trim()
-            .includes(transaction.label.toLowerCase().trim());
-
-        if (!labelsMatch) return false;
-
-        // Only flag as duplicate if transactions are on the same day or within 1 day
-        // This avoids flagging legitimate recurring expenses (like daily train tickets)
-        const daysDifference = Math.abs(
-          (transaction.date.getTime() - other.date.getTime()) /
-            (1000 * 60 * 60 * 24),
-        );
-
-        return daysDifference <= 1;
-      });
-
-      if (matchingTransactions.length > 0) {
-        duplicates.add(transaction.id);
-        matchingTransactions.forEach((match) => duplicates.add(match.id));
-      }
+      const existing = groups.get(key) || [];
+      groups.set(key, [...existing, transaction]);
     });
 
-    return duplicates;
+    return new Set(
+      Array.from(groups.values())
+        .filter((group) => group.length > 1)
+        .flatMap((group) => group.map((t) => t.id)),
+    );
   };
 
   const duplicateTransactionIds = findDuplicateTransactions(
@@ -166,10 +145,8 @@ export default function BudgetPeriod() {
   const { categorizedTransactions, totalIncome, totalExpenses, totalLeft, potentialSavings } =
     getSummarizedValues(transactionsToDisplay);
 
-  const updatePeriodTotalsOnUnmount = useRef<() => void>();
-
   useEffect(() => {
-    updatePeriodTotalsOnUnmount.current = () => {
+    return () => {
       if (!period?.id || transactionStatus !== "resolved") {
         return;
       }
@@ -199,29 +176,16 @@ export default function BudgetPeriod() {
         return;
       }
 
-      const data = {
-        categoryExpenseTotals: summarizedTotalsForCategories,
-        totalIncome,
-        totalExpenses,
-      };
-
       putBudgetPeriod({
         id: period.id,
-        data,
+        data: {
+          categoryExpenseTotals: summarizedTotalsForCategories,
+          totalIncome,
+          totalExpenses,
+        },
       });
     };
-  }, [
-    period?.categoryExpenseTotals,
-    period?.id,
-    transactionStatus,
-    transactions,
-  ]);
-
-  useEffect(() => {
-    return () => {
-      updatePeriodTotalsOnUnmount?.current?.();
-    };
-  }, []);
+  }, [period, transactionStatus, transactions]);
 
   if (!period) {
     return null;

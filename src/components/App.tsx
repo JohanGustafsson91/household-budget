@@ -37,57 +37,49 @@ export const App = () => (
       <VisitorProvider>
         <Router>
           <Routes>
-            {[
-              {
-                path: ROUTES.LOGIN,
-                element: (
-                  <Page
-                    visitorTypes={["anonymous"]}
-                    navigateToPageIfNotAllowed={ROUTES.OVERVIEW_BUDGET_PERIODS}
-                  >
-                    <Suspense fallback={<div />}>
-                      <LoginForm />
-                    </Suspense>
-                  </Page>
-                ),
-              },
-              {
-                path: ROUTES.OVERVIEW_BUDGET_PERIODS,
-                element: (
-                  <RegisteredVisitorPage>
-                    <Suspense fallback={<div />}>
-                      <OverviewBudgetPeriods />
-                    </Suspense>
-                  </RegisteredVisitorPage>
-                ),
-              },
-              {
-                path: ROUTES.CREATE_BUDGET_PERIOD,
-                element: (
-                  <RegisteredVisitorPage>
-                    <Suspense fallback={<div />}>
-                      <CreateBudgetPeriod />
-                    </Suspense>
-                  </RegisteredVisitorPage>
-                ),
-              },
-              {
-                path: ROUTES.BUDGET_PERIOD,
-                element: (
-                  <RegisteredVisitorPage>
-                    <Suspense fallback={<div />}>
-                      <BudgetPeriod />
-                    </Suspense>
-                  </RegisteredVisitorPage>
-                ),
-              },
-            ].map((route) => (
-              <Route
-                key={route.path}
-                path={route.path}
-                element={route.element}
-              />
-            ))}
+            <Route
+              path={ROUTES.LOGIN}
+              element={
+                <Page
+                  visitorTypes={["anonymous"]}
+                  navigateToPageIfNotAllowed={ROUTES.OVERVIEW_BUDGET_PERIODS}
+                >
+                  <Suspense fallback={<div />}>
+                    <LoginForm />
+                  </Suspense>
+                </Page>
+              }
+            />
+            <Route
+              path={ROUTES.OVERVIEW_BUDGET_PERIODS}
+              element={
+                <RegisteredVisitorPage>
+                  <Suspense fallback={<div />}>
+                    <OverviewBudgetPeriods />
+                  </Suspense>
+                </RegisteredVisitorPage>
+              }
+            />
+            <Route
+              path={ROUTES.CREATE_BUDGET_PERIOD}
+              element={
+                <RegisteredVisitorPage>
+                  <Suspense fallback={<div />}>
+                    <CreateBudgetPeriod />
+                  </Suspense>
+                </RegisteredVisitorPage>
+              }
+            />
+            <Route
+              path={ROUTES.BUDGET_PERIOD}
+              element={
+                <RegisteredVisitorPage>
+                  <Suspense fallback={<div />}>
+                    <BudgetPeriod />
+                  </Suspense>
+                </RegisteredVisitorPage>
+              }
+            />
           </Routes>
         </Router>
       </VisitorProvider>

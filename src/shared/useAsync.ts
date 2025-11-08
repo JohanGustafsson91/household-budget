@@ -46,40 +46,13 @@ export function useAsync<Data>(initialState?: State<Data>) {
     [dispatch]
   );
 
-  const returnData = {
+  return {
     setData,
     setError,
     setIdle,
     run,
     ...state,
-  };
-
-  switch (state.status) {
-    case "idle": {
-      return { ...returnData, status: "idle" } as WithStateFunctions<
-        Data,
-        IdleState
-      >;
-    }
-    case "pending": {
-      return { ...returnData, status: "pending" } as WithStateFunctions<
-        Data,
-        PendingState
-      >;
-    }
-    case "resolved": {
-      return { ...returnData, status: "resolved" } as WithStateFunctions<
-        Data,
-        ResolvedState<Data>
-      >;
-    }
-    case "rejected": {
-      return { ...returnData, status: "rejected" } as WithStateFunctions<
-        Data,
-        RejectedState
-      >;
-    }
-  }
+  } as WithStateFunctions<Data, State<Data>>;
 }
 
 function asyncReducer<Data>(
