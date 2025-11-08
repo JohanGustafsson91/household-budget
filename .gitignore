@@ -35,6 +35,7 @@ yarn-error.log*
 
 cypress/videos
 cypress/screenshots
+cypress.env.json
 
 /.firebase
 testdata.txt

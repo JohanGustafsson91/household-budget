@@ -2,11 +2,17 @@ beforeEach(() => {
   indexedDB.deleteDatabase("firebaseLocalStorageDb");
 });
 
+const TEST_USER_1 = Cypress.env('TEST_USER_1');
+const TEST_USER_2 = Cypress.env('TEST_USER_2');
+const TEST_PASSWORD = Cypress.env('TEST_PASSWORD');
+const TEST_USER_1_NAME = Cypress.env('TEST_USER_1_NAME');
+const TEST_USER_2_NAME = Cypress.env('TEST_USER_2_NAME');
+
 describe("Manage budget", () => {
   it("should login user", () => {
     cy.visit("/");
-    login("test@example.com", "test123");
-    cy.findByText(/välkommen chaplin/i).should("be.visible");
+    login(TEST_USER_1, TEST_PASSWORD);
+    cy.findByText(new RegExp(`välkommen ${TEST_USER_1_NAME}`, 'i')).should("be.visible");
   });
 
   it("should clean up previously created budget periods", () => {
@@ -21,12 +27,12 @@ describe("Manage budget", () => {
     cy.findByRole("button", { name: /Skapa/i }).click();
   });
 
-  it("should add transactions for Chaplin", () => {
+  it("should add transactions for user 1", () => {
     cy.findByText(/lägg till/i).click();
-    addTransactions("Chaplin");
+    addTransactions(TEST_USER_1_NAME);
   });
 
-  it("should verify no duplicates exist for Chaplin's transactions", () => {
+  it("should verify no duplicates exist for user 1's transactions", () => {
     // After adding initial transactions, there should be no duplicates
     cy.get("body").then(($body) => {
       if ($body.text().includes("potentiella duplicerade transaktioner")) {
@@ -156,8 +162,8 @@ describe("Manage budget", () => {
 
   it("should login with different user", () => {
     cy.visit("/");
-    login("test2@example.com", "test123");
-    cy.findByText(/välkommen charlie/i);
+    login(TEST_USER_2, TEST_PASSWORD);
+    cy.findByText(new RegExp(`välkommen ${TEST_USER_2_NAME}`, 'i'));
   });
 
   it("should select previously created period", () => {
@@ -165,9 +171,9 @@ describe("Manage budget", () => {
     cy.findAllByRole("listitem").last().click();
   });
 
-  it("should add multiple transactions at once for Charlie", () => {
+  it("should add multiple transactions at once for user 2", () => {
     cy.findByText(/lägg till/i).click();
-    addTransactions("Charlie");
+    addTransactions(TEST_USER_2_NAME);
   });
 
   it("should have correct calculated values", () => {
@@ -278,7 +284,7 @@ function addTransactions(member: string) {
 
 const data = [
   {
-    member: "Chaplin",
+    member: TEST_USER_1_NAME,
     summary: [
       { text: "Saldo", value: "43000" },
       { text: "Inkomster", value: "50000" },
@@ -376,7 +382,7 @@ const data = [
     ],
   },
   {
-    member: "Charlie",
+    member: TEST_USER_2_NAME,
     summary: [
       { text: "Saldo", value: "3500" },
       { text: "Inkomster", value: "10000" },

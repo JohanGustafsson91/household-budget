@@ -129,6 +129,12 @@ jobs:
         env:
           # Set the baseUrl for Cypress to use the Firebase development environment
           CYPRESS_baseUrl: https://household-buget-dev.web.app
+          # Cypress test credentials
+          CYPRESS_TEST_USER_1: ${{ secrets.TEST_USER_1 }}
+          CYPRESS_TEST_USER_2: ${{ secrets.TEST_USER_2 }}
+          CYPRESS_TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          CYPRESS_TEST_USER_1_NAME: ${{ secrets.TEST_USER_1_NAME }}
+          CYPRESS_TEST_USER_2_NAME: ${{ secrets.TEST_USER_2_NAME }}
 
       # Upload Cypress test results and videos
       - name: Upload Cypress artifacts
