@@ -19,7 +19,7 @@ jobs:
 
     environment:
       name: production
-      url: https://household-budget.web.app # Replace with your actual Firebase URL
+      url: https://household-budget-prod.web.app/ # Replace with your actual Firebase URL
 
     steps:
       # Checkout the repository code
@@ -33,7 +33,7 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: latest
-          
+
       # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -59,7 +59,7 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       # Install Firebase CLI
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
@@ -70,9 +70,9 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
-# Deploy to Firebase production (includes linting and build in the script)
-      - name: Deploy to Firebase Production
-        run: pnpm deploy:prod
+      # Build for production
+      - name: Build for production
+        run: pnpm build:production
         env:
           # Firebase production environment variables (from production environment secrets)
           VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
@@ -83,6 +83,10 @@ jobs:
           VITE_APP_ID: ${{ secrets.VITE_APP_ID }}
           VITE_MEASUREMENT_ID: ${{ secrets.VITE_MEASUREMENT_ID }}
           VITE_ENVIRONMENT: production
+
+      # Deploy to Firebase production
+      - name: Deploy to Firebase Production
+        run: pnpm deploy:prod
 
       # Create deployment status
       - name: Create deployment status
@@ -97,4 +101,3 @@ jobs:
         run: |
           echo "❌ Deployment to production failed!"
           echo "🔍 Check the logs above for more details"
-
