@@ -139,7 +139,9 @@ export const UpdateTransaction = ({
               name="shared"
               type="checkbox"
               checked={form.shared}
-              onChange={updateForm}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, shared: e.target.checked }))
+              }
             />
           </Label>
         </FormField>
