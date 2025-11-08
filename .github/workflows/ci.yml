@@ -15,28 +15,38 @@ permissions:
   checks: write
 
 jobs:
-  # Job to run all tests and checks
-  test:
-    name: Run Tests and Linting
-    runs-on: ubuntu-latest
-    environment: development
+  # Call the reusable validate workflow (lint, test, build)
+  validate:
+    name: Validate PR
+    uses: JohanGustafsson91/github-reusable-actions/.github/workflows/validate.yml@main
+    with:
+      node-version: "20.x"
+      package-manager: "pnpm"
+      lint-script: "lint"
+      test-script: "test"
+      build-script: "build"
+      # Skip test in validate since we run E2E tests separately
+      skip-test: true
 
-    strategy:
-      matrix:
-        node-version: [20.x]
+  # Firebase-specific E2E testing
+  e2e-test:
+    name: E2E Tests on Firebase
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: development
 
     steps:
       # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Get full history for better caching
+          fetch-depth: 0
 
-      # Setup Node.js with specified version
-      - name: Setup Node.js ${{ matrix.node-version }}
+      # Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20.x"
 
       # Setup pnpm package manager
       - name: Setup pnpm
@@ -62,12 +72,12 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       # Install Firebase CLI
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-# Cache Cypress binary
+      # Cache Cypress binary
       - name: Cache Cypress
         uses: actions/cache@v4
         with:
@@ -76,26 +86,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cypress-13.6.6-
             ${{ runner.os }}-cypress-
-            
-# Install Cypress binary
+
+      # Install Cypress binary
       - name: Install Cypress
         run: pnpm cypress:install
-        
-      # Install Firebase CLI
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
 
       # Authenticate with Firebase using service account
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        
-      # Deploy to Firebase development environment for E2E testing (includes linting and build)
-      - name: Deploy to Firebase development
-        run: pnpm deploy:dev
+
+      # Build the project for deployment
+      - name: Build project
+        run: pnpm build
         env:
-          # Firebase development environment variables (from development environment secrets)
           VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
           VITE_AUTH_DOMAIN: ${{ secrets.VITE_AUTH_DOMAIN }}
           VITE_PROJECT_ID: ${{ secrets.VITE_PROJECT_ID }}
@@ -104,11 +109,15 @@ jobs:
           VITE_APP_ID: ${{ secrets.VITE_APP_ID }}
           VITE_MEASUREMENT_ID: ${{ secrets.VITE_MEASUREMENT_ID }}
           VITE_ENVIRONMENT: development
-          
+
+      # Deploy to Firebase development environment for E2E testing
+      - name: Deploy to Firebase development
+        run: pnpm deploy:dev
+
       # Wait for deployment to be ready and run Cypress tests
       - name: Run Cypress tests
         run: |
-          # Wait for Firebase deployment to be ready and verify it's accessible
+          # Wait for Firebase deployment to be ready
           echo "Waiting for Firebase deployment to be ready..."
           for i in {1..10}; do
             echo "Checking if dev site is accessible... (attempt $i/10)"
@@ -122,14 +131,12 @@ jobs:
             fi
             sleep 10
           done
-          
-          # Run Cypress tests against the deployed development environment
+
+          # Run Cypress tests
           echo "Running Cypress tests against dev environment..."
           pnpm cypress:run
         env:
-          # Set the baseUrl for Cypress to use the Firebase development environment
           CYPRESS_baseUrl: https://household-buget-dev.web.app
-          # Cypress test credentials
           CYPRESS_TEST_USER_1: ${{ secrets.TEST_USER_1 }}
           CYPRESS_TEST_USER_2: ${{ secrets.TEST_USER_2 }}
           CYPRESS_TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
@@ -147,26 +154,11 @@ jobs:
             cypress/videos/
           retention-days: 7
 
-  # Job to auto-merge Dependabot PRs if all tests pass
+  # Call the reusable auto-merge workflow for Dependabot PRs
   auto-merge:
     name: Auto-merge Dependabot PRs
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Auto-merge Dependabot PR
-        uses: fastify/github-action-merge-dependabot@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Only merge if the PR is from Dependabot and all checks pass
-          merge-method: squash
-          # Only auto-merge minor and patch updates for production dependencies
-          # Major updates will require manual review
-          exclude: "major"
-
+    needs: [validate, e2e-test]
+    uses: JohanGustafsson91/github-reusable-actions/.github/workflows/auto-merge-dependabot.yml@main
+    with:
+      merge-method: squash
+      exclude: major
