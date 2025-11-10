@@ -125,7 +125,7 @@ export default function BudgetPeriod() {
     transactions.forEach((transaction) => {
       const normalizedLabel = transaction.label.toLowerCase().trim();
       const dateKey = transaction.date.toDateString();
-      const key = `${transaction.amount}-${normalizedLabel}-${dateKey}`;
+      const key = `${transaction.author}-${transaction.amount}-${normalizedLabel}-${dateKey}`;
 
       const existing = groups.get(key) || [];
       groups.set(key, [...existing, transaction]);
