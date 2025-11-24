@@ -103,7 +103,7 @@ const Page = ({
   useEffect(
     function protectPage() {
       if (!visitorAllowed) {
-        return navigate(navigateToPageIfNotAllowed);
+        navigate(navigateToPageIfNotAllowed);
       }
     },
     [navigate, navigateToPageIfNotAllowed, visitorAllowed],
