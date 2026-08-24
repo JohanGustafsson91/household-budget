@@ -41,7 +41,7 @@ export const UpdateTransaction = ({
         focusRef.current?.focus();
       }
     },
-    [form.amount]
+    [form.amount],
   );
 
   useEffect(
@@ -50,7 +50,7 @@ export const UpdateTransaction = ({
         onUpdated?.();
       }
     },
-    [onUpdated, statusUpdatedOrDeleted]
+    [onUpdated, statusUpdatedOrDeleted],
   );
 
   function updateForm(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -72,7 +72,7 @@ export const UpdateTransaction = ({
         date: form.date ?? new Date(),
         shared: form.shared ? true : false,
         lastUpdated: new Date(),
-      })
+      }),
     );
   }
 
@@ -124,7 +124,7 @@ export const UpdateTransaction = ({
             locale="sv"
             name="date"
             selected={form.date}
-            onChange={(newDate) =>
+            onChange={(newDate: Date | null) =>
               newDate && setForm((prev) => ({ ...prev, date: newDate }))
             }
             minDate={period.fromDate}
