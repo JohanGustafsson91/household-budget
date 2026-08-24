@@ -51,8 +51,6 @@ jobs:
       # Setup pnpm package manager
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: latest
 
       # Get pnpm store directory for caching
       - name: Get pnpm store directory
@@ -161,4 +159,4 @@ jobs:
     uses: JohanGustafsson91/toolkit/.github/workflows/auto-merge-dependabot.yml@main
     with:
       merge-method: squash
-      exclude: none  # Auto-merge all updates after tests pass
+      exclude: none # Auto-merge all updates after tests pass
