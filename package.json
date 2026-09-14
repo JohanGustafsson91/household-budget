@@ -27,7 +27,7 @@
     "react": "18.3.1",
     "react-datepicker": "9.1.0",
     "react-dom": "18.3.1",
-    "react-error-boundary": "4.1.2",
+    "react-error-boundary": "6.1.5",
     "react-firebase-hooks": "5.1.1",
     "react-router-dom": "7.18.3",
     "recharts": "^3.10.1",
